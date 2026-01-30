@@ -178,6 +178,13 @@ class GpuExportRenderer(private val context: Context) {
         val scaleHandle = GLES30.glGetUniformLocation(programId, "uScale")
         GLES30.glUniform2f(scaleHandle, 1f, 1f)
         
+        // Reset zoom and offset for full image export
+        val zoomHandle = GLES30.glGetUniformLocation(programId, "uZoom")
+        GLES30.glUniform1f(zoomHandle, 1.0f)
+        
+        val offsetHandle = GLES30.glGetUniformLocation(programId, "uOffset")
+        GLES30.glUniform2f(offsetHandle, 0f, 0f)
+        
         // Set uniforms
         GLES30.glUniform1f(GLES30.glGetUniformLocation(programId, "uIntensity"), if (lut != null) intensity else 0f)
         GLES30.glUniform1f(GLES30.glGetUniformLocation(programId, "uGrainIntensity"), if (grainEnabled) grainIntensity else 0f)
