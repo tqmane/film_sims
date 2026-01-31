@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Glass panel with internal glow effect - no negative margins -->
+<!-- Dialog glass background with enhanced opacity -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Main glass background -->
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/glass_bg" />
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
         </shape>
     </item>
-    <!-- Inner gradient for depth/glass effect -->
+    <!-- Inner radial glow for glass depth -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:gradientRadius="200dp"
+                android:gradientRadius="300dp"
                 android:centerX="50%"
-                android:centerY="30%"
-                android:startColor="#15FFFFFF"
+                android:centerY="20%"
+                android:startColor="#12FFFFFF"
                 android:endColor="#00000000" />
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
         </shape>
     </item>
-    <!-- Subtle top reflection -->
+    <!-- Subtle top edge highlight -->
     <item
         android:top="1dp"
-        android:left="24dp"
-        android:right="24dp">
+        android:left="32dp"
+        android:right="32dp">
         <shape android:shape="rectangle">
             <gradient
                 android:type="linear"
                 android:angle="90"
                 android:startColor="#00FFFFFF"
-                android:endColor="#10FFFFFF" />
-            <corners android:topLeftRadius="32dp" android:topRightRadius="32dp" />
+                android:endColor="#15FFFFFF" />
+            <corners android:topLeftRadius="28dp" android:topRightRadius="28dp" />
             <size android:height="2dp" />
         </shape>
     </item>
@@ -42,7 +42,7 @@
             <stroke
                 android:width="1dp"
                 android:color="@color/glass_border" />
-            <corners android:radius="32dp" />
+            <corners android:radius="28dp" />
         </shape>
     </item>
 </layer-list>

@@ -3,17 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/surface_medium">
+    android:paddingHorizontal="24dp"
+    android:paddingTop="28dp"
+    android:paddingBottom="24dp"
+    android:background="@drawable/bg_dialog_glass">
 
+    <!-- Title -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="設定"
         android:textColor="@color/text_primary"
-        android:textSize="22sp"
+        android:textSize="24sp"
         android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="24dp" />
+        android:gravity="center"
+        android:layout_marginBottom="28dp" />
 
     <!-- Save Location Setting -->
     <TextView
@@ -21,17 +25,21 @@
         android:layout_height="wrap_content"
         android:text="保存先フォルダ"
         android:textColor="@color/text_secondary"
-        android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.05"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="4dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/surface_elevated"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp">
+        android:background="@drawable/bg_input_outline"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp"
+        android:layout_marginBottom="24dp">
 
         <TextView
             android:id="@+id/tvSavePath"
@@ -40,20 +48,24 @@
             android:layout_weight="1"
             android:text="Pictures/FilmSims"
             android:textColor="@color/text_primary"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:singleLine="true"
-            android:ellipsize="start" />
+            android:ellipsize="middle"
+            android:gravity="start" />
 
-        <Button
+        <TextView
             android:id="@+id/btnChangePath"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:text="変更"
-            android:textColor="@color/black"
+            android:textColor="@color/accent_primary"
             android:textSize="13sp"
-            android:background="@drawable/bg_button_primary"
-            android:paddingHorizontal="16dp"
-            android:stateListAnimator="@null" />
+            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/bg_text_link"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:clickable="true"
+            android:focusable="true" />
 
     </LinearLayout>
 
@@ -63,17 +75,19 @@
         android:layout_height="wrap_content"
         android:text="保存品質"
         android:textColor="@color/text_secondary"
-        android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.05"
+        android:layout_marginBottom="14dp"
+        android:layout_marginStart="4dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/surface_elevated"
-        android:padding="16dp"
-        android:layout_marginBottom="24dp">
+        android:paddingHorizontal="4dp"
+        android:layout_marginBottom="32dp">
 
         <SeekBar
             android:id="@+id/qualitySlider"
@@ -82,20 +96,21 @@
             android:layout_weight="1"
             android:max="100"
             android:progress="100"
-            android:progressDrawable="@drawable/slider_track"
+            android:progressDrawable="@drawable/slider_track_thin"
             android:thumb="@drawable/slider_thumb"
-            android:splitTrack="false" />
+            android:splitTrack="false"
+            android:paddingVertical="8dp" />
 
         <TextView
             android:id="@+id/tvQualityValue"
-            android:layout_width="52dp"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:text="100%"
             android:textColor="@color/accent_primary"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:fontFamily="sans-serif-bold"
             android:gravity="end"
-            android:layout_marginStart="16dp" />
+            android:layout_marginStart="12dp" />
 
     </LinearLayout>
 
@@ -103,10 +118,11 @@
     <Button
         android:id="@+id/btnCloseSettings"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:text="閉じる"
         android:textColor="@color/text_primary"
-        android:textSize="15sp"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
         android:background="@drawable/bg_button_secondary"
         android:stateListAnimator="@null" />
 

@@ -3,17 +3,6 @@
     <!-- Selected state - accent gradient -->
     <item android:state_checked="true">
         <layer-list>
-            <!-- Glow effect -->
-            <item
-                android:left="-2dp"
-                android:top="-2dp"
-                android:right="-2dp"
-                android:bottom="-2dp">
-                <shape android:shape="rectangle">
-                    <solid android:color="@color/accent_glow" />
-                    <corners android:radius="22dp" />
-                </shape>
-            </item>
             <!-- Gradient background -->
             <item>
                 <shape android:shape="rectangle">
@@ -25,14 +14,16 @@
                     <corners android:radius="20dp" />
                 </shape>
             </item>
-            <!-- Top shine -->
+            <!-- Inner glow for depth -->
             <item>
                 <shape android:shape="rectangle">
                     <gradient
-                        android:type="linear"
-                        android:angle="90"
-                        android:startColor="#00FFFFFF"
-                        android:endColor="#25FFFFFF" />
+                        android:type="radial"
+                        android:gradientRadius="60dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#30FFFFFF"
+                        android:endColor="#00FFFFFF" />
                     <corners android:radius="20dp" />
                 </shape>
             </item>
@@ -40,16 +31,6 @@
     </item>
     <item android:state_selected="true">
         <layer-list>
-            <item
-                android:left="-2dp"
-                android:top="-2dp"
-                android:right="-2dp"
-                android:bottom="-2dp">
-                <shape android:shape="rectangle">
-                    <solid android:color="@color/accent_glow" />
-                    <corners android:radius="22dp" />
-                </shape>
-            </item>
             <item>
                 <shape android:shape="rectangle">
                     <gradient
@@ -63,10 +44,12 @@
             <item>
                 <shape android:shape="rectangle">
                     <gradient
-                        android:type="linear"
-                        android:angle="90"
-                        android:startColor="#00FFFFFF"
-                        android:endColor="#25FFFFFF" />
+                        android:type="radial"
+                        android:gradientRadius="60dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#30FFFFFF"
+                        android:endColor="#00FFFFFF" />
                     <corners android:radius="20dp" />
                 </shape>
             </item>
@@ -78,27 +61,29 @@
             <!-- Glass background -->
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="#35FFFFFF" />
+                    <solid android:color="#30FFFFFF" />
                     <corners android:radius="20dp" />
                 </shape>
             </item>
-            <!-- Inner gradient -->
+            <!-- Inner glow gradient -->
             <item>
                 <shape android:shape="rectangle">
                     <gradient
-                        android:type="linear"
-                        android:angle="135"
-                        android:startColor="#10FFFFFF"
+                        android:type="radial"
+                        android:gradientRadius="50dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#15FFFFFF"
                         android:endColor="#00000000" />
                     <corners android:radius="20dp" />
                 </shape>
             </item>
-            <!-- Border -->
+            <!-- Single border -->
             <item>
                 <shape android:shape="rectangle">
                     <stroke
                         android:width="1dp"
-                        android:color="#20FFFFFF" />
+                        android:color="#25FFFFFF" />
                     <corners android:radius="20dp" />
                 </shape>
             </item>

@@ -2,17 +2,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_selected="true">
         <layer-list>
-            <!-- Outer glow -->
-            <item
-                android:left="-6dp"
-                android:top="-6dp"
-                android:right="-6dp"
-                android:bottom="-6dp">
-                <shape android:shape="rectangle">
-                    <solid android:color="@color/accent_glow_strong" />
-                    <corners android:radius="22dp" />
-                </shape>
-            </item>
             <!-- Main card background -->
             <item>
                 <shape android:shape="rectangle">
@@ -24,23 +13,25 @@
                     <corners android:radius="16dp" />
                 </shape>
             </item>
-            <!-- Gradient border effect -->
+            <!-- Inner glow for depth -->
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:type="radial"
+                        android:gradientRadius="80dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#20FFFFFF"
+                        android:endColor="#00000000" />
+                    <corners android:radius="16dp" />
+                </shape>
+            </item>
+            <!-- Accent border -->
             <item>
                 <shape android:shape="rectangle">
                     <stroke
                         android:width="2dp"
                         android:color="@color/accent_start" />
-                    <corners android:radius="16dp" />
-                </shape>
-            </item>
-            <!-- Inner shine -->
-            <item>
-                <shape android:shape="rectangle">
-                    <gradient
-                        android:type="linear"
-                        android:angle="90"
-                        android:startColor="#00FFFFFF"
-                        android:endColor="#12FFFFFF" />
                     <corners android:radius="16dp" />
                 </shape>
             </item>
@@ -51,17 +42,19 @@
             <!-- Glass background -->
             <item>
                 <shape android:shape="rectangle">
-                    <solid android:color="#25FFFFFF" />
+                    <solid android:color="#20FFFFFF" />
                     <corners android:radius="16dp" />
                 </shape>
             </item>
-            <!-- Inner gradient -->
+            <!-- Inner glow -->
             <item>
                 <shape android:shape="rectangle">
                     <gradient
-                        android:type="linear"
-                        android:angle="135"
-                        android:startColor="#08FFFFFF"
+                        android:type="radial"
+                        android:gradientRadius="70dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#10FFFFFF"
                         android:endColor="#00000000" />
                     <corners android:radius="16dp" />
                 </shape>

@@ -238,37 +238,6 @@ class GpuExportRenderer(private val context: Context) {
         GLES30.glReadPixels(0, 0, width, height, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, buffer)
         buffer.rewind()
         
-        // Check if output is all black (GPU rendering failed silently)
-        // Sample multiple points across the image
-        val samplePoints = listOf(
-            0,                                      // top-left
-            (width / 2) * 4,                        // top-center
-            (height / 2) * width * 4,               // middle-left
-            (height / 2 * width + width / 2) * 4,   // center
-            ((height - 1) * width + width / 2) * 4  // bottom-center
-        )
-        
-        var allBlack = true
-        for (pos in samplePoints) {
-            if (pos + 3 < buffer.capacity()) {
-                val r = buffer.get(pos).toInt() and 0xFF
-                val g = buffer.get(pos + 1).toInt() and 0xFF
-                val b = buffer.get(pos + 2).toInt() and 0xFF
-                if (r > 0 || g > 0 || b > 0) {
-                    allBlack = false
-                    break
-                }
-            }
-        }
-        
-        buffer.rewind()
-        
-        if (allBlack) {
-            android.util.Log.e("GpuExportRenderer", "GPU output is all black - rendering failed. Falling back to CPU.")
-            GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
-            return null
-        }
-        
         // Create output bitmap
         val outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         outputBitmap.copyPixelsFromBuffer(buffer)

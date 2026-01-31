@@ -3,17 +3,6 @@
     android:color="#40FFFFFF">
     <item>
         <layer-list>
-            <!-- Outer glow effect -->
-            <item
-                android:left="-4dp"
-                android:top="-4dp"
-                android:right="-4dp"
-                android:bottom="-4dp">
-                <shape android:shape="rectangle">
-                    <solid android:color="@color/accent_glow" />
-                    <corners android:radius="28dp" />
-                </shape>
-            </item>
             <!-- Main gradient background -->
             <item>
                 <shape android:shape="rectangle">
@@ -25,7 +14,20 @@
                     <corners android:radius="24dp" />
                 </shape>
             </item>
-            <!-- Top shine effect -->
+            <!-- Inner glow for premium feel -->
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:type="radial"
+                        android:gradientRadius="80dp"
+                        android:centerX="50%"
+                        android:centerY="30%"
+                        android:startColor="#35FFFFFF"
+                        android:endColor="#00FFFFFF" />
+                    <corners android:radius="24dp" />
+                </shape>
+            </item>
+            <!-- Subtle top shine -->
             <item>
                 <shape android:shape="rectangle">
                     <gradient
@@ -33,7 +35,7 @@
                         android:angle="90"
                         android:startColor="#00FFFFFF"
                         android:centerColor="#00FFFFFF"
-                        android:endColor="#30FFFFFF" />
+                        android:endColor="#20FFFFFF" />
                     <corners android:radius="24dp" />
                 </shape>
             </item>

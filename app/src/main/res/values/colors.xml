@@ -7,7 +7,7 @@
     <color name="surface_elevated">#FF252528</color>
     
     <!-- Glass Effect Colors -->
-    <color name="glass_bg">#CC151518</color>
+    <color name="glass_bg">#E8151518</color>
     <color name="glass_bg_light">#B31A1A1F</color>
     <color name="glass_border">#26FFFFFF</color>
     <color name="glass_border_light">#1AFFFFFF</color>

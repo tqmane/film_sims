@@ -603,14 +603,18 @@ class MainActivity : ComponentActivity() {
         val dialog = Dialog(this, R.style.Theme_FilmSims)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_settings)
+        
+        // Set dialog width to 90% of screen width for side margins
+        val displayMetrics = resources.displayMetrics
+        val dialogWidth = (displayMetrics.widthPixels * 0.90).toInt()
         dialog.window?.setLayout(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            dialogWidth,
             android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         )
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         
         val tvSavePath = dialog.findViewById<TextView>(R.id.tvSavePath)
-        val btnChangePath = dialog.findViewById<Button>(R.id.btnChangePath)
+        val btnChangePath = dialog.findViewById<TextView>(R.id.btnChangePath)
         val qualitySlider = dialog.findViewById<SeekBar>(R.id.qualitySlider)
         val tvQualityValue = dialog.findViewById<TextView>(R.id.tvQualityValue)
         val btnClose = dialog.findViewById<Button>(R.id.btnCloseSettings)
