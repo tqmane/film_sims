@@ -83,53 +83,67 @@ def parse_ms_lut_header(data: bytes, filename: str = None) -> dict:
     # If no offset found or looks wrong, calculate from file size
     file_size = len(data)
     
-    # Determine channel order from filename
-    # - Files with .rgb. or .cube. in name: RGB (pre-converted)
-    # - Native Oppo files without .rgb.: BGR
-    # - .rgba. files: BGR (needs swap to RGB)
-    is_bgr = True  # Default to BGR for native Oppo files
-    if filename:
-        lower_name = filename.lower()
-        has_rgb_marker = '.rgb.' in lower_name or '.cube.' in lower_name
-        has_rgba_marker = '.rgba.' in lower_name
-        
-        # Pre-converted files are RGB, native Oppo files and .rgba are BGR
-        is_bgr = not has_rgb_marker or has_rgba_marker
-            
     # Known exact profiles
     if file_size == 14855: # 17^3 * 3 + 116
-        return {'lut_size': 17, 'channels': 3, 'data_offset': 116, 'version': version, 'bgr': is_bgr}
-    elif file_size == 98480: # 32^3 * 3 + 176
-        return {'lut_size': 32, 'channels': 3, 'data_offset': 176, 'version': version, 'bgr': is_bgr}
-    
-    # Brute force check
-    found = False
-    for size in [17, 32, 33, 21, 16, 25, 20, 64]:
-        for ch in [3, 4]:
-            payload = size ** 3 * ch
-            header_size = file_size - payload
-            
-            # Header sizes are usually small (under 4KB) and positive
-            if 0 <= header_size < 4096:
-                lut_size = size
-                channels = ch
-                data_offset = header_size
-                found = True
-                break
-        if found: break
-    
-    if not found:
-        # Fallback guesses based on size
-        if file_size <= 16000: lut_size = 17
-        elif file_size <= 30000: lut_size = 21
-        elif file_size <= 100000: lut_size = 32
-        else: lut_size = 33
-        
-        # Assume standard 3 size
+        lut_size = 17
         channels = 3
-        data_offset = file_size - (lut_size**3 * channels)
-        if data_offset < 0: 
-            data_offset = 0 # Raw file?
+        data_offset = 116
+    elif file_size == 98480: # 32^3 * 3 + 176
+        lut_size = 32
+        channels = 3
+        data_offset = 176
+    else:
+        # Brute force check
+        found = False
+        for size in [17, 32, 33, 21, 16, 25, 20, 64]:
+            for ch in [3, 4]:
+                payload = size ** 3 * ch
+                header_size = file_size - payload
+                
+                # Header sizes are usually small (under 4KB) and positive
+                if 0 <= header_size < 4096:
+                    lut_size = size
+                    channels = ch
+                    data_offset = header_size
+                    found = True
+                    break
+            if found: break
+        
+        if not found:
+            # Fallback guesses based on size
+            if file_size <= 16000: lut_size = 17
+            elif file_size <= 30000: lut_size = 21
+            elif file_size <= 100000: lut_size = 32
+            else: lut_size = 33
+            
+            # Assume standard 3 size
+            channels = 3
+            data_offset = file_size - (lut_size**3 * channels)
+            if data_offset < 0: 
+                data_offset = 0 # Raw file?
+
+    # Auto-detect RGB/BGR from actual data pattern
+    # In a 3D LUT, the first few entries are at R=0,1,2,3... G=0, B=0
+    # If data is RGB: first byte (R) should increase
+    # If data is BGR: third byte (B->R after swap) should increase
+    is_bgr = False
+    if data_offset + channels * 4 <= file_size:
+        b0_vals = []
+        b2_vals = []
+        for r in range(min(4, lut_size)):
+            idx = data_offset + r * channels
+            if idx + 3 <= file_size:
+                b0_vals.append(data[idx])
+                b2_vals.append(data[idx + 2])
+        
+        if len(b0_vals) >= 2 and len(b2_vals) >= 2:
+            b0_diff = b0_vals[-1] - b0_vals[0]
+            b2_diff = b2_vals[-1] - b2_vals[0]
+            is_bgr = b2_diff > b0_diff  # If 3rd byte increases more, it's BGR
+        else:
+            # Fallback: use filename hints
+            if filename:
+                is_bgr = '.rgba.' in filename.lower()
 
     return {
         'version': version,
@@ -137,7 +151,7 @@ def parse_ms_lut_header(data: bytes, filename: str = None) -> dict:
         'file_size': file_size,
         'data_offset': data_offset,
         'channels': channels,
-        'bgr': is_bgr # Most mobile LUTs are BGRA/BGR
+        'bgr': is_bgr
     }
 
 

@@ -40,27 +40,9 @@ object CubeLUTParser {
             val magic = String(bytes.copyOfRange(0, 8.coerceAtMost(bytes.size)))
             val hasMsLutHeader = magic == ".MS-LUT "
             
-            // BGR detection depends on file type and naming:
-            // - MS-LUT files with .rgb. or .cube. in name: RGB (pre-converted)
-            // - MS-LUT files without .rgb. (native Oppo): BGR
-            // - Raw files: Default BGR, .rgb. (not .rgba.) -> RGB
-            // - .rgba. files: Always BGR (needs swap to RGB)
-            if (hasMsLutHeader) {
-                // MS-LUT format: check if it's a pre-converted file (.rgb. or .cube.) 
-                val hasRgbMarker = assetPath.contains(".rgb.", ignoreCase = true) || 
-                                   assetPath.contains(".cube.", ignoreCase = true)
-                val hasRgbaMarker = assetPath.contains(".rgba.", ignoreCase = true)
-                
-                // Pre-converted files are RGB, native Oppo files and .rgba are BGR
-                isBgr = !hasRgbMarker || hasRgbaMarker
-            } else {
-                // Raw binary: default to BGR
-                isBgr = true
-                if (assetPath.contains(".rgb.", ignoreCase = true) && 
-                    !assetPath.contains(".rgba.", ignoreCase = true)) {
-                    isBgr = false
-                }
-            }
+            // BGR detection will be determined by analyzing actual data pattern
+            // after parsing header and getting data offset
+            // (moved to after header parsing)
             
             if (hasMsLutHeader) {
                 // Parse MS-LUT header
@@ -171,6 +153,58 @@ object CubeLUTParser {
                 if (formatHint == 3 || expectedBytesPerPixel >= 12) {
                     isFloatFormat = true
                     channels = 3 // Always 3 floats (RGB) for float format
+                }
+            }
+            
+            // Auto-detect RGB/BGR from actual data pattern
+            // In a 3D LUT, the first few entries are at R=0,1,2,3... G=0, B=0
+            // If data is RGB: first byte (R) should increase
+            // If data is BGR: third byte (B->R after swap) should increase
+            isBgr = if (isFloatFormat) {
+                // Float format: check if values at position 0 and 8 (third float) increase
+                // For float LUTs, check if RGB order or BGR order gives increasing R values
+                val dataBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+                val b0_vals = mutableListOf<Float>()
+                val b2_vals = mutableListOf<Float>()
+                
+                for (r in 0 until minOf(4, lutSize)) {
+                    val idx = dataOffset + r * 12
+                    if (idx + 12 <= bytes.size) {
+                        dataBuffer.position(idx)
+                        b0_vals.add(dataBuffer.float)
+                        dataBuffer.float // skip middle
+                        b2_vals.add(dataBuffer.float)
+                    }
+                }
+                
+                if (b0_vals.size >= 2 && b2_vals.size >= 2) {
+                    val b0_diff = b0_vals.last() - b0_vals.first()
+                    val b2_diff = b2_vals.last() - b2_vals.first()
+                    b2_diff > b0_diff // If 3rd float increases more, it's BGR
+                } else {
+                    false // Default to RGB for float format
+                }
+            } else {
+                // Byte format: check which byte increases along R axis
+                val b0_vals = mutableListOf<Int>()
+                val b2_vals = mutableListOf<Int>()
+                
+                for (r in 0 until minOf(4, lutSize)) {
+                    val idx = dataOffset + r * channels
+                    if (idx + 3 <= bytes.size) {
+                        b0_vals.add(bytes[idx].toInt() and 0xFF)
+                        b2_vals.add(bytes[idx + 2].toInt() and 0xFF)
+                    }
+                }
+                
+                if (b0_vals.size >= 2 && b2_vals.size >= 2) {
+                    val b0_diff = b0_vals.last() - b0_vals.first()
+                    val b2_diff = b2_vals.last() - b2_vals.first()
+                    b2_diff > b0_diff // If 3rd byte increases more, it's BGR
+                } else {
+                    // Fallback: use filename hints
+                    val hasRgbaMarker = assetPath.contains(".rgba.", ignoreCase = true)
+                    hasRgbaMarker
                 }
             }
             
