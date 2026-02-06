@@ -63,6 +63,25 @@
     <string name="category_leica_looks">Leica Looks</string>
     <string name="category_artist_looks">Artist Looks</string>
     
+    <!-- LUT Categories - Film -->
+    <string name="category_film">Film</string>
+    
+    <!-- Film LUT names -->
+    <string name="lut_film_field">Field</string>
+    <string name="lut_film_seaside">Seaside</string>
+    <string name="lut_film_city">City</string>
+    <string name="lut_film_neon">Neon</string>
+    <string name="lut_film_cold_flash">Cold Flash</string>
+    <string name="lut_film_warm_flash">Warm Flash</string>
+    <string name="lut_film_vintage">Vintage</string>
+    <string name="lut_film_clear">Clear</string>
+    <string name="lut_film_800t">800T</string>
+    
+    <!-- Grain styles -->
+    <string name="label_grain_style">Grain Style</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+    
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
     

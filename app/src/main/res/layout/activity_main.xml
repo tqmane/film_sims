@@ -302,6 +302,88 @@
                     android:progressBackgroundTint="#25FFFFFF"
                     android:enabled="false" />
 
+                <!-- Grain Style Selector -->
+                <LinearLayout
+                    android:id="@+id/grainStyleContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_grain"
+                        app:tint="@color/accent_secondary"
+                        android:layout_marginEnd="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_grain_style"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="12dp" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/grainStyleChipGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="true"
+                        app:selectionRequired="true"
+                        app:chipSpacingHorizontal="6dp">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipXiaomi"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:text="@string/grain_style_xiaomi"
+                            android:textColor="@color/simple_chip_text"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.01"
+                            app:chipBackgroundColor="@color/chip_glow_bg"
+                            app:chipStrokeWidth="1.5dp"
+                            app:chipStrokeColor="@color/chip_glow_stroke"
+                            app:chipCornerRadius="16dp"
+                            app:chipMinHeight="32dp"
+                            app:chipStartPadding="12dp"
+                            app:chipEndPadding="12dp"
+                            app:textStartPadding="0dp"
+                            app:textEndPadding="0dp"
+                            app:ensureMinTouchTargetSize="false"
+                            app:checkedIconVisible="false" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipOnePlus"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:text="@string/grain_style_oneplus"
+                            android:textColor="@color/simple_chip_text"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:letterSpacing="0.01"
+                            app:chipBackgroundColor="@color/chip_glow_bg"
+                            app:chipStrokeWidth="1.5dp"
+                            app:chipStrokeColor="@color/chip_glow_stroke"
+                            app:chipCornerRadius="16dp"
+                            app:chipMinHeight="32dp"
+                            app:chipStartPadding="12dp"
+                            app:chipEndPadding="12dp"
+                            app:textStartPadding="0dp"
+                            app:textEndPadding="0dp"
+                            app:ensureMinTouchTargetSize="false"
+                            app:checkedIconVisible="false" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                </LinearLayout>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

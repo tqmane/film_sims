@@ -49,6 +49,9 @@ class GpuExportRenderer(private val context: Context) {
     // Skip re-uploading the same LUT when exporting repeatedly
     private var lastUploadedLut: CubeLUT? = null
     
+    // Grain style path
+    private var grainStylePath: String = "textures/Xiaomi/film_grain.png"
+    
     init {
         // Full screen quad (no aspect ratio correction for export)
         val vertices = floatArrayOf(
@@ -142,7 +145,7 @@ class GpuExportRenderer(private val context: Context) {
     
     private fun loadGrainTexture() {
         try {
-            val inputStream = context.assets.open("textures/film_grain.png")
+            val inputStream = context.assets.open(grainStylePath)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             if (bitmap != null) {
@@ -156,6 +159,19 @@ class GpuExportRenderer(private val context: Context) {
             }
         } catch (e: Exception) {
             // No grain texture
+        }
+    }
+    
+    fun setGrainStyle(style: String) {
+        val path = when (style) {
+            "OnePlus" -> "textures/OnePlus/film_grain.png"
+            else -> "textures/Xiaomi/film_grain.png"
+        }
+        if (path != grainStylePath) {
+            grainStylePath = path
+            if (isInitialized) {
+                loadGrainTexture()
+            }
         }
     }
     

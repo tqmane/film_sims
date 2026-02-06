@@ -63,6 +63,25 @@
     <string name="category_leica_looks">Leica Looks</string>
     <string name="category_artist_looks">アーティストルックス</string>
     
+    <!-- LUT Categories - Film -->
+    <string name="category_film">フィルム</string>
+    
+    <!-- Film LUT names -->
+    <string name="lut_film_field">フィールド</string>
+    <string name="lut_film_seaside">海辺</string>
+    <string name="lut_film_city">都市</string>
+    <string name="lut_film_neon">ネオン</string>
+    <string name="lut_film_cold_flash">コールドフラッシュ</string>
+    <string name="lut_film_warm_flash">ウォームフラッシュ</string>
+    <string name="lut_film_vintage">ビンテージ</string>
+    <string name="lut_film_clear">クリア</string>
+    <string name="lut_film_800t">800t</string>
+    
+    <!-- Grain styles -->
+    <string name="label_grain_style">グレインスタイル</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+    
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
     

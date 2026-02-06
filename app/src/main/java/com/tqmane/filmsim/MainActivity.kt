@@ -96,6 +96,7 @@ class MainActivity : ComponentActivity() {
     private var currentIntensity: Float = 1f
     private var currentGrainEnabled: Boolean = false
     private var currentGrainIntensity: Float = 0.5f
+    private var currentGrainStyle: String = "Xiaomi"
     
     private var gpuExportRenderer: GpuExportRenderer? = null
     
@@ -256,6 +257,7 @@ class MainActivity : ComponentActivity() {
         currentIntensity = prefs.getFloat("last_intensity", 1f).coerceIn(0f, 1f)
         currentGrainEnabled = prefs.getBoolean("last_grain_enabled", false)
         currentGrainIntensity = prefs.getFloat("last_grain_intensity", 0.5f).coerceIn(0f, 1f)
+        currentGrainStyle = prefs.getString("last_grain_style", "Xiaomi") ?: "Xiaomi"
 
         setupWindowInsets()
         setupViews()
@@ -551,28 +553,6 @@ class MainActivity : ComponentActivity() {
         grainValue.text = "${grainSlider.progress}%"
         grainToggle.isChecked = currentGrainEnabled
         grainSlider.isEnabled = currentGrainEnabled
-
-        grainToggle.setOnCheckedChangeListener { _, isChecked ->
-            currentGrainEnabled = isChecked
-            grainSlider.isEnabled = isChecked
-
-            prefs.edit().putBoolean("last_grain_enabled", currentGrainEnabled).apply()
-            
-            // Update colors based on state
-            val color = if (isChecked) accentColor else disabledColor
-            grainValue.setTextColor(color)
-            grainIcon.imageTintList = ColorStateList.valueOf(color)
-            grainSlider.progressTintList = ColorStateList.valueOf(color)
-            grainSlider.thumbTintList = ColorStateList.valueOf(color)
-            
-            glSurfaceView.queueEvent {
-                renderer.setGrainEnabled(isChecked)
-                if (isChecked) {
-                    renderer.setGrainIntensity(grainSlider.progress / 100f)
-                }
-                glSurfaceView.requestRender()
-            }
-        }
         
         grainSlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -592,6 +572,70 @@ class MainActivity : ComponentActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+        
+        // Setup grain style chip group
+        val grainStyleContainer = findViewById<LinearLayout>(R.id.grainStyleContainer)
+        val grainStyleChipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.grainStyleChipGroup)
+        val chipXiaomi = findViewById<com.google.android.material.chip.Chip>(R.id.chipXiaomi)
+        val chipOnePlus = findViewById<com.google.android.material.chip.Chip>(R.id.chipOnePlus)
+        
+        // Set initial selection based on saved preference
+        when (currentGrainStyle) {
+            "Xiaomi" -> chipXiaomi.isChecked = true
+            "OnePlus" -> chipOnePlus.isChecked = true
+            else -> chipXiaomi.isChecked = true
+        }
+        
+        // Apply initial grain style to renderer
+        glSurfaceView.queueEvent {
+            renderer.setGrainStyle(currentGrainStyle)
+        }
+        
+        grainStyleChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val selectedStyle = when (checkedIds[0]) {
+                    R.id.chipXiaomi -> "Xiaomi"
+                    R.id.chipOnePlus -> "OnePlus"
+                    else -> "Xiaomi"
+                }
+                if (selectedStyle != currentGrainStyle) {
+                    currentGrainStyle = selectedStyle
+                    prefs.edit().putString("last_grain_style", currentGrainStyle).apply()
+                    
+                    glSurfaceView.queueEvent {
+                        renderer.setGrainStyle(selectedStyle)
+                        glSurfaceView.requestRender()
+                    }
+                }
+            }
+        }
+        
+        // Show grain style container when grain is enabled
+        grainToggle.setOnCheckedChangeListener { _, isChecked ->
+            currentGrainEnabled = isChecked
+            grainSlider.isEnabled = isChecked
+            grainStyleContainer.visibility = if (isChecked) View.VISIBLE else View.GONE
+
+            prefs.edit().putBoolean("last_grain_enabled", currentGrainEnabled).apply()
+            
+            // Update colors based on state
+            val color = if (isChecked) accentColor else disabledColor
+            grainValue.setTextColor(color)
+            grainIcon.imageTintList = ColorStateList.valueOf(color)
+            grainSlider.progressTintList = ColorStateList.valueOf(color)
+            grainSlider.thumbTintList = ColorStateList.valueOf(color)
+            
+            glSurfaceView.queueEvent {
+                renderer.setGrainEnabled(isChecked)
+                if (isChecked) {
+                    renderer.setGrainIntensity(grainSlider.progress / 100f)
+                }
+                glSurfaceView.requestRender()
+            }
+        }
+        
+        // Initialize grain style container visibility
+        grainStyleContainer.visibility = if (currentGrainEnabled) View.VISIBLE else View.GONE
     }
     
     private fun updateGLViewTransform() {
@@ -967,6 +1011,7 @@ class MainActivity : ComponentActivity() {
                         if (gpuExportRenderer == null) {
                             gpuExportRenderer = GpuExportRenderer(this@MainActivity)
                         }
+                        gpuExportRenderer!!.setGrainStyle(currentGrainStyle)
                         outputBitmapHolder[0] = gpuExportRenderer!!.renderHighRes(
                             sourceBitmap,
                             lut,

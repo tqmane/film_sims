@@ -56,10 +56,28 @@ object LutRepository {
             // Leica_lux categories
             "Leica Looks" -> context.getString(R.string.category_leica_looks)
             "Artist Looks" -> context.getString(R.string.category_artist_looks)
+            // Film category
+            "Film" -> context.getString(R.string.category_film)
             // Common/Nothing
             "_all" -> context.getString(R.string.category_all)
             // Fallback - keep original name for Fujifilm, Kodak Film, etc.
             else -> categoryName.replace("_", " ").replace("-", " - ")
+        }
+    }
+    
+    // Film folder LUT filename to localized display name
+    private fun getFilmLutName(context: Context, fileName: String): String {
+        return when {
+            fileName.contains("field", ignoreCase = true) -> context.getString(R.string.lut_film_field)
+            fileName.contains("seaside", ignoreCase = true) -> context.getString(R.string.lut_film_seaside)
+            fileName.contains("city", ignoreCase = true) -> context.getString(R.string.lut_film_city)
+            fileName.contains("neon", ignoreCase = true) -> context.getString(R.string.lut_film_neon)
+            fileName.contains("cold_flash", ignoreCase = true) -> context.getString(R.string.lut_film_cold_flash)
+            fileName.contains("warm_flash", ignoreCase = true) -> context.getString(R.string.lut_film_warm_flash)
+            fileName.contains("vintage", ignoreCase = true) -> context.getString(R.string.lut_film_vintage)
+            fileName.contains("clear", ignoreCase = true) -> context.getString(R.string.lut_film_clear)
+            fileName.contains("800t", ignoreCase = true) -> context.getString(R.string.lut_film_800t)
+            else -> fileName.replace("_", " ")
         }
     }
     
@@ -179,10 +197,11 @@ object LutRepository {
                             ?: variants.find { it.endsWith(".cube", ignoreCase = true) }
                             ?: variants.first()
 
-                        val displayName = if (isLeicaLux) {
-                            getLeicaLuxFilterName(context, baseName)
-                        } else {
-                            baseName.replace("_", " ")
+                        val isFilmCategory = categoryName == "Film"
+                        val displayName = when {
+                            isLeicaLux -> getLeicaLuxFilterName(context, baseName)
+                            isFilmCategory -> getFilmLutName(context, baseName)
+                            else -> baseName.replace("_", " ")
                         }
                         LutItem(
                             name = displayName,

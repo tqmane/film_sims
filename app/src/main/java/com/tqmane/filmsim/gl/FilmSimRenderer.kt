@@ -43,6 +43,7 @@ class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private var grainIntensity: Float = 0.0f
     private var grainScale: Float = 4.0f
     private var grainEnabled: Boolean = false
+    private var grainStylePath: String = "textures/Xiaomi/film_grain.png"
     
     // Transform parameters
     private var userZoom: Float = 1.0f
@@ -128,6 +129,26 @@ class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
     fun loadGrainTexture(bitmap: Bitmap) {
         pendingGrainBitmap = bitmap
     }
+    
+    fun setGrainStyle(style: String) {
+        val path = when (style) {
+            "OnePlus" -> "textures/OnePlus/film_grain.png"
+            else -> "textures/Xiaomi/film_grain.png"
+        }
+        if (path != grainStylePath) {
+            grainStylePath = path
+            try {
+                val inputStream = context.assets.open(grainStylePath)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                if (bitmap != null) {
+                    pendingGrainBitmap = bitmap
+                }
+            } catch (e: Exception) {
+                // Fallback to Xiaomi
+            }
+        }
+    }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         val vertexSource = readRawTextFile(R.raw.vertex_shader)
@@ -185,7 +206,7 @@ class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
     
     private fun loadDefaultGrainTexture() {
         try {
-            val inputStream = context.assets.open("textures/film_grain.png")
+            val inputStream = context.assets.open(grainStylePath)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             if (bitmap != null) {
