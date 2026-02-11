@@ -13,13 +13,18 @@ class VivoFontManager(private val context: Context) {
 
     companion object {
         private const val FONT_PATH = "watermark/vivo/fonts/"
+        private const val FONT_PATH_ALT = "vivo_watermark_full2/assets/fonts/"
         private val FONT_MAP = mapOf(
+            0 to "Roboto-Bold.ttf",
+            1 to "vivoCameraVF.ttf",
+            2 to "vivotype-Heavy.ttf",
+            3 to "vivo-Regular.otf",
+            4 to "ZEISSFrutigerNextW1G-Bold.ttf",
+            5 to "Roboto-Bold.ttf",
+            6 to "IQOOTYPE-Bold.ttf",
             7 to "vivoSansExpVF.ttf",
             8 to "vivoCameraVF.ttf",
             9 to "IQOOTYPE-Bold.ttf",
-            0 to "Roboto-Bold.ttf",
-            2 to "vivotype-Heavy.ttf",
-            3 to "vivo-Regular.otf",
             10 to "vivotypeSimple-Bold.ttf"
         )
     }
@@ -32,15 +37,20 @@ class VivoFontManager(private val context: Context) {
 
     private fun loadTypeface(typeface: Int): Typeface {
         return try {
-            val fontPath = FONT_MAP[typeface]
-            if (fontPath != null) {
-                Typeface.createFromAsset(context.assets, FONT_PATH + fontPath)
-            } else {
-                when (typeface) {
-                    0 -> Typeface.create("sans-serif", Typeface.NORMAL)
-                    2 -> Typeface.create("sans-serif", Typeface.BOLD)
-                    else -> Typeface.create("sans-serif", Typeface.NORMAL)
+            val fontFile = FONT_MAP[typeface]
+            if (fontFile != null) {
+                // Try primary path first, then alternative path
+                try {
+                    Typeface.createFromAsset(context.assets, FONT_PATH + fontFile)
+                } catch (_: Exception) {
+                    try {
+                        Typeface.createFromAsset(context.assets, FONT_PATH_ALT + fontFile)
+                    } catch (_: Exception) {
+                        Typeface.create("sans-serif", Typeface.NORMAL)
+                    }
                 }
+            } else {
+                Typeface.create("sans-serif", Typeface.NORMAL)
             }
         } catch (e: Exception) {
             Typeface.create("sans-serif", Typeface.NORMAL)

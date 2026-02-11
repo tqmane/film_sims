@@ -51,7 +51,8 @@ data class VivoImageParam(
     val iscamerapic: Boolean = false,
     val picparamsidetype: Int = 0,
     val picid: Int = 0,
-    val isneedantialias: Boolean = true
+    val isneedantialias: Boolean = true,
+    val isforcedrawdivider: Boolean = false
 )
 
 data class VivoTextParam(
@@ -66,7 +67,10 @@ data class VivoTextParam(
     val letterspacing: Float = 0f,
     val typeface: Int = 0,
     val texttype: Int = 0,
-    val iscustomtext: Int = 0
+    val iscustomtext: Int = 0,
+    val timetype: Int = -2,
+    val textmarginstart: Float = 0f,
+    val textmarginend: Float = 0f
 )
 
 data class VivoRect(
@@ -115,3 +119,10 @@ object VivoGravity {
     fun hasCenterVertical(gravity: String): Boolean = gravity.contains(CENTER_VERTICAL)
     fun isEnd(gravity: String): Boolean = gravity == END
 }
+
+data class VivoRenderConfig(
+    val deviceName: String? = null,
+    val timeText: String? = null,
+    val locationText: String? = null,
+    val lensInfo: String? = null
+)

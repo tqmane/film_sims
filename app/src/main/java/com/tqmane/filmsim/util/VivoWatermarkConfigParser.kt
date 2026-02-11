@@ -114,6 +114,9 @@ class VivoWatermarkConfigParser(private val context: Context) {
                     trimmed.startsWith("<iscamerapic>") -> currentPicParam = currentPicParam?.copy(iscamerapic = extractValue(trimmed).toBoolean())
                     trimmed.startsWith("<picparamsidetype>") -> currentPicParam = currentPicParam?.copy(picparamsidetype = extractValue(trimmed).toIntOrNull() ?: 0)
                     trimmed.startsWith("<picid>") -> currentPicParam = currentPicParam?.copy(picid = extractValue(trimmed).toIntOrNull() ?: 0)
+                    trimmed.startsWith("<isneedantialias>") -> currentPicParam = currentPicParam?.copy(isneedantialias = extractValue(trimmed).toBoolean())
+                    trimmed.startsWith("<isforcedrawdivider>") -> currentPicParam = currentPicParam?.copy(isforcedrawdivider = extractValue(trimmed).toBoolean())
+                    trimmed.startsWith("<picmarginstart>") -> currentPicParam = currentPicParam?.copy(picmarginstart = extractValue(trimmed).toFloatOrNull() ?: 0f)
                     trimmed == "<textparam>" -> { inTextParam = true; currentTextParam = VivoTextParam() }
                     trimmed == "</textparam>" -> { addTextParam(); inTextParam = false; currentTextParam = null }
                     trimmed.startsWith("<linenum>") -> currentTextParam = currentTextParam?.copy(linenum = extractValue(trimmed).toIntOrNull() ?: 0)
@@ -129,6 +132,9 @@ class VivoWatermarkConfigParser(private val context: Context) {
                     trimmed.startsWith("<typeface>") -> currentTextParam = currentTextParam?.copy(typeface = extractValue(trimmed).toIntOrNull() ?: 0)
                     trimmed.startsWith("<texttype>") -> currentTextParam = currentTextParam?.copy(texttype = extractValue(trimmed).toIntOrNull() ?: 0)
                     trimmed.startsWith("<iscustomtext>") -> currentTextParam = currentTextParam?.copy(iscustomtext = extractValue(trimmed).toIntOrNull() ?: 0)
+                    trimmed.startsWith("<timetype>") -> currentTextParam = currentTextParam?.copy(timetype = extractValue(trimmed).toIntOrNull() ?: -2)
+                    trimmed.startsWith("<textmarginstart>") -> currentTextParam = currentTextParam?.copy(textmarginstart = extractValue(trimmed).toFloatOrNull() ?: 0f)
+                    trimmed.startsWith("<textmarginend>") -> currentTextParam = currentTextParam?.copy(textmarginend = extractValue(trimmed).toFloatOrNull() ?: 0f)
                 }
             }
         }
@@ -178,7 +184,7 @@ class VivoWatermarkConfigParser(private val context: Context) {
 
         private fun parsePoints(pointsStr: String): List<VivoPoint> {
             val points = mutableListOf<VivoPoint>()
-            val regex = Regex("\\((\\d+\\.?\\d*),(\\d+\\.?\\d*)\\)")
+            val regex = Regex("\\((-?\\d+\\.?\\d*),(-?\\d+\\.?\\d*)\\)")
             for (match in regex.findAll(pointsStr)) {
                 points.add(VivoPoint(match.groupValues[1].toFloat(), match.groupValues[2].toFloat()))
             }
@@ -186,12 +192,14 @@ class VivoWatermarkConfigParser(private val context: Context) {
         }
 
         private fun parseRect(rectStr: String): VivoRect? {
-            val regex = Regex("\\((\\d+\\.?\\d*),(\\d+\\.?\\d*)\\)")
+            val regex = Regex("\\((-?\\d+\\.?\\d*),(-?\\d+\\.?\\d*)\\)")
             val matches = regex.findAll(rectStr).toList()
-            return if (matches.size >= 4) {
+            return if (matches.size >= 2) {
+                // Use first point for (left,top) and last point for (right,bottom)
+                val last = matches.last()
                 VivoRect(
                     matches[0].groupValues[1].toFloat(), matches[0].groupValues[2].toFloat(),
-                    matches[3].groupValues[1].toFloat(), matches[3].groupValues[2].toFloat()
+                    last.groupValues[1].toFloat(), last.groupValues[2].toFloat()
                 )
             } else null
         }
