@@ -1,6 +1,7 @@
 package com.tqmane.filmsim.gl
 
 import android.content.Context
+import java.nio.FloatBuffer
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
@@ -8,15 +9,10 @@ import android.opengl.GLSurfaceView
 import android.opengl.GLUtils
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.util.CubeLUT
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
+class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.Renderer {
 
     private var programId: Int = 0
     private var inputTextureId: Int = 0
@@ -67,27 +63,9 @@ class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
     private var uGrainTextureHandle: Int = -1
 
     init {
-        // Full screen quad
-        val vertices = floatArrayOf(
-            -1f, -1f,
-             1f, -1f,
-            -1f,  1f,
-             1f,  1f
-        )
-        val texCoords = floatArrayOf(
-            0f, 1f,
-            1f, 1f,
-            0f, 0f,
-            1f, 0f
-        )
-        
-        vertexBuffer = ByteBuffer.allocateDirect(vertices.size * 4)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertices)
-        vertexBuffer.position(0)
-        
-        texCoordBuffer = ByteBuffer.allocateDirect(texCoords.size * 4)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer().put(texCoords)
-        texCoordBuffer.position(0)
+        val buffers = initQuadBuffers(flipY = false)
+        vertexBuffer = buffers.first
+        texCoordBuffer = buffers.second
     }
 
     fun setImage(bitmap: Bitmap) {
@@ -319,22 +297,5 @@ class FilmSimRenderer(private val context: Context) : GLSurfaceView.Renderer {
         }
     }
 
-    private fun loadShader(type: Int, shaderCode: String): Int {
-        val shader = GLES30.glCreateShader(type)
-        GLES30.glShaderSource(shader, shaderCode)
-        GLES30.glCompileShader(shader)
-        val compileStatus = IntArray(1)
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0)
-        if (compileStatus[0] == 0) {
-            val info = GLES30.glGetShaderInfoLog(shader)
-            android.util.Log.e("FilmSimRenderer", "Shader compile failed (type=$type): $info")
-        }
-        return shader
-    }
-
-    private fun readRawTextFile(resId: Int): String {
-        val inputStream = context.resources.openRawResource(resId)
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        return reader.use { it.readText() }
-    }
+    override fun getLogTag(): String = "FilmSimRenderer"
 }

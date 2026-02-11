@@ -14,6 +14,7 @@ import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.animation.OvershootInterpolator
 import android.provider.MediaStore
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -47,6 +48,8 @@ import com.tqmane.filmsim.ui.LutAdapter
 import com.tqmane.filmsim.util.CubeLUT
 import com.tqmane.filmsim.util.CubeLUTParser
 import com.tqmane.filmsim.util.HighResLutProcessor
+import com.tqmane.filmsim.util.LutBitmapProcessor
+import com.tqmane.filmsim.util.WatermarkProcessor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -93,12 +96,28 @@ class MainActivity : ComponentActivity() {
     private var originalImageUri: Uri? = null
     private var originalBitmap: Bitmap? = null
     private var currentLutPath: String? = null
+    private var currentLut: CubeLUT? = null
     private var currentIntensity: Float = 1f
     private var currentGrainEnabled: Boolean = false
     private var currentGrainIntensity: Float = 0.5f
     private var currentGrainStyle: String = "Xiaomi"
     
     private var gpuExportRenderer: GpuExportRenderer? = null
+    
+    // Watermark
+    private var currentWatermarkStyle: WatermarkProcessor.WatermarkStyle = WatermarkProcessor.WatermarkStyle.NONE
+    private var currentBrandName: String = ""
+    private lateinit var watermarkTimeContainer: LinearLayout
+    private lateinit var watermarkLocationContainer: LinearLayout
+    private lateinit var watermarkDeviceContainer: LinearLayout
+    private lateinit var watermarkLensContainer: LinearLayout
+    private lateinit var watermarkTimeInput: EditText
+    private lateinit var watermarkLocationInput: EditText
+    private lateinit var watermarkDeviceInput: EditText
+    private lateinit var watermarkLensInput: EditText
+    private lateinit var watermarkPreview: ImageView
+    private var previewBitmapCopy: Bitmap? = null
+    private var watermarkPreviewJob: kotlinx.coroutines.Job? = null
     
     // Pinch-to-zoom
     private lateinit var scaleGestureDetector: ScaleGestureDetector
@@ -171,16 +190,75 @@ class MainActivity : ComponentActivity() {
                             ), 
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        // Store a copy for watermark preview
+                        previewBitmapCopy = previewBitmap.copy(Bitmap.Config.ARGB_8888, false)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, getString(R.string.image_load_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+
+                // Extract EXIF data and populate watermark fields
+                try {
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        val exif = ExifInterface(input)
+
+                        val make = exif.getAttribute(ExifInterface.TAG_MAKE)?.trim() ?: ""
+                        val model = exif.getAttribute(ExifInterface.TAG_MODEL)?.trim() ?: ""
+                        val deviceName = if (make.isNotEmpty() && model.isNotEmpty()) {
+                            if (model.startsWith(make, ignoreCase = true)) model else "$make $model"
+                        } else {
+                            make + model
+                        }
+
+                        val dateTime = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+                            ?: exif.getAttribute(ExifInterface.TAG_DATETIME)
+                        val timeStr = WatermarkProcessor.formatExifDateTime(dateTime)
+                            ?: WatermarkProcessor.getDefaultTimeString()
+
+                        // Build lens info
+                        val focalLength = exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM)
+                            ?: exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH)?.let { raw ->
+                                val parts = raw.split("/")
+                                if (parts.size == 2) {
+                                    String.format("%.0f", parts[0].toDouble() / parts[1].toDouble())
+                                } else raw
+                            }
+                        val fNumber = exif.getAttribute(ExifInterface.TAG_F_NUMBER)
+                        val exposureTime = exif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)?.let { raw ->
+                            val value = raw.toDoubleOrNull()
+                            if (value != null && value < 1) "1/${(1.0 / value).toInt()}" else raw
+                        }
+                        val iso = exif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY)
+                        val lensInfo = WatermarkProcessor.buildLensInfoFromExif(focalLength, fNumber, exposureTime, iso)
+
+                        // Build location from GPS
+                        val latLongArray = exif.latLong  // Returns DoubleArray? instead of deprecated getLatLong(FloatArray)
+                        val locationStr = if (latLongArray != null) {
+                            String.format("%.4f, %.4f", latLongArray[0], latLongArray[1])
+                        } else ""
+
+                        withContext(Dispatchers.Main) {
+                            watermarkDeviceInput.setText(deviceName)
+                            watermarkTimeInput.setText(timeStr)
+                            watermarkLensInput.setText(lensInfo)
+                            watermarkLocationInput.setText(locationStr)
+                            updateWatermarkPreview()
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        watermarkTimeInput.setText(WatermarkProcessor.getDefaultTimeString())
+                        updateWatermarkPreview()
+                    }
                 }
             } catch (e: OutOfMemoryError) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, getString(R.string.image_load_failed, "Out of memory"), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, getString(R.string.image_load_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -263,7 +341,7 @@ class MainActivity : ComponentActivity() {
         setupViews()
         setupLutList()
         createDefaultThumbnail()
-        
+
         // Check for updates
         checkForUpdates()
     }
@@ -501,14 +579,19 @@ class MainActivity : ComponentActivity() {
         btnPick.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
+        // Enhance ripple effect
+        btnPick.rippleColor = ColorStateList.valueOf(getColor(R.color.accent_primary))
 
         // Change photo button (ImageButton in top bar)
-        findViewById<ImageButton>(R.id.btnChangePhoto)?.setOnClickListener {
+        val btnChangePhoto = findViewById<ImageButton>(R.id.btnChangePhoto)
+        btnChangePhoto?.setOnClickListener {
             pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
         // Save button (MaterialButton in top bar)
         val btnSave = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSave)
+        // Enhance ripple effect
+        btnSave.rippleColor = ColorStateList.valueOf(getColor(R.color.accent_primary))
         btnSave.setOnClickListener {
             if (originalBitmap == null) {
                 Toast.makeText(this, getString(R.string.select_image_first), Toast.LENGTH_SHORT).show()
@@ -532,6 +615,10 @@ class MainActivity : ComponentActivity() {
                 glSurfaceView.queueEvent {
                     renderer.setIntensity(intensity)
                     glSurfaceView.requestRender()
+                }
+                // Re-render watermark preview so filter intensity matches
+                if (currentWatermarkStyle != WatermarkProcessor.WatermarkStyle.NONE) {
+                    updateWatermarkPreview()
                 }
             }
             
@@ -636,8 +723,230 @@ class MainActivity : ComponentActivity() {
         
         // Initialize grain style container visibility
         grainStyleContainer.visibility = if (currentGrainEnabled) View.VISIBLE else View.GONE
+        
+        // Setup watermark controls
+        watermarkTimeContainer = findViewById(R.id.watermarkTimeContainer)
+        watermarkLocationContainer = findViewById(R.id.watermarkLocationContainer)
+        watermarkDeviceContainer = findViewById(R.id.watermarkDeviceContainer)
+        watermarkLensContainer = findViewById(R.id.watermarkLensContainer)
+        watermarkTimeInput = findViewById(R.id.watermarkTimeInput)
+        watermarkLocationInput = findViewById(R.id.watermarkLocationInput)
+        watermarkDeviceInput = findViewById(R.id.watermarkDeviceInput)
+        watermarkLensInput = findViewById(R.id.watermarkLensInput)
+        watermarkPreview = findViewById(R.id.watermarkPreview)
+        watermarkPreview.pivotX = 0f
+        watermarkPreview.pivotY = 0f
+        
+        // Set default time
+        watermarkTimeInput.setText(WatermarkProcessor.getDefaultTimeString())
+        
+        // Add text watchers for real-time watermark preview  
+        val watermarkTextWatcher = object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                updateWatermarkPreview()
+            }
+        }
+        watermarkTimeInput.addTextChangedListener(watermarkTextWatcher)
+        watermarkLocationInput.addTextChangedListener(watermarkTextWatcher)
+        watermarkDeviceInput.addTextChangedListener(watermarkTextWatcher)
+        watermarkLensInput.addTextChangedListener(watermarkTextWatcher)
+        
+        // Brand → Style chip mapping
+        val honorChipIds = listOf(R.id.chipWatermarkFrame, R.id.chipWatermarkText, R.id.chipWatermarkFrameYG, R.id.chipWatermarkTextYG)
+        val meizuChipIds = listOf(R.id.chipMeizuNorm, R.id.chipMeizuPro, R.id.chipMeizuZ1, R.id.chipMeizuZ2,
+            R.id.chipMeizuZ3, R.id.chipMeizuZ4, R.id.chipMeizuZ5, R.id.chipMeizuZ6, R.id.chipMeizuZ7)
+        val vivoChipIds = listOf(R.id.chipVivoZeiss, R.id.chipVivoClassic, R.id.chipVivoPro, R.id.chipVivoIqoo,
+            R.id.chipVivoZeissV1, R.id.chipVivoZeissSonnar, R.id.chipVivoZeissHumanity,
+            R.id.chipVivoIqooV1, R.id.chipVivoIqooHumanity,
+            R.id.chipVivoZeissFrame, R.id.chipVivoZeissOverlay, R.id.chipVivoZeissCenter,
+            R.id.chipVivoFrame, R.id.chipVivoFrameTime,
+            R.id.chipVivoIqooFrame, R.id.chipVivoIqooFrameTime,
+            R.id.chipVivoOS, R.id.chipVivoOSCorner, R.id.chipVivoOSSimple,
+            R.id.chipVivoEvent)
+        val allStyleChipIds = honorChipIds + meizuChipIds + vivoChipIds
+
+        val watermarkStyleRow = findViewById<LinearLayout>(R.id.watermarkStyleRow)
+        val watermarkStyleChipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.watermarkStyleChipGroup)
+        val watermarkBrandChipGroup = findViewById<com.google.android.material.chip.ChipGroup>(R.id.watermarkBrandChipGroup)
+        
+        // Initially select "None" brand
+        findViewById<com.google.android.material.chip.Chip>(R.id.chipBrandNone).isChecked = true
+
+        // Helper: show only chips belonging to a brand
+        fun showBrandChips(chipIds: List<Int>) {
+            for (id in allStyleChipIds) {
+                findViewById<com.google.android.material.chip.Chip>(id).visibility =
+                    if (id in chipIds) View.VISIBLE else View.GONE
+            }
+            // Auto-select the first visible chip
+            watermarkStyleChipGroup.clearCheck()
+            if (chipIds.isNotEmpty()) {
+                findViewById<com.google.android.material.chip.Chip>(chipIds[0]).isChecked = true
+            }
+        }
+
+        // Brand chip listener
+        watermarkBrandChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                when (checkedIds[0]) {
+                    R.id.chipBrandNone -> {
+                        watermarkStyleRow.visibility = View.GONE
+                        currentWatermarkStyle = WatermarkProcessor.WatermarkStyle.NONE
+                        watermarkDeviceContainer.visibility = View.GONE
+                        watermarkTimeContainer.visibility = View.GONE
+                        watermarkLocationContainer.visibility = View.GONE
+                        watermarkLensContainer.visibility = View.GONE
+                        updateWatermarkPreview()
+                    }
+                    R.id.chipBrandHonor -> {
+                        watermarkStyleRow.visibility = View.VISIBLE
+                        showBrandChips(honorChipIds)
+                    }
+                    R.id.chipBrandMeizu -> {
+                        watermarkStyleRow.visibility = View.VISIBLE
+                        showBrandChips(meizuChipIds)
+                    }
+                    R.id.chipBrandVivo -> {
+                        watermarkStyleRow.visibility = View.VISIBLE
+                        showBrandChips(vivoChipIds)
+                    }
+                }
+            }
+        }
+
+        // Style chip listener
+        watermarkStyleChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                currentWatermarkStyle = when (checkedIds[0]) {
+                    R.id.chipWatermarkFrame -> WatermarkProcessor.WatermarkStyle.FRAME
+                    R.id.chipWatermarkText -> WatermarkProcessor.WatermarkStyle.TEXT
+                    R.id.chipWatermarkFrameYG -> WatermarkProcessor.WatermarkStyle.FRAME_YG
+                    R.id.chipWatermarkTextYG -> WatermarkProcessor.WatermarkStyle.TEXT_YG
+                    R.id.chipMeizuNorm -> WatermarkProcessor.WatermarkStyle.MEIZU_NORM
+                    R.id.chipMeizuPro -> WatermarkProcessor.WatermarkStyle.MEIZU_PRO
+                    R.id.chipMeizuZ1 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z1
+                    R.id.chipMeizuZ2 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z2
+                    R.id.chipMeizuZ3 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z3
+                    R.id.chipMeizuZ4 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z4
+                    R.id.chipMeizuZ5 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z5
+                    R.id.chipMeizuZ6 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z6
+                    R.id.chipMeizuZ7 -> WatermarkProcessor.WatermarkStyle.MEIZU_Z7
+                    R.id.chipVivoZeiss -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS
+                    R.id.chipVivoClassic -> WatermarkProcessor.WatermarkStyle.VIVO_CLASSIC
+                    R.id.chipVivoPro -> WatermarkProcessor.WatermarkStyle.VIVO_PRO
+                    R.id.chipVivoIqoo -> WatermarkProcessor.WatermarkStyle.VIVO_IQOO
+                    R.id.chipVivoZeissV1 -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_V1
+                    R.id.chipVivoZeissSonnar -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_SONNAR
+                    R.id.chipVivoZeissHumanity -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_HUMANITY
+                    R.id.chipVivoIqooV1 -> WatermarkProcessor.WatermarkStyle.VIVO_IQOO_V1
+                    R.id.chipVivoIqooHumanity -> WatermarkProcessor.WatermarkStyle.VIVO_IQOO_HUMANITY
+                    R.id.chipVivoZeissFrame -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_FRAME
+                    R.id.chipVivoZeissOverlay -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_OVERLAY
+                    R.id.chipVivoZeissCenter -> WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_CENTER
+                    R.id.chipVivoFrame -> WatermarkProcessor.WatermarkStyle.VIVO_FRAME
+                    R.id.chipVivoFrameTime -> WatermarkProcessor.WatermarkStyle.VIVO_FRAME_TIME
+                    R.id.chipVivoIqooFrame -> WatermarkProcessor.WatermarkStyle.VIVO_IQOO_FRAME
+                    R.id.chipVivoIqooFrameTime -> WatermarkProcessor.WatermarkStyle.VIVO_IQOO_FRAME_TIME
+                    R.id.chipVivoOS -> WatermarkProcessor.WatermarkStyle.VIVO_OS
+                    R.id.chipVivoOSCorner -> WatermarkProcessor.WatermarkStyle.VIVO_OS_CORNER
+                    R.id.chipVivoOSSimple -> WatermarkProcessor.WatermarkStyle.VIVO_OS_SIMPLE
+                    R.id.chipVivoEvent -> WatermarkProcessor.WatermarkStyle.VIVO_EVENT
+                    else -> WatermarkProcessor.WatermarkStyle.NONE
+                }
+                val isYG = currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.FRAME_YG ||
+                           currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.TEXT_YG
+                val showInputs = currentWatermarkStyle != WatermarkProcessor.WatermarkStyle.NONE
+                val noDevice = currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.MEIZU_Z6 ||
+                               currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.MEIZU_Z7 ||
+                               currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_CORNER ||
+                               currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_SIMPLE
+                val isVivoClassic = currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_CLASSIC
+                val noLens = isYG || isVivoClassic ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_HUMANITY ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_IQOO_HUMANITY ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_FRAME ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_IQOO_FRAME ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_CORNER ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_SIMPLE
+                val noTime = isYG ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_ZEISS_HUMANITY ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_IQOO_HUMANITY ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_FRAME ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_IQOO_FRAME ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_CORNER ||
+                             currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.VIVO_OS_SIMPLE
+                watermarkDeviceContainer.visibility = if (showInputs && !noDevice) View.VISIBLE else View.GONE
+                watermarkLensContainer.visibility = if (showInputs && !noLens) View.VISIBLE else View.GONE
+                watermarkTimeContainer.visibility = if (showInputs && !noTime) View.VISIBLE else View.GONE
+                watermarkLocationContainer.visibility = if (showInputs && !noTime) View.VISIBLE else View.GONE
+                updateWatermarkPreview()
+            }
+        }
     }
     
+    /**
+     * Updates the watermark preview overlay on the main preview.
+     * When a watermark style is active, renders the watermark onto a copy of the
+     * preview bitmap and shows it in the overlay ImageView (on top of GLSurfaceView).
+     * GLSurfaceView stays visible underneath so touches still work for zoom/pan.
+     */
+    private fun updateWatermarkPreview() {
+        if (currentWatermarkStyle == WatermarkProcessor.WatermarkStyle.NONE) {
+            watermarkPreview.visibility = View.GONE
+            watermarkPreviewJob?.cancel()
+            return
+        }
+
+        val preview = previewBitmapCopy ?: return
+        val lut = currentLut
+        val intensity = currentIntensity
+
+        // Cancel any in-flight render to debounce rapid slider changes
+        watermarkPreviewJob?.cancel()
+        watermarkPreviewJob = activityScope.launch(Dispatchers.Default) {
+            // Apply current LUT at the current intensity so preview matches the GL view
+            val base = if (lut != null && intensity > 0f) {
+                LutBitmapProcessor.applyLutToBitmap(preview, lut, intensity)
+            } else {
+                preview
+            }
+
+            val config = WatermarkProcessor.WatermarkConfig(
+                style = currentWatermarkStyle,
+                deviceName = watermarkDeviceInput.text.toString().ifEmpty { null },
+                timeText = watermarkTimeInput.text.toString().ifEmpty { null },
+                locationText = watermarkLocationInput.text.toString().ifEmpty { null },
+                lensInfo = watermarkLensInput.text.toString().ifEmpty { null }
+            )
+
+            val watermarked = WatermarkProcessor.applyWatermark(this@MainActivity, base, config)
+
+            withContext(Dispatchers.Main) {
+                watermarkPreview.setImageBitmap(watermarked)
+                watermarkPreview.visibility = View.VISIBLE
+                // Sync current zoom/pan transform to watermark preview
+                syncWatermarkTransform()
+            }
+        }
+    }
+
+    /**
+     * Sync the current zoom/pan transform to the watermark preview ImageView.
+     */
+    private fun syncWatermarkTransform() {
+        if (watermarkPreview.visibility != View.VISIBLE) return
+        transformMatrix.getValues(matrixValues)
+        val scale = matrixValues[Matrix.MSCALE_X]
+        val transX = matrixValues[Matrix.MTRANS_X]
+        val transY = matrixValues[Matrix.MTRANS_Y]
+        watermarkPreview.scaleX = scale
+        watermarkPreview.scaleY = scale
+        watermarkPreview.translationX = transX
+        watermarkPreview.translationY = transY
+    }
+
     private fun updateGLViewTransform() {
         transformMatrix.getValues(matrixValues)
         
@@ -670,33 +979,36 @@ class MainActivity : ComponentActivity() {
                 glSurfaceView.requestRender()
             }
         }
+        // Sync watermark preview transform
+        syncWatermarkTransform()
     }
     
     private fun toggleAdjustmentPanel() {
         isAdjustmentPanelExpanded = !isAdjustmentPanelExpanded
-        
+        val animationDuration = resources.getInteger(R.integer.animation_duration_default).toLong()
+
         if (isAdjustmentPanelExpanded) {
             sliderPanel.visibility = View.VISIBLE
             sliderPanel.alpha = 0f
             sliderPanel.animate()
                 .alpha(1f)
-                .setDuration(200)
+                .setDuration(animationDuration)
                 .start()
             adjustmentToggle.animate()
                 .rotation(0f)
-                .setDuration(200)
+                .setDuration(animationDuration)
                 .start()
         } else {
             sliderPanel.animate()
                 .alpha(0f)
-                .setDuration(200)
+                .setDuration(animationDuration)
                 .withEndAction {
                     sliderPanel.visibility = View.GONE
                 }
                 .start()
             adjustmentToggle.animate()
                 .rotation(180f)
-                .setDuration(200)
+                .setDuration(animationDuration)
                 .start()
         }
     }
@@ -722,8 +1034,8 @@ class MainActivity : ComponentActivity() {
     
     private fun toggleImmersiveMode() {
         isImmersiveMode = !isImmersiveMode
-        val duration = 200L
-        
+        val duration = resources.getInteger(R.integer.animation_duration_immersive).toLong()
+
         if (isImmersiveMode) {
             // Store heights before hiding
             val topBarHeight = topBar.height.toFloat()
@@ -829,7 +1141,7 @@ class MainActivity : ComponentActivity() {
         btnClose.setOnClickListener {
             dialog.dismiss()
         }
-        
+
         dialog.show()
     }
     
@@ -913,27 +1225,39 @@ class MainActivity : ComponentActivity() {
             if (!hasSelectedLut) {
                 hasSelectedLut = true
                 isAdjustmentPanelExpanded = true
+                val animationDuration = resources.getInteger(R.integer.animation_duration_default).toLong()
+                val bounceInterpolator = OvershootInterpolator(0.8f)
 
                 // First LUT selection starts at 100%
                 quickIntensitySlider.progress = 100
                 quickIntensityValue.text = "100%"
                 currentIntensity = 1f
                 prefs.edit().putFloat("last_intensity", currentIntensity).apply()
-                
+
                 adjustmentHeader.visibility = View.VISIBLE
                 adjustmentHeader.alpha = 0f
+                adjustmentHeader.scaleX = 0.95f
+                adjustmentHeader.scaleY = 0.95f
                 adjustmentHeader.animate()
                     .alpha(1f)
-                    .setDuration(200)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(animationDuration)
+                    .setInterpolator(bounceInterpolator)
                     .start()
-                
+
                 sliderPanel.visibility = View.VISIBLE
                 sliderPanel.alpha = 0f
+                sliderPanel.scaleX = 0.95f
+                sliderPanel.scaleY = 0.95f
                 sliderPanel.animate()
                     .alpha(1f)
-                    .setDuration(200)
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(animationDuration)
+                    .setInterpolator(bounceInterpolator)
                     .start()
-                    
+
                 adjustmentToggle.rotation = 0f
             }
 
@@ -948,6 +1272,7 @@ class MainActivity : ComponentActivity() {
 
         // Brand Adapter (top-level tabs)
         val brandAdapter = BrandAdapter(brands) { selectedBrand ->
+            currentBrandName = selectedBrand.name
             genreAdapter.updateCategories(selectedBrand.categories)
         }
         brandList.adapter = brandAdapter
@@ -962,19 +1287,33 @@ class MainActivity : ComponentActivity() {
         activityScope.launch(Dispatchers.IO) {
             val lut = CubeLUTParser.parse(this@MainActivity, assetPath)
             if (lut != null) {
+                currentLut = lut
                 glSurfaceView.queueEvent {
                     renderer.setIntensity(currentIntensity)
                     renderer.setLut(lut)
                     glSurfaceView.requestRender()
                 }
+                // Update watermark preview with new LUT applied
+                if (currentWatermarkStyle != WatermarkProcessor.WatermarkStyle.NONE) {
+                    withContext(Dispatchers.Main) {
+                        updateWatermarkPreview()
+                    }
+                }
                 // Show quick intensity panel
                 withContext(Dispatchers.Main) {
                     if (quickIntensityPanel.visibility != View.VISIBLE) {
+                        val animationDuration = resources.getInteger(R.integer.animation_duration_default).toLong()
+                        val bounceInterpolator = OvershootInterpolator(0.8f)
                         quickIntensityPanel.visibility = View.VISIBLE
                         quickIntensityPanel.alpha = 0f
+                        quickIntensityPanel.scaleX = 0.95f
+                        quickIntensityPanel.scaleY = 0.95f
                         quickIntensityPanel.animate()
                             .alpha(1f)
-                            .setDuration(200)
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(animationDuration)
+                            .setInterpolator(bounceInterpolator)
                             .start()
                     }
                 }
@@ -1050,6 +1389,31 @@ class MainActivity : ComponentActivity() {
                         sourceBitmap
                     }
                     // Note: Film grain is not applied in CPU fallback (GPU-only feature)
+                }
+                
+                // Apply watermark if enabled
+                if (currentWatermarkStyle != WatermarkProcessor.WatermarkStyle.NONE) {
+                    val timeText = withContext(Dispatchers.Main) { watermarkTimeInput.text.toString() }
+                    val locationText = withContext(Dispatchers.Main) { watermarkLocationInput.text.toString() }
+                    val deviceName = withContext(Dispatchers.Main) { watermarkDeviceInput.text.toString() }
+                    val lensInfoText = withContext(Dispatchers.Main) { watermarkLensInput.text.toString() }
+                    
+                    val wmConfig = WatermarkProcessor.WatermarkConfig(
+                        style = currentWatermarkStyle,
+                        deviceName = deviceName.ifEmpty { null },
+                        timeText = timeText.ifEmpty { null },
+                        locationText = locationText.ifEmpty { null },
+                        lensInfo = lensInfoText.ifEmpty { null }
+                    )
+                    
+                    val watermarked = WatermarkProcessor.applyWatermark(this@MainActivity, outputBitmap, wmConfig)
+                    if (watermarked !== outputBitmap) {
+                        if (shouldRecycleOutput && outputBitmap != sourceBitmap) {
+                            outputBitmap.recycle()
+                        }
+                        outputBitmap = watermarked
+                        shouldRecycleOutput = true
+                    }
                 }
                 
                 // Save with EXIF preservation
@@ -1201,8 +1565,8 @@ class MainActivity : ComponentActivity() {
         if (::glSurfaceView.isInitialized) {
             glSurfaceView.queueEvent {
                 gpuExportRenderer?.release()
-                gpuExportRenderer = null
             }
         }
+        gpuExportRenderer = null
     }
 }

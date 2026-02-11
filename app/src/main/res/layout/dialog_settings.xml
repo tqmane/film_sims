@@ -6,7 +6,7 @@
     android:paddingHorizontal="24dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp"
-    android:background="@drawable/bg_dialog_glass">
+    android:background="@drawable/bg_liquid_glass_dialog">
 
     <!-- Title -->
     <TextView
@@ -14,10 +14,10 @@
         android:layout_height="wrap_content"
         android:text="@string/title_settings"
         android:textColor="@color/text_primary"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="28dp" />
 
     <!-- Save Location Setting -->
     <TextView
@@ -37,9 +37,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_input_outline"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="12dp"
+        android:background="@drawable/bg_liquid_glass_input"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="14dp"
         android:layout_marginBottom="20dp">
 
         <TextView
@@ -60,11 +60,11 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_change"
             android:textColor="@color/accent_primary"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:fontFamily="sans-serif-medium"
             android:background="@drawable/bg_text_link"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="6dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="7dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -120,10 +120,10 @@
     <Button
         android:id="@+id/btnCloseSettings"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:text="@string/btn_close"
         android:textColor="@color/text_primary"
-        android:textSize="13sp"
+        android:textSize="14sp"
         android:fontFamily="sans-serif-medium"
         android:background="@drawable/bg_button_secondary"
         android:stateListAnimator="@null" />

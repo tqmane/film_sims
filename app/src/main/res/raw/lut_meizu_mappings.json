@@ -1,0 +1,28 @@
+{
+  "classicFilter": {
+    "fanchanuan": {
+      "default": "lut_meizu_warm",
+      "front": "lut_meizu_warm_front"
+    },
+    "fanchase": {
+      "default": "lut_meizu_retro",
+      "front": "lut_meizu_retro_front"
+    },
+    "nense": {
+      "default": "lut_meizu_tender",
+      "front": "lut_meizu_tender_front"
+    },
+    "nuanse": {
+      "default": "lut_meizu_warm_tone",
+      "front": "lut_meizu_warm_tone_front"
+    },
+    "xianming": {
+      "default": "lut_meizu_vivid",
+      "front": "lut_meizu_vivid_front"
+    }
+  },
+  "General": {
+    "original512": "lut_meizu_original",
+    "skinWhiten": "lut_meizu_skin_whiten"
+  }
+}

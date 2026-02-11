@@ -3,6 +3,7 @@ package com.tqmane.filmsim.util
 import android.content.Context
 import android.content.SharedPreferences
 import com.tqmane.filmsim.BuildConfig
+import com.tqmane.filmsim.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -18,8 +19,7 @@ data class ReleaseInfo(
 )
 
 object UpdateChecker {
-    
-    private const val GITHUB_API_URL = "https://api.github.com/repos/tqmane/film_sims/releases/latest"
+
     private const val PREFS_NAME = "update_checker"
     private const val KEY_SKIP_VERSION = "skip_version"
     private const val KEY_LAST_CHECK = "last_check"
@@ -36,7 +36,8 @@ object UpdateChecker {
      */
     suspend fun checkForUpdate(context: Context, force: Boolean = false): ReleaseInfo? {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        
+        val githubApiUrl = context.getString(R.string.github_api_url)
+
         // Skip check if recently checked (unless forced)
         if (!force) {
             val lastCheck = prefs.getLong(KEY_LAST_CHECK, 0)
@@ -44,11 +45,11 @@ object UpdateChecker {
                 return null
             }
         }
-        
+
         return withContext(Dispatchers.IO) {
             try {
                 val request = Request.Builder()
-                    .url(GITHUB_API_URL)
+                    .url(githubApiUrl)
                     .header("Accept", "application/vnd.github.v3+json")
                     .build()
                 

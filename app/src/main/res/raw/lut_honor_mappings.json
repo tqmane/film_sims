@@ -1,0 +1,27 @@
+{
+  "filters": {
+    "baixi": "lut_honor_baixi",
+    "fendiao": "lut_honor_fendiao",
+    "heibai": "lut_honor_heibai",
+    "heijin": "lut_honor_heijin",
+    "huaijiu": "lut_honor_huaijiu",
+    "huidiao": "lut_honor_huidiao",
+    "jiaotang": "lut_honor_jiaotang",
+    "jingdian": "lut_honor_jingdian",
+    "landiao": "lut_honor_landiao",
+    "qingcheng": "lut_honor_qingcheng",
+    "senxi": "lut_honor_senxi",
+    "tangguo": "lut_honor_tangguo",
+    "yingxiang": "lut_honor_yingxiang",
+    "zhishi": "lut_honor_zhishi",
+    "ziran": "lut_honor_ziran",
+    "danya": "lut_honor_danya",
+    "jiaopian": "lut_honor_jiaopian",
+    "qingchun": "lut_honor_qingchun",
+    "rouhe": "lut_honor_rouhe",
+    "xianming": "lut_honor_xianming",
+    "xianyan": "lut_honor_xianyan",
+    "yuanqi": "lut_honor_yuanqi"
+  },
+  "prefix": "hn_"
+}

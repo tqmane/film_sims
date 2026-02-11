@@ -115,7 +115,7 @@
     <string name="label_pick_image">选择图片</string>
     <string name="desc_pick_image">选择照片以应用胶片模拟</string>
     <string name="btn_open_gallery">打开图库</string>
-    <string name="header_grain">颗粒</string>
+    <string name="header_grain">效果</string>
     <string name="label_film_grain">胶片颗粒</string>
     <string name="header_camera">相机</string>
     <string name="header_style">风格</string>

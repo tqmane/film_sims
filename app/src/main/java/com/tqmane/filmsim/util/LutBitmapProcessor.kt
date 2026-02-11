@@ -5,16 +5,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 
 object LutBitmapProcessor {
 
-    // Thread pool for maximum CPU utilization
+    // Use coroutines with Dispatchers.Default for optimal CPU utilization
     private val numCores = Runtime.getRuntime().availableProcessors()
-    private val executor = Executors.newFixedThreadPool(numCores)
 
-    // Ultra-fast parallel LUT application using all CPU cores
-    suspend fun applyLutToBitmap(source: Bitmap, lut: CubeLUT): Bitmap = withContext(Dispatchers.Default) {
+    // Ultra-fast parallel LUT application using coroutines
+    // intensity: 0.0 = original, 1.0 = full LUT effect
+    suspend fun applyLutToBitmap(source: Bitmap, lut: CubeLUT, intensity: Float = 1f): Bitmap = withContext(Dispatchers.Default) {
         val width = source.width
         val height = source.height
         val totalPixels = width * height
@@ -33,6 +32,8 @@ object LutBitmapProcessor {
         buffer.get(lutData)
 
         val newPixels = IntArray(totalPixels)
+        val inv = 1f - intensity.coerceIn(0f, 1f)
+        val fwd = intensity.coerceIn(0f, 1f)
 
         // Use maximum parallelism - one chunk per core
         val chunkSize = (totalPixels + numCores - 1) / numCores
@@ -42,15 +43,17 @@ object LutBitmapProcessor {
                 val startIdx = chunkIdx * chunkSize
                 val endIdx = minOf(startIdx + chunkSize, totalPixels)
                 
-                // Process 8 pixels at a time for cache efficiency
                 var i = startIdx
                 while (i < endIdx) {
                     val pixel = pixels[i]
                     
-                    // Inline calculations for maximum speed
-                    val r = (pixel ushr 16 and 0xFF) * 0.003921569f  // 1/255
-                    val g = (pixel ushr 8 and 0xFF) * 0.003921569f
-                    val b = (pixel and 0xFF) * 0.003921569f
+                    val origR = pixel ushr 16 and 0xFF
+                    val origG = pixel ushr 8 and 0xFF
+                    val origB = pixel and 0xFF
+
+                    val r = origR * 0.003921569f  // 1/255
+                    val g = origG * 0.003921569f
+                    val b = origB * 0.003921569f
 
                     val rIdx = (r * sizeF + 0.5f).toInt().coerceIn(0, sizeMinus1)
                     val gIdx = (g * sizeF + 0.5f).toInt().coerceIn(0, sizeMinus1)
@@ -58,9 +61,14 @@ object LutBitmapProcessor {
 
                     val index = (bIdx * sizeSquared + gIdx * size + rIdx) * 3
 
-                    val outR = (lutData[index] * 255f + 0.5f).toInt()
-                    val outG = (lutData[index + 1] * 255f + 0.5f).toInt()
-                    val outB = (lutData[index + 2] * 255f + 0.5f).toInt()
+                    val lutR = (lutData[index] * 255f + 0.5f).toInt()
+                    val lutG = (lutData[index + 1] * 255f + 0.5f).toInt()
+                    val lutB = (lutData[index + 2] * 255f + 0.5f).toInt()
+
+                    // Blend: original * (1-intensity) + lut * intensity
+                    val outR = (origR * inv + lutR * fwd + 0.5f).toInt()
+                    val outG = (origG * inv + lutG * fwd + 0.5f).toInt()
+                    val outB = (origB * inv + lutB * fwd + 0.5f).toInt()
 
                     newPixels[i] = -0x1000000 or 
                         ((if (outR > 255) 255 else if (outR < 0) 0 else outR) shl 16) or 

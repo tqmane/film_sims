@@ -15,16 +15,16 @@
     <!-- Card with Refined Border -->
     <FrameLayout
         android:id="@+id/lutCardContainer"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
         <!-- Glow layer (behind the card) -->
         <View
             android:id="@+id/glowView"
-            android:layout_width="76dp"
-            android:layout_height="76dp"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_lut_glow"
             android:visibility="gone" />
@@ -59,16 +59,18 @@
 
     <TextView
         android:id="@+id/lutName"
-        android:layout_width="72dp"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
+        android:paddingBottom="2dp"
         android:gravity="center"
         android:text="LUT Name"
         android:textColor="@color/text_secondary"
-        android:textSize="9sp"
+        android:textSize="10sp"
         android:fontFamily="sans-serif"
         android:letterSpacing="0.01"
-        android:maxLines="1"
-        android:ellipsize="end" />
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:lineSpacingExtra="1dp" />
 
 </LinearLayout>

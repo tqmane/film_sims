@@ -115,7 +115,7 @@
     <string name="label_pick_image">Pick Image</string>
     <string name="desc_pick_image">Pick a photo to apply film simulations</string>
     <string name="btn_open_gallery">Open Gallery</string>
-    <string name="header_grain">Grain</string>
+    <string name="header_grain">Effects</string>
     <string name="label_film_grain">Film Grain</string>
     <string name="header_camera">Camera</string>
     <string name="header_style">Style</string>

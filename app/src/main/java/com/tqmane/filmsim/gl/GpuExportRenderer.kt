@@ -1,24 +1,22 @@
 package com.tqmane.filmsim.gl
 
 import android.content.Context
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
 import android.opengl.GLUtils
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.util.CubeLUT
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
 
 /**
  * GPU-accelerated high-resolution export using OpenGL FBO.
  * This class creates an offscreen rendering context for full-resolution LUT processing.
  * Supports tiled rendering for images exceeding GL_MAX_TEXTURE_SIZE.
  */
-class GpuExportRenderer(private val context: Context) {
+class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     
     private var programId: Int = 0
     private var inputTextureId: Int = 0
@@ -53,28 +51,9 @@ class GpuExportRenderer(private val context: Context) {
     private var grainStylePath: String = "textures/Xiaomi/film_grain.png"
     
     init {
-        // Full screen quad (no aspect ratio correction for export)
-        val vertices = floatArrayOf(
-            -1f, -1f,
-             1f, -1f,
-            -1f,  1f,
-             1f,  1f
-        )
-        // Flip Y for correct output
-        val texCoords = floatArrayOf(
-            0f, 0f,
-            1f, 0f,
-            0f, 1f,
-            1f, 1f
-        )
-        
-        vertexBuffer = ByteBuffer.allocateDirect(vertices.size * 4)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertices)
-        vertexBuffer.position(0)
-        
-        texCoordBuffer = ByteBuffer.allocateDirect(texCoords.size * 4)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer().put(texCoords)
-        texCoordBuffer.position(0)
+        val buffers = initQuadBuffers(flipY = true)
+        vertexBuffer = buffers.first
+        texCoordBuffer = buffers.second
     }
     
     /**
@@ -467,23 +446,6 @@ class GpuExportRenderer(private val context: Context) {
             lastUploadedLut = null
         }
     }
-    
-    private fun loadShader(type: Int, shaderCode: String): Int {
-        val shader = GLES30.glCreateShader(type)
-        GLES30.glShaderSource(shader, shaderCode)
-        GLES30.glCompileShader(shader)
-        val compileStatus = IntArray(1)
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0)
-        if (compileStatus[0] == 0) {
-            val info = GLES30.glGetShaderInfoLog(shader)
-            android.util.Log.e("GpuExportRenderer", "Shader compile failed (type=$type): $info")
-        }
-        return shader
-    }
-    
-    private fun readRawTextFile(resId: Int): String {
-        val inputStream = context.resources.openRawResource(resId)
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        return reader.use { it.readText() }
-    }
+
+    override fun getLogTag(): String = "GpuExportRenderer"
 }

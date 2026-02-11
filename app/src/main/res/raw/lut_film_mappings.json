@@ -1,0 +1,13 @@
+{
+  "filters": {
+    "field": "lut_film_field",
+    "seaside": "lut_film_seaside",
+    "city": "lut_film_city",
+    "neon": "lut_film_neon",
+    "cold_flash": "lut_film_cold_flash",
+    "warm_flash": "lut_film_warm_flash",
+    "vintage": "lut_film_vintage",
+    "clear": "lut_film_clear",
+    "800t": "lut_film_800t"
+  }
+}

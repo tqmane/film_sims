@@ -115,7 +115,7 @@
     <string name="label_pick_image">이미지 선택</string>
     <string name="desc_pick_image">사진을 선택하여 필름 시뮬레이션을 적용하세요</string>
     <string name="btn_open_gallery">갤러리 열기</string>
-    <string name="header_grain">그레인</string>
+    <string name="header_grain">효과</string>
     <string name="label_film_grain">필름 그레인</string>
     <string name="header_camera">카메라</string>
     <string name="header_style">스타일</string>
