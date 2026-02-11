@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.util.Log
 import com.tqmane.filmsim.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -44,7 +45,12 @@ object WatermarkProcessor {
         VIVO_FRAME, VIVO_FRAME_TIME,
         VIVO_IQOO_FRAME, VIVO_IQOO_FRAME_TIME,
         VIVO_OS, VIVO_OS_CORNER, VIVO_OS_SIMPLE,
-        VIVO_EVENT
+        VIVO_EVENT,
+        // Config-driven watermarks (new accurate implementation)
+        VIVO_ZEISS_0, VIVO_ZEISS_1, VIVO_ZEISS_2, VIVO_ZEISS_3, VIVO_ZEISS_4,
+        VIVO_ZEISS_5, VIVO_ZEISS_6, VIVO_ZEISS_7, VIVO_ZEISS_8,
+        VIVO_IQOO_4, VIVO_COMMON_IQOO4,
+        VIVO_1, VIVO_2, VIVO_3, VIVO_4, VIVO_5
     }
 
     data class WatermarkConfig(
@@ -52,7 +58,8 @@ object WatermarkProcessor {
         val deviceName: String? = null,   // e.g. "HONOR Magic6 Pro"
         val timeText: String? = null,
         val locationText: String? = null,
-        val lensInfo: String? = null       // e.g. "27mm  f/1.9  1/100s  ISO1600"
+        val lensInfo: String? = null,      // e.g. "27mm  f/1.9  1/100s  ISO1600"
+        val templatePath: String? = null   // Custom template path for config-driven watermarks
     )
 
     // Reference width from Honor template baseOnValue
@@ -137,6 +144,23 @@ object WatermarkProcessor {
             WatermarkStyle.VIVO_OS_CORNER -> applyVivoOSCorner(context, source, config)
             WatermarkStyle.VIVO_OS_SIMPLE -> applyVivoOSSimple(context, source, config)
             WatermarkStyle.VIVO_EVENT -> applyVivoEvent(context, source, config)
+            // Config-driven watermarks
+            WatermarkStyle.VIVO_ZEISS_0 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss0.txt")
+            WatermarkStyle.VIVO_ZEISS_1 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss1.txt")
+            WatermarkStyle.VIVO_ZEISS_2 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss2.txt")
+            WatermarkStyle.VIVO_ZEISS_3 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss3.txt")
+            WatermarkStyle.VIVO_ZEISS_4 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss4.txt")
+            WatermarkStyle.VIVO_ZEISS_5 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss5.txt")
+            WatermarkStyle.VIVO_ZEISS_6 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss6.txt")
+            WatermarkStyle.VIVO_ZEISS_7 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss7.txt")
+            WatermarkStyle.VIVO_ZEISS_8 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss8.txt")
+            WatermarkStyle.VIVO_IQOO_4 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/iqoo4.txt")
+            WatermarkStyle.VIVO_COMMON_IQOO4 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/common_iqoo4.txt")
+            WatermarkStyle.VIVO_1 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/vivo1.txt")
+            WatermarkStyle.VIVO_2 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/vivo2.txt")
+            WatermarkStyle.VIVO_3 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/vivo3.txt")
+            WatermarkStyle.VIVO_4 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/vivo4.txt")
+            WatermarkStyle.VIVO_5 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/vivo5.txt")
         }
     }
 
@@ -3270,4 +3294,33 @@ object WatermarkProcessor {
         val tmplW: Int, val tmplH: Int,
         val pL: Int, val pT: Int, val pR: Int, val pB: Int
     )
+
+    // ==================== CONFIG-DRIVEN VIVO WATERMARKS ====================
+
+    private fun applyVivoConfigDriven(
+        context: Context, source: Bitmap, config: WatermarkConfig, templatePath: String
+    ): Bitmap {
+        return try {
+            val parser = VivoWatermarkConfigParser(context)
+            val template = parser.parseConfig(templatePath)
+
+            if (template != null) {
+                val renderer = ZeissWatermarkRenderer(context)
+                val renderConfig = VivoRenderConfig(
+                    deviceName = config.deviceName,
+                    timeText = config.timeText,
+                    locationText = config.locationText,
+                    lensInfo = config.lensInfo
+                )
+                renderer.render(source, template, renderConfig)
+            } else {
+                // Fallback to classic ZEISS if template loading fails
+                applyVivoZeiss(context, source, config)
+            }
+        } catch (e: Exception) {
+            // Fallback to classic implementation on error
+            Log.w("WatermarkProcessor", "Config-driven watermark failed, using fallback", e)
+            applyVivoZeiss(context, source, config)
+        }
+    }
 }
