@@ -238,4 +238,14 @@
     <!-- Hardcoded configuration values -->
     <string name="github_api_url" translatable="false">https://api.github.com/repos/tqmane/film_sims/releases/latest</string>
     <string name="honor_font_path" translatable="false">fonts/HONORSansVFCN.ttf</string>
+
+    <!-- Compose UI additions -->
+    <string name="adjustments">Adjustments</string>
+    <string name="grain">Grain</string>
+    <string name="watermark">Watermark</string>
+    <string name="watermark_select_brand">Select a brand to see watermark styles</string>
+    <string name="device_name">Device Name</string>
+    <string name="time">Time</string>
+    <string name="location">Location</string>
+    <string name="lens_info">Lens Info</string>
 </resources>

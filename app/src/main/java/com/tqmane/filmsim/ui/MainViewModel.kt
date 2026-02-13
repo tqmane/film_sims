@@ -1,24 +1,25 @@
 package com.tqmane.filmsim.ui
 
-import android.app.Application
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.data.LutBrand
 import com.tqmane.filmsim.data.LutItem
-import com.tqmane.filmsim.data.LutRepository
+import com.tqmane.filmsim.di.DefaultDispatcher
+import com.tqmane.filmsim.di.IoDispatcher
 import com.tqmane.filmsim.domain.ImageLoadUseCase
 import com.tqmane.filmsim.domain.LutApplyUseCase
 import com.tqmane.filmsim.domain.WatermarkUseCase
+import com.tqmane.filmsim.gl.GlCommandExecutor
 import com.tqmane.filmsim.gl.GpuExportRenderer
-import com.tqmane.filmsim.util.AppCoroutineExceptionHandler
 import com.tqmane.filmsim.util.SettingsManager
-import com.tqmane.filmsim.util.UpdateChecker
+import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.util.WatermarkProcessor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +33,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    application: Application,
+    private val contentResolver: ContentResolver,
     private val imageLoadUseCase: ImageLoadUseCase,
     private val lutApplyUseCase: LutApplyUseCase,
     private val watermarkUseCase: WatermarkUseCase,
-    val settings: SettingsManager
-) : AndroidViewModel(application) {
+    val settings: SettingsManager,
+    val brands: List<LutBrand>,
+    private val updateChecker: UpdateCheckerWrapper,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+) : ViewModel() {
 
     // ─── State flows ────────────────────────────────────
 
@@ -60,27 +65,24 @@ class MainViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<UiEvent>(extraBufferCapacity = 8)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
-    // ─── Brand data (loaded once) ───────────────────────
-
-    val brands: List<LutBrand> by lazy { LutRepository.getLutBrands(getApplication()) }
-
     // ─── Watermark preview job ──────────────────────────
 
     private var watermarkPreviewJob: Job? = null
 
-    // ─── Cached export renderer reference ───────────────
+    // ─── Cached GPU export renderer (set from UI layer) ─
+
     var gpuExportRenderer: GpuExportRenderer? = null
 
     // ─── Image loading ──────────────────────────────────
 
     fun loadImage(uri: Uri) {
         _viewState.value = ViewState.Loading
-        viewModelScope.launch(Dispatchers.IO + AppCoroutineExceptionHandler.create()) {
-            try {
-                val result = imageLoadUseCase.load(getApplication<Application>().contentResolver, uri)
-                _viewState.value = ViewState.Ready(
+        viewModelScope.launch(ioDispatcher) {
+            runCatching {
+                imageLoadUseCase.load(contentResolver, uri)
+            }.onSuccess { result ->
+                _viewState.value = ViewState.Content(
                     originalUri = uri,
-                    originalBitmap = result.exportBitmap,
                     previewBitmap = result.previewBitmap,
                     thumbnailBitmap = result.thumbnailBitmap,
                     previewBitmapCopy = result.previewCopy,
@@ -97,27 +99,14 @@ class MainViewModel @Inject constructor(
                 }
                 _uiEvent.emit(
                     UiEvent.ShowToast(
-                        getApplication<Application>().getString(
-                            R.string.image_loaded,
-                            result.imageDimensions,
-                            result.previewDimensions
-                        )
+                        R.string.image_loaded,
+                        arrayOf(result.imageDimensions, result.previewDimensions)
                     )
                 )
-            } catch (e: OutOfMemoryError) {
-                _viewState.value = ViewState.Error("Out of memory")
-                _uiEvent.emit(
-                    UiEvent.ShowToast(
-                        getApplication<Application>().getString(R.string.image_load_failed, "Out of memory")
-                    )
-                )
-            } catch (e: Exception) {
-                _viewState.value = ViewState.Error(e.message ?: "Unknown error")
-                _uiEvent.emit(
-                    UiEvent.ShowToast(
-                        getApplication<Application>().getString(R.string.image_load_failed, e.message ?: "")
-                    )
-                )
+            }.onFailure { e ->
+                val msg = if (e is OutOfMemoryError) "Out of memory" else (e.message ?: "Unknown error")
+                _viewState.value = ViewState.Error(msg)
+                _uiEvent.emit(UiEvent.ShowToast(R.string.image_load_failed, arrayOf(msg)))
             }
         }
     }
@@ -128,14 +117,12 @@ class MainViewModel @Inject constructor(
         val path = lutItem.assetPath
         _editState.value = _editState.value.copy(currentLutPath = path, hasSelectedLut = true)
 
-        viewModelScope.launch(Dispatchers.IO + AppCoroutineExceptionHandler.create()) {
-            val lut = lutApplyUseCase.parseLut(getApplication(), path)
+        viewModelScope.launch(ioDispatcher) {
+            val lut = lutApplyUseCase.parseLut(path)
             if (lut != null) {
                 _editState.value = _editState.value.copy(currentLut = lut)
             } else {
-                _uiEvent.emit(
-                    UiEvent.ShowToast(getApplication<Application>().getString(R.string.lut_load_failed))
-                )
+                _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
             }
         }
     }
@@ -188,14 +175,14 @@ class MainViewModel @Inject constructor(
     }
 
     fun renderWatermarkPreview(callback: (Bitmap) -> Unit) {
-        val state = _viewState.value as? ViewState.Ready ?: return
+        val state = _viewState.value as? ViewState.Content ?: return
         val wm = _watermarkState.value
         if (wm.style == WatermarkProcessor.WatermarkStyle.NONE) return
         val preview = state.previewBitmapCopy ?: return
         val edit = _editState.value
 
         watermarkPreviewJob?.cancel()
-        watermarkPreviewJob = viewModelScope.launch(Dispatchers.Default) {
+        watermarkPreviewJob = viewModelScope.launch(defaultDispatcher) {
             val config = WatermarkProcessor.WatermarkConfig(
                 style = wm.style,
                 deviceName = wm.deviceName.ifEmpty { null },
@@ -204,99 +191,107 @@ class MainViewModel @Inject constructor(
                 lensInfo = wm.lensInfo.ifEmpty { null }
             )
             val result = watermarkUseCase.renderPreview(
-                getApplication(), preview, edit.currentLut, edit.intensity, config
+                preview, edit.currentLut, edit.intensity, config
             )
-            withContext(Dispatchers.Main) { callback(result) }
+            withContext(kotlinx.coroutines.Dispatchers.Main) { callback(result) }
         }
     }
 
     // ─── Save / Export ──────────────────────────────────
 
+    /**
+     * High-resolution export pipeline.
+     *
+     * 1. Loads full-res bitmap on-demand from [ViewState.Content.originalUri]
+     * 2. Renders LUT + grain on the GL thread via [GlCommandExecutor] (no CountDownLatch)
+     * 3. Applies watermark
+     * 4. Saves to MediaStore
+     * 5. Immediately recycles the full-res bitmap
+     */
     fun saveHighResImage(
-        glSurfaceView: android.opengl.GLSurfaceView,
-        onStartCpu: () -> Unit
+        glExecutor: GlCommandExecutor,
+        onCpuFallback: () -> Unit
     ) {
-        val state = _viewState.value as? ViewState.Ready ?: return
+        val state = _viewState.value as? ViewState.Content ?: return
         val edit = _editState.value
         val wm = _watermarkState.value
-        val sourceBitmap = state.originalBitmap
 
-        viewModelScope.launch(Dispatchers.IO + AppCoroutineExceptionHandler.create()) {
-            try {
-                val lut = if (edit.currentLutPath != null) {
-                    lutApplyUseCase.parseLut(getApplication(), edit.currentLutPath)
-                } else null
+        viewModelScope.launch(ioDispatcher) {
+            runCatching {
+                // 1. Load full-res on-demand (not kept in memory)
+                val sourceBitmap = imageLoadUseCase.loadFullResolution(contentResolver, state.originalUri)
 
-                val effectiveIntensity = if (lut != null) edit.intensity else 0f
+                try {
+                    val lut = if (edit.currentLutPath != null) {
+                        lutApplyUseCase.parseLut(edit.currentLutPath)
+                    } else null
+                    val effectiveIntensity = if (lut != null) edit.intensity else 0f
 
-                // GPU export
-                val outputHolder = arrayOfNulls<Bitmap>(1)
-                val gpuError = arrayOf<Exception?>(null)
-                val latch = java.util.concurrent.CountDownLatch(1)
-
-                glSurfaceView.queueEvent {
-                    try {
-                        if (gpuExportRenderer == null) {
-                            gpuExportRenderer = GpuExportRenderer(getApplication())
+                    // 2. GPU rendering via suspendCancellableCoroutine
+                    var outputBitmap: Bitmap? = runCatching {
+                        glExecutor.execute {
+                            if (gpuExportRenderer == null) {
+                                // GpuExportRenderer needs a Context; created on GL thread
+                                // The UI layer must set gpuExportRenderer before calling save
+                                throw IllegalStateException("GpuExportRenderer not initialized")
+                            }
+                            gpuExportRenderer!!.setGrainStyle(edit.grainStyle)
+                            gpuExportRenderer!!.renderHighRes(
+                                sourceBitmap, lut, effectiveIntensity,
+                                edit.grainEnabled, edit.grainIntensity, 4.0f
+                            )
                         }
-                        gpuExportRenderer!!.setGrainStyle(edit.grainStyle)
-                        outputHolder[0] = gpuExportRenderer!!.renderHighRes(
-                            sourceBitmap, lut, effectiveIntensity,
-                            edit.grainEnabled, edit.grainIntensity, 4.0f
+                    }.getOrNull()
+
+                    var shouldRecycleOutput = true
+
+                    // 3. CPU fallback
+                    if (outputBitmap == null) {
+                        withContext(kotlinx.coroutines.Dispatchers.Main) { onCpuFallback() }
+                        outputBitmap = if (lut != null) {
+                            watermarkUseCase.applyCpuLut(sourceBitmap, lut, effectiveIntensity)
+                        } else {
+                            shouldRecycleOutput = false
+                            sourceBitmap
+                        }
+                    }
+
+                    // 4. Watermark
+                    if (wm.style != WatermarkProcessor.WatermarkStyle.NONE) {
+                        val wmConfig = WatermarkProcessor.WatermarkConfig(
+                            style = wm.style,
+                            deviceName = wm.deviceName.ifEmpty { null },
+                            timeText = wm.timeText.ifEmpty { null },
+                            locationText = wm.locationText.ifEmpty { null },
+                            lensInfo = wm.lensInfo.ifEmpty { null }
                         )
-                    } catch (e: Exception) {
-                        gpuError[0] = e
+                        val watermarked = watermarkUseCase.applyWatermark(outputBitmap, wmConfig)
+                        if (watermarked !== outputBitmap) {
+                            if (shouldRecycleOutput && outputBitmap != sourceBitmap) outputBitmap.recycle()
+                            outputBitmap = watermarked
+                            shouldRecycleOutput = true
+                        }
                     }
-                    latch.countDown()
-                }
-                latch.await()
 
-                var outputBitmap = outputHolder[0]
-                var shouldRecycleOutput = true
-
-                if (outputBitmap == null) {
-                    withContext(Dispatchers.Main) { onStartCpu() }
-                    outputBitmap = if (lut != null) {
-                        watermarkUseCase.applyCpuLut(sourceBitmap, lut, effectiveIntensity)
-                    } else {
-                        shouldRecycleOutput = false
-                        sourceBitmap
-                    }
-                }
-
-                // Apply watermark
-                if (wm.style != WatermarkProcessor.WatermarkStyle.NONE) {
-                    val wmConfig = WatermarkProcessor.WatermarkConfig(
-                        style = wm.style,
-                        deviceName = wm.deviceName.ifEmpty { null },
-                        timeText = wm.timeText.ifEmpty { null },
-                        locationText = wm.locationText.ifEmpty { null },
-                        lensInfo = wm.lensInfo.ifEmpty { null }
+                    // 5. Save
+                    val saveResult = watermarkUseCase.saveBitmapWithExif(
+                        outputBitmap, state.originalUri,
+                        settings.savePath, settings.saveQuality
                     )
-                    val watermarked = watermarkUseCase.applyWatermark(getApplication(), outputBitmap, wmConfig)
-                    if (watermarked !== outputBitmap) {
-                        if (shouldRecycleOutput && outputBitmap != sourceBitmap) outputBitmap.recycle()
-                        outputBitmap = watermarked
-                        shouldRecycleOutput = true
-                    }
-                }
 
-                val saveResult = watermarkUseCase.saveBitmapWithExif(
-                    getApplication(), outputBitmap, state.originalUri,
-                    settings.savePath, settings.saveQuality
-                )
+                    // 6. Cleanup full-res immediately
+                    if (shouldRecycleOutput && outputBitmap != sourceBitmap) outputBitmap.recycle()
+                    if (sourceBitmap != outputBitmap) sourceBitmap.recycle()
 
-                if (shouldRecycleOutput && outputBitmap != sourceBitmap) outputBitmap.recycle()
-
-                _uiEvent.emit(
-                    UiEvent.ImageSaved(saveResult.width, saveResult.height, saveResult.path, saveResult.filename)
-                )
-            } catch (e: Exception) {
-                _uiEvent.emit(
-                    UiEvent.ShowToast(
-                        getApplication<Application>().getString(R.string.save_error, e.message ?: "")
+                    _uiEvent.emit(
+                        UiEvent.ImageSaved(saveResult.width, saveResult.height, saveResult.path, saveResult.filename)
                     )
-                )
+                } catch (e: Exception) {
+                    sourceBitmap.recycle()
+                    throw e
+                }
+            }.onFailure { e ->
+                _uiEvent.emit(UiEvent.ShowToast(R.string.save_error, arrayOf(e.message ?: "")))
             }
         }
     }
@@ -304,13 +299,9 @@ class MainViewModel @Inject constructor(
     // ─── Update check ───────────────────────────────────
 
     fun checkForUpdates() {
-        viewModelScope.launch(AppCoroutineExceptionHandler.create()) {
-            try {
-                val release = UpdateChecker.checkForUpdate(getApplication())
-                if (release != null) {
-                    _uiEvent.emit(UiEvent.ShowUpdateDialog(release))
-                }
-            } catch (_: Exception) { /* silently ignore */ }
+        viewModelScope.launch {
+            runCatching { updateChecker.checkForUpdate() }
+                .onSuccess { release -> release?.let { _uiEvent.emit(UiEvent.ShowUpdateDialog(it)) } }
         }
     }
 

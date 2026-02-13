@@ -7,31 +7,50 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
+import com.tqmane.filmsim.di.DefaultDispatcher
+import com.tqmane.filmsim.di.IoDispatcher
 import com.tqmane.filmsim.util.CubeLUT
 import com.tqmane.filmsim.util.HighResLutProcessor
 import com.tqmane.filmsim.util.LutBitmapProcessor
 import com.tqmane.filmsim.util.WatermarkProcessor
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-/**
- * Use-case for watermark rendering and high-res export/save.
- */
-class WatermarkUseCase @Inject constructor() {
-
-    /**
-     * Generate a watermark preview on top of a preview bitmap.
-     * Applies the current LUT at [intensity] before adding the watermark
-     * so the preview matches the GL view.
-     */
+/** Contract for watermark rendering and image export/save. */
+interface WatermarkUseCase {
     suspend fun renderPreview(
-        context: Context,
         previewBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
         config: WatermarkProcessor.WatermarkConfig
-    ): Bitmap = withContext(Dispatchers.Default) {
+    ): Bitmap
+
+    suspend fun applyWatermark(bitmap: Bitmap, config: WatermarkProcessor.WatermarkConfig): Bitmap
+    suspend fun applyCpuLut(source: Bitmap, lut: CubeLUT, intensity: Float): Bitmap
+    suspend fun saveBitmapWithExif(
+        bitmap: Bitmap,
+        originalUri: Uri?,
+        savePath: String,
+        quality: Int
+    ): SaveResult
+}
+
+data class SaveResult(val width: Int, val height: Int, val path: String, val filename: String)
+
+class WatermarkUseCaseImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+) : WatermarkUseCase {
+
+    override suspend fun renderPreview(
+        previewBitmap: Bitmap,
+        lut: CubeLUT?,
+        intensity: Float,
+        config: WatermarkProcessor.WatermarkConfig
+    ): Bitmap = withContext(defaultDispatcher) {
         val base = if (lut != null && intensity > 0f) {
             LutBitmapProcessor.applyLutToBitmap(previewBitmap, lut, intensity)
         } else {
@@ -40,38 +59,27 @@ class WatermarkUseCase @Inject constructor() {
         WatermarkProcessor.applyWatermark(context, base, config)
     }
 
-    /**
-     * Apply watermark to an already-processed export bitmap.
-     */
-    suspend fun applyWatermark(
-        context: Context,
+    override suspend fun applyWatermark(
         bitmap: Bitmap,
         config: WatermarkProcessor.WatermarkConfig
-    ): Bitmap = withContext(Dispatchers.Default) {
+    ): Bitmap = withContext(defaultDispatcher) {
         WatermarkProcessor.applyWatermark(context, bitmap, config)
     }
 
-    /**
-     * CPU-based LUT application (fallback when GPU export fails).
-     */
-    suspend fun applyCpuLut(
+    override suspend fun applyCpuLut(
         source: Bitmap,
         lut: CubeLUT,
         intensity: Float
-    ): Bitmap = withContext(Dispatchers.Default) {
+    ): Bitmap = withContext(defaultDispatcher) {
         HighResLutProcessor.applyLut(source, lut, intensity)
     }
 
-    /**
-     * Save a bitmap to MediaStore with EXIF preservation.
-     */
-    suspend fun saveBitmapWithExif(
-        context: Context,
+    override suspend fun saveBitmapWithExif(
         bitmap: Bitmap,
         originalUri: Uri?,
         savePath: String,
         quality: Int
-    ): SaveResult = withContext(Dispatchers.IO) {
+    ): SaveResult = withContext(ioDispatcher) {
         val filename = "FilmSim_${System.currentTimeMillis()}.jpg"
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
@@ -91,8 +99,7 @@ class WatermarkUseCase @Inject constructor() {
                 throw IllegalStateException("Bitmap compress failed")
         } ?: throw IllegalStateException("Failed to open output stream")
 
-        // Copy EXIF data
-        copyExif(context, originalUri, resolver, uri)
+        copyExif(originalUri, resolver, uri)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             contentValues.clear()
@@ -103,18 +110,15 @@ class WatermarkUseCase @Inject constructor() {
         SaveResult(bitmap.width, bitmap.height, savePath, filename)
     }
 
-    data class SaveResult(val width: Int, val height: Int, val path: String, val filename: String)
-
     // ─── EXIF copy ──────────────────────────────────────
 
     private fun copyExif(
-        context: Context,
         sourceUri: Uri?,
         resolver: android.content.ContentResolver,
         destUri: Uri
     ) {
         sourceUri ?: return
-        try {
+        runCatching {
             val sourceExif = context.contentResolver.openInputStream(sourceUri)?.use { ExifInterface(it) }
                 ?: return
             resolver.openFileDescriptor(destUri, "rw")?.use { pfd ->
@@ -125,7 +129,7 @@ class WatermarkUseCase @Inject constructor() {
                 dest.setAttribute(ExifInterface.TAG_SOFTWARE, "FilmSims LUT Editor")
                 dest.saveAttributes()
             }
-        } catch (_: Exception) { /* image saved; EXIF copy is best-effort */ }
+        }
     }
 
     companion object {

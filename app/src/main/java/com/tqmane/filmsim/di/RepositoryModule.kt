@@ -1,27 +1,30 @@
 package com.tqmane.filmsim.di
 
 import com.tqmane.filmsim.domain.ImageLoadUseCase
+import com.tqmane.filmsim.domain.ImageLoadUseCaseImpl
 import com.tqmane.filmsim.domain.LutApplyUseCase
+import com.tqmane.filmsim.domain.LutApplyUseCaseImpl
 import com.tqmane.filmsim.domain.WatermarkUseCase
+import com.tqmane.filmsim.domain.WatermarkUseCaseImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideImageLoadUseCase(): ImageLoadUseCase = ImageLoadUseCase()
+    abstract fun bindImageLoadUseCase(impl: ImageLoadUseCaseImpl): ImageLoadUseCase
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideLutApplyUseCase(): LutApplyUseCase = LutApplyUseCase()
+    abstract fun bindLutApplyUseCase(impl: LutApplyUseCaseImpl): LutApplyUseCase
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideWatermarkUseCase(): WatermarkUseCase = WatermarkUseCase()
+    abstract fun bindWatermarkUseCase(impl: WatermarkUseCaseImpl): WatermarkUseCase
 }
