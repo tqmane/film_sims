@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FilmSims</string>
+
+    <!-- Image loading -->
+    <string name="image_loaded">Изображение загружено: %1$s (Предпросмотр: %2$s)</string>
+    <string name="image_load_failed">Не удалось загрузить изображение: %1$s</string>
+    <string name="select_image_first">Сначала выберите изображение</string>
+
+    <!-- Export -->
+    <string name="exporting">Экспорт…</string>
+    <string name="cpu_processing">Обработка на CPU… (Большие изображения могут занять время)</string>
+    <string name="save_error">Ошибка сохранения: %1$s</string>
+    <string name="save_folder_create_failed">Не удалось создать папку для сохранения</string>
+    <string name="image_saved">Сохранено (%1$s): %2$s/%3$s</string>
+    <string name="lut_load_failed">Не удалось загрузить фильтр</string>
+
+    <!-- Settings -->
+    <string name="enter_save_folder">Введите папку для сохранения</string>
+    <string name="save_path_hint">Напр.: Pictures/МоиФото</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="save_path_changed">Путь сохранения изменён: %1$s</string>
+
+    <!-- Update dialog -->
+    <string name="update_available">Доступно обновление</string>
+    <string name="new_version_available">Доступна новая версия %1$s</string>
+    <string name="update_now">Обновить</string>
+    <string name="later">Позже</string>
+    <string name="update_check_failed">Не удалось проверить обновления</string>
+
+    <!-- UI Labels -->
+    <string name="subtitle_film_simulator">Симулятор плёнки</string>
+    <string name="label_pick_image">Выбрать изображение</string>
+    <string name="desc_pick_image">Выберите фото для применения плёночных симуляций</string>
+    <string name="btn_open_gallery">Открыть галерею</string>
+    <string name="header_grain">Эффекты</string>
+    <string name="label_film_grain">Зерно плёнки</string>
+    <string name="header_camera">Камера</string>
+    <string name="header_style">Стиль</string>
+    <string name="label_intensity">Интенсивность</string>
+    <string name="header_presets">Пресеты</string>
+    <string name="title_settings">Настройки</string>
+    <string name="label_save_folder">Папка сохранения</string>
+    <string name="btn_change">Изменить</string>
+    <string name="label_quality">Качество</string>
+    <string name="btn_close">Закрыть</string>
+
+    <!-- Grain styles -->
+    <string name="label_grain_style">Стиль зерна</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+
+    <!-- Watermark -->
+    <string name="header_watermark">Водяной знак</string>
+    <string name="label_watermark">Водяной знак Honor</string>
+    <string name="label_watermark_style">Стиль</string>
+    <string name="label_watermark_brand">Бренд</string>
+    <string name="watermark_none">Нет</string>
+    <string name="brand_none">Нет</string>
+    <string name="label_watermark_device">Устройство</string>
+    <string name="label_watermark_lens">Объектив</string>
+    <string name="label_watermark_time">Время</string>
+    <string name="label_watermark_location">Местоположение</string>
+</resources>

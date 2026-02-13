@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FilmSims</string>
+
+    <!-- Image loading -->
+    <string name="image_loaded">Bild geladen: %1$s (Vorschau: %2$s)</string>
+    <string name="image_load_failed">Bild konnte nicht geladen werden: %1$s</string>
+    <string name="select_image_first">Bitte wählen Sie zuerst ein Bild aus</string>
+
+    <!-- Export -->
+    <string name="exporting">Exportieren…</string>
+    <string name="cpu_processing">CPU-Verarbeitung… (Große Bilder können länger dauern)</string>
+    <string name="save_error">Speicherfehler: %1$s</string>
+    <string name="save_folder_create_failed">Speicherordner konnte nicht erstellt werden</string>
+    <string name="image_saved">Gespeichert (%1$s): %2$s/%3$s</string>
+    <string name="lut_load_failed">Filter konnte nicht geladen werden</string>
+
+    <!-- Settings -->
+    <string name="enter_save_folder">Speicherordner eingeben</string>
+    <string name="save_path_hint">z.B. Pictures/MeineFotos</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save_path_changed">Speicherpfad geändert: %1$s</string>
+
+    <!-- Update dialog -->
+    <string name="update_available">Update verfügbar</string>
+    <string name="new_version_available">Neue Version %1$s verfügbar</string>
+    <string name="update_now">Aktualisieren</string>
+    <string name="later">Später</string>
+    <string name="update_check_failed">Update-Prüfung fehlgeschlagen</string>
+
+    <!-- UI Labels -->
+    <string name="subtitle_film_simulator">Film-Simulator</string>
+    <string name="label_pick_image">Bild auswählen</string>
+    <string name="desc_pick_image">Wählen Sie ein Foto für Filmsimulationen</string>
+    <string name="btn_open_gallery">Galerie öffnen</string>
+    <string name="header_grain">Effekte</string>
+    <string name="label_film_grain">Filmkorn</string>
+    <string name="header_camera">Kamera</string>
+    <string name="header_style">Stil</string>
+    <string name="label_intensity">Intensität</string>
+    <string name="header_presets">Voreinstellungen</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="label_save_folder">Speicherordner</string>
+    <string name="btn_change">Ändern</string>
+    <string name="label_quality">Qualität</string>
+    <string name="btn_close">Schließen</string>
+
+    <!-- Grain styles -->
+    <string name="label_grain_style">Kornstil</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+
+    <!-- Watermark -->
+    <string name="header_watermark">Wasserzeichen</string>
+    <string name="label_watermark">Honor-Wasserzeichen</string>
+    <string name="label_watermark_style">Stil</string>
+    <string name="label_watermark_brand">Marke</string>
+    <string name="watermark_none">Keines</string>
+    <string name="brand_none">Keines</string>
+    <string name="label_watermark_device">Gerät</string>
+    <string name="label_watermark_lens">Objektiv</string>
+    <string name="label_watermark_time">Zeit</string>
+    <string name="label_watermark_location">Standort</string>
+</resources>

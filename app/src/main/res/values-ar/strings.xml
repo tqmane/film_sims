@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FilmSims</string>
+
+    <!-- Image loading -->
+    <string name="image_loaded">تم تحميل الصورة: %1$s (المعاينة: %2$s)</string>
+    <string name="image_load_failed">فشل تحميل الصورة: %1$s</string>
+    <string name="select_image_first">يرجى اختيار صورة أولاً</string>
+
+    <!-- Export -->
+    <string name="exporting">جارٍ التصدير…</string>
+    <string name="cpu_processing">معالجة بالمعالج… (الصور الكبيرة قد تستغرق وقتاً)</string>
+    <string name="save_error">خطأ في الحفظ: %1$s</string>
+    <string name="save_folder_create_failed">فشل إنشاء مجلد الحفظ</string>
+    <string name="image_saved">تم الحفظ (%1$s): %2$s/%3$s</string>
+    <string name="lut_load_failed">فشل تحميل الفلتر</string>
+
+    <!-- Settings -->
+    <string name="enter_save_folder">أدخل مجلد الحفظ</string>
+    <string name="save_path_hint">مثال: Pictures/صوري</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+    <string name="save_path_changed">تم تغيير مسار الحفظ: %1$s</string>
+
+    <!-- Update dialog -->
+    <string name="update_available">تحديث متاح</string>
+    <string name="new_version_available">الإصدار الجديد %1$s متاح</string>
+    <string name="update_now">تحديث</string>
+    <string name="later">لاحقاً</string>
+    <string name="update_check_failed">فشل التحقق من التحديثات</string>
+
+    <!-- UI Labels -->
+    <string name="subtitle_film_simulator">محاكي الأفلام</string>
+    <string name="label_pick_image">اختر صورة</string>
+    <string name="desc_pick_image">اختر صورة لتطبيق محاكاة الأفلام</string>
+    <string name="btn_open_gallery">فتح المعرض</string>
+    <string name="header_grain">التأثيرات</string>
+    <string name="label_film_grain">حبيبات الفيلم</string>
+    <string name="header_camera">الكاميرا</string>
+    <string name="header_style">النمط</string>
+    <string name="label_intensity">الشدة</string>
+    <string name="header_presets">الإعدادات المسبقة</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="label_save_folder">مجلد الحفظ</string>
+    <string name="btn_change">تغيير</string>
+    <string name="label_quality">الجودة</string>
+    <string name="btn_close">إغلاق</string>
+
+    <!-- Grain styles -->
+    <string name="label_grain_style">نمط الحبيبات</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+
+    <!-- Watermark -->
+    <string name="header_watermark">العلامة المائية</string>
+    <string name="label_watermark">علامة Honor المائية</string>
+    <string name="label_watermark_style">النمط</string>
+    <string name="label_watermark_brand">العلامة التجارية</string>
+    <string name="watermark_none">بدون</string>
+    <string name="brand_none">بدون</string>
+    <string name="label_watermark_device">الجهاز</string>
+    <string name="label_watermark_lens">العدسة</string>
+    <string name="label_watermark_time">الوقت</string>
+    <string name="label_watermark_location">الموقع</string>
+</resources>

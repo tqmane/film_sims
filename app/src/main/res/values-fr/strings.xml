@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FilmSims</string>
+
+    <!-- Image loading -->
+    <string name="image_loaded">Image chargée : %1$s (Aperçu : %2$s)</string>
+    <string name="image_load_failed">Échec du chargement : %1$s</string>
+    <string name="select_image_first">Veuillez d\'abord sélectionner une image</string>
+
+    <!-- Export -->
+    <string name="exporting">Exportation…</string>
+    <string name="cpu_processing">Traitement CPU… (Les grandes images peuvent prendre du temps)</string>
+    <string name="save_error">Erreur d\'enregistrement : %1$s</string>
+    <string name="save_folder_create_failed">Impossible de créer le dossier de sauvegarde</string>
+    <string name="image_saved">Enregistré (%1$s) : %2$s/%3$s</string>
+    <string name="lut_load_failed">Échec du chargement du filtre</string>
+
+    <!-- Settings -->
+    <string name="enter_save_folder">Saisissez le dossier de sauvegarde</string>
+    <string name="save_path_hint">Ex : Pictures/MesPhotos</string>
+    <string name="save">Enregistrer</string>
+    <string name="cancel">Annuler</string>
+    <string name="save_path_changed">Chemin de sauvegarde modifié : %1$s</string>
+
+    <!-- Update dialog -->
+    <string name="update_available">Mise à jour disponible</string>
+    <string name="new_version_available">Nouvelle version %1$s disponible</string>
+    <string name="update_now">Mettre à jour</string>
+    <string name="later">Plus tard</string>
+    <string name="update_check_failed">Échec de la vérification des mises à jour</string>
+
+    <!-- UI Labels -->
+    <string name="subtitle_film_simulator">Simulateur de film</string>
+    <string name="label_pick_image">Choisir une image</string>
+    <string name="desc_pick_image">Choisissez une photo pour appliquer des simulations de film</string>
+    <string name="btn_open_gallery">Ouvrir la galerie</string>
+    <string name="header_grain">Effets</string>
+    <string name="label_film_grain">Grain de film</string>
+    <string name="header_camera">Appareil photo</string>
+    <string name="header_style">Style</string>
+    <string name="label_intensity">Intensité</string>
+    <string name="header_presets">Préréglages</string>
+    <string name="title_settings">Paramètres</string>
+    <string name="label_save_folder">Dossier de sauvegarde</string>
+    <string name="btn_change">Modifier</string>
+    <string name="label_quality">Qualité</string>
+    <string name="btn_close">Fermer</string>
+
+    <!-- Grain styles -->
+    <string name="label_grain_style">Style de grain</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+
+    <!-- Watermark -->
+    <string name="header_watermark">Filigrane</string>
+    <string name="label_watermark">Filigrane Honor</string>
+    <string name="label_watermark_style">Style</string>
+    <string name="label_watermark_brand">Marque</string>
+    <string name="watermark_none">Aucun</string>
+    <string name="brand_none">Aucun</string>
+    <string name="label_watermark_device">Appareil</string>
+    <string name="label_watermark_lens">Objectif</string>
+    <string name="label_watermark_time">Heure</string>
+    <string name="label_watermark_location">Lieu</string>
+</resources>
