@@ -14,10 +14,15 @@ class VivoFontManager(private val context: Context) {
     companion object {
         private const val FONT_PATH = "watermark/vivo/fonts/"
         private const val FONT_PATH_ALT = "vivo_watermark_full2/assets/fonts/"
+        
+        // 1. 修正: ID 1 と 2 のマッピングを入れ替え
+        // 以前: 1 -> vivoCameraVF.ttf, 2 -> vivotype-Heavy.ttf
+        // 修正: 1 -> vivotype-Heavy.ttf, 2 -> vivoCameraVF.ttf
+        // これにより、端末名(ID 1)に太字、パラメータ(ID 2)に標準フォントが適用されます。
         private val FONT_MAP = mapOf(
             0 to "Roboto-Bold.ttf",
-            1 to "vivoCameraVF.ttf",
-            2 to "vivotype-Heavy.ttf",
+            1 to "vivotype-Heavy.ttf",
+            2 to "vivoCameraVF.ttf",
             3 to "vivo-Regular.otf",
             4 to "ZEISSFrutigerNextW1G-Bold.ttf",
             5 to "Roboto-Bold.ttf",
