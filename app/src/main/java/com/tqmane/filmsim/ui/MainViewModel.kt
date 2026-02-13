@@ -120,7 +120,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val lut = lutApplyUseCase.parseLut(path)
             if (lut != null) {
-                _editState.value = _editState.value.copy(currentLut = lut)
+                val cur = _editState.value
+                _editState.value = cur.copy(
+                    currentLut = lut,
+                    lutVersion = cur.lutVersion + 1
+                )
             } else {
                 _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
             }
@@ -195,6 +199,16 @@ class MainViewModel @Inject constructor(
             )
             withContext(kotlinx.coroutines.Dispatchers.Main) { callback(result) }
         }
+    }
+
+    /**
+     * Check watermark state directly from StateFlow (not stale Compose state)
+     * and refresh the watermark preview if a watermark is active.
+     */
+    fun refreshWatermarkIfActive(callback: (Bitmap) -> Unit) {
+        val wm = _watermarkState.value
+        if (wm.style == WatermarkProcessor.WatermarkStyle.NONE) return
+        renderWatermarkPreview(callback)
     }
 
     // ─── Save / Export ──────────────────────────────────

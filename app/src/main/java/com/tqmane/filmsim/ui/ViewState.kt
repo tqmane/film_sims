@@ -37,6 +37,9 @@ sealed interface ViewState {
 data class EditState(
     val currentLutPath: String? = null,
     val currentLut: CubeLUT? = null,
+    /** Monotonically increasing version; guarantees StateFlow emission on LUT change
+     *  (FloatBuffer inside CubeLUT has unstable equals after GL consumption). */
+    val lutVersion: Long = 0,
     val intensity: Float = 1f,
     val grainEnabled: Boolean = false,
     val grainIntensity: Float = 0.5f,

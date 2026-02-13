@@ -1718,9 +1718,9 @@ object WatermarkProcessor {
             it.recycle()
         }
 
-        // 2. Device/model name (typeface 8 = vivoCameraVF, weight 800, black)
+        // 2. Device/model name — match VIVO_CLASSIC: heavy/bold font
         val deviceText = config.deviceName ?: ""
-        val modelPaint = createWeightedPaint(getVivoCamera(context), 800).apply {
+        val modelPaint = createWeightedPaint(getVivoHeavy(context), 800).apply {
             textSize = 15.3f * dp
             color = Color.BLACK
             textAlign = Paint.Align.LEFT
@@ -1761,20 +1761,20 @@ object WatermarkProcessor {
         val timeText = config.timeText ?: ""
         val locText = config.locationText ?: ""
 
-        // Line 1: 3A camera info (texttype=10, #CC000000, typeface 7, size 9.7, weight 600)
-        val infoPaint = createWeightedPaint(getVivoSansExp(context), 600).apply {
+        // Line 1: 3A camera info — match VIVO_CLASSIC: zeiss bold secondary font
+        val infoPaint = createWeightedPaint(getZeissBold(context), 600).apply {
             textSize = 9.7f * dp
             color = VIVO_3A_ZEISS
             textAlign = Paint.Align.RIGHT
         }
 
-        // Line 2: datetime + location (#757575, typeface 7)
-        val timePaint = createWeightedPaint(getVivoSansExp(context), 550).apply {
+        // Line 2: datetime + location — match VIVO_CLASSIC: zeiss bold secondary font
+        val timePaint = createWeightedPaint(getZeissBold(context), 550).apply {
             textSize = 7.5f * dp
             color = VIVO_TIME_GRAY
             textAlign = Paint.Align.RIGHT
         }
-        val locPaint = createWeightedPaint(getVivoSansExp(context), 500).apply {
+        val locPaint = createWeightedPaint(getZeissBold(context), 500).apply {
             textSize = 7.3f * dp
             color = VIVO_TIME_GRAY
             textAlign = Paint.Align.RIGHT

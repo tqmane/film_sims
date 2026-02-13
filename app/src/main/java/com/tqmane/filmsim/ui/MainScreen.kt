@@ -140,6 +140,9 @@ fun MainScreen(
 
     // Watermark preview bitmap
     var watermarkPreviewBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    
+    // State tracking for optimization
+    var lastAppliedLutPath by remember { mutableStateOf<String?>(null) }
 
     // UI toggles
     var isImmersive by rememberSaveable { mutableStateOf(false) }
@@ -169,46 +172,105 @@ fun MainScreen(
         }
     }
 
-    // Watermark preview refresh helper
+    // Watermark preview refresh helper — uses ViewModel's direct StateFlow check
+    // to avoid stale Compose state issues
     fun refreshWatermarkPreview() {
-        if (watermarkState.style == WatermarkStyle.NONE) {
-            watermarkPreviewBitmap = null
-            return
-        }
-        viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
+        viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
     }
 
-    // 1. Sync edit state to GL (LUT/Grain/Watermark switching)
-    // 修正: 透かしがある場合は画像を差し替え、LUT/Grainを無効化する
-    LaunchedEffect(editState, watermarkPreviewBitmap, viewState) {
+    // 1. 画像読み込み時: プレビュービットマップをGLにセット
+    LaunchedEffect(viewState) {
+        val content = viewState as? ViewState.Content ?: return@LaunchedEffect
         val r = renderer ?: return@LaunchedEffect
         val gl = glSurfaceView ?: return@LaunchedEffect
-        val content = viewState as? ViewState.Content ?: return@LaunchedEffect
-
+        touchHandler?.resetZoom()
+        // 値をキャプチャしてからGLスレッドに渡す
+        val bmp = content.previewBitmap
+        val lut = editState.currentLut
+        val intensity = editState.intensity
+        val grainOn = editState.grainEnabled
+        val grainVal = editState.grainIntensity
+        val grainSty = editState.grainStyle
         gl.queueEvent {
-            if (watermarkPreviewBitmap != null) {
-                // 透かしモード: 生成済み画像をセットし、RendererのエフェクトをOFF
-                r.setImage(watermarkPreviewBitmap!!)
+            r.setImage(bmp)
+            if (lut != null) r.setLut(lut)
+            r.setIntensity(intensity)
+            r.setGrainEnabled(grainOn)
+            if (grainOn) r.setGrainIntensity(grainVal)
+            r.setGrainStyle(grainSty)
+            gl.requestRender()
+        }
+    }
+
+    // 2. 透かしプレビュー変更時: GLに透かし画像をセットまたは通常モードに復帰
+    LaunchedEffect(watermarkPreviewBitmap) {
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        val wmBmp = watermarkPreviewBitmap
+        val content = viewState as? ViewState.Content
+        val lut = editState.currentLut
+        val intensity = editState.intensity
+        val grainOn = editState.grainEnabled
+        val grainVal = editState.grainIntensity
+        val grainSty = editState.grainStyle
+        gl.queueEvent {
+            if (wmBmp != null) {
+                r.setImage(wmBmp)
                 r.setIntensity(0f)
                 r.setGrainEnabled(false)
-            } else {
-                // 通常モード: オリジナル画像をセットし、エフェクトを適用
+            } else if (content != null) {
                 r.setImage(content.previewBitmap)
-                editState.currentLut?.let { r.setLut(it) }
-                r.setIntensity(editState.intensity)
-                r.setGrainEnabled(editState.grainEnabled)
-                if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
-                r.setGrainStyle(editState.grainStyle)
+                if (lut != null) r.setLut(lut)
+                r.setIntensity(intensity)
+                r.setGrainEnabled(grainOn)
+                if (grainOn) r.setGrainIntensity(grainVal)
+                r.setGrainStyle(grainSty)
             }
             gl.requestRender()
         }
     }
 
-    // 2. Refresh Watermark when LUT or Intensity changes
-    // 修正: LUT変更時に透かしも再生成する
-    LaunchedEffect(editState.currentLut, editState.intensity) {
+    // 3. LUT/エフェクト変更時: GLパラメータを更新 (setImageは呼ばない)
+    //    lutVersionをキーにすることでFloatBufferの不安定なequals()を回避
+    LaunchedEffect(
+        editState.lutVersion, editState.intensity,
+        editState.grainEnabled, editState.grainIntensity, editState.grainStyle
+    ) {
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        if (viewState !is ViewState.Content) return@LaunchedEffect
+        // 透かしモードでも LUT をGLに送る (透かしは renderPreview 側で適用するが、
+        // 透かし解除時にGLが最新LUTを持っている必要がある)
+        val wmActive = watermarkPreviewBitmap != null
+        val lut = editState.currentLut
+        val intensity = editState.intensity
+        val grainOn = editState.grainEnabled
+        val grainVal = editState.grainIntensity
+        val grainSty = editState.grainStyle
+        gl.queueEvent {
+            if (lut != null) r.setLut(lut)
+            if (!wmActive) {
+                r.setIntensity(intensity)
+                r.setGrainEnabled(grainOn)
+                if (grainOn) r.setGrainIntensity(grainVal)
+                r.setGrainStyle(grainSty)
+            }
+            gl.requestRender()
+        }
+    }
+
+    // 4. 透かしモード中のLUT/エフェクト変更時: 透かしプレビューを再生成
+    LaunchedEffect(editState.lutVersion, editState.intensity, editState.grainEnabled, editState.grainIntensity, editState.grainStyle) {
+        // ViewModel 側で watermarkState を直接チェック (Compose state のラグを回避)
+        viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
+    }
+
+    // 5. 透かしスタイル変更時: 透かしプレビューを自動更新
+    LaunchedEffect(watermarkState.style) {
         if (watermarkState.style != WatermarkStyle.NONE) {
-            refreshWatermarkPreview()
+            viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
+        } else {
+            watermarkPreviewBitmap = null
         }
     }
 
@@ -233,7 +295,6 @@ fun MainScreen(
                         this, r,
                         onSingleTap = { isImmersive = !isImmersive },
                         onLongPressStart = {
-                            // Only show original if NO watermark is active (watermark includes LUT)
                             if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
                                 queueEvent {
                                     r.setIntensity(0f); r.setGrainEnabled(false)
@@ -259,8 +320,6 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize()
         )
         
-        // 修正: Imageによるオーバーレイを削除 (GLSurfaceViewに画像を流し込むため不要)
-
         // ─── Main vertical LinearLayout ─────────────────
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -312,6 +371,7 @@ fun MainScreen(
                     onTogglePanel = { panelExpanded = !panelExpanded },
                     glSurfaceView = glSurfaceView,
                     renderer = renderer,
+                    isWatermarkActive = watermarkPreviewBitmap != null,
                     onRefreshWatermark = { refreshWatermarkPreview() },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -330,7 +390,7 @@ fun MainScreen(
     }
 }
 
-// (以下、TopBar, PlaceholderContent, RoundGlassButton は変更なしのため省略またはそのまま記述)
+// (TopBar, RoundGlassButton, PlaceholderContent remain unchanged...)
 @Composable
 private fun TopBar(
     onPickImage: () -> Unit,
@@ -340,11 +400,6 @@ private fun TopBar(
 ) {
     Box(
         modifier = modifier
-            .background(
-                Brush.verticalGradient(
-                    listOf(TopBarGradientStart, TopBarGradientCenter, TopBarGradientEnd)
-                )
-            )
             .padding(horizontal = 24.dp, vertical = 24.dp)
     ) {
         Row(
@@ -454,6 +509,7 @@ private fun ControlPanel(
     onTogglePanel: () -> Unit,
     glSurfaceView: GLSurfaceView?,
     renderer: FilmSimRenderer?,
+    isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -472,14 +528,14 @@ private fun ControlPanel(
 
         AnimatedVisibility(visible = panelExpanded && editState.hasSelectedLut) {
             Column(modifier = Modifier.padding(bottom = 16.dp)) {
-                GrainControls(editState, viewModel, glSurfaceView, renderer, onRefreshWatermark)
+                GrainControls(editState, viewModel, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
                 Spacer(Modifier.fillMaxWidth().padding(vertical = 8.dp).height(1.dp).background(DividerColor))
                 WatermarkControls(watermarkState, viewModel, onRefreshWatermark)
             }
         }
 
         SectionHeader(stringResource(R.string.header_camera))
-        BrandGenreLutSection(viewModel.brands, viewModel, viewState, editState, glSurfaceView, renderer, onRefreshWatermark)
+        BrandGenreLutSection(viewModel.brands, viewModel, viewState, editState, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
     }
 }
 
@@ -496,6 +552,7 @@ private fun BrandGenreLutSection(
     editState: EditState,
     glSurfaceView: GLSurfaceView?,
     renderer: FilmSimRenderer?,
+    isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit
 ) {
     var selectedBrandIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -526,9 +583,14 @@ private fun BrandGenreLutSection(
     AnimatedVisibility(visible = editState.hasSelectedLut, enter = fadeIn() + scaleIn(initialScale = 0.95f)) {
         QuickIntensitySlider(intensity = editState.intensity, onIntensityChange = { value ->
             viewModel.setIntensity(value)
-            glSurfaceView?.queueEvent {
-                renderer?.setIntensity(value)
-                glSurfaceView.requestRender()
+            // 透かしモード中はGLに直接intensityを送らない
+            // (透かしビットマップには既にCPU側でLUTが適用済み;
+            //  GL側でも適用すると二重にかかる)
+            if (!isWatermarkActive) {
+                glSurfaceView?.queueEvent {
+                    renderer?.setIntensity(value)
+                    glSurfaceView.requestRender()
+                }
             }
             onRefreshWatermark()
         })
@@ -551,9 +613,6 @@ private fun GlowChip(text: String, selected: Boolean, onClick: () -> Unit, enabl
         Text(text, color = textCol, fontSize = 12.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.01.sp)
     }
 }
-
-// ─── LUT Row & Card ─────────────────────────────────────
-// 修正: プレビューの非同期読み込みを追加し、XMLレイアウト(86dp)と合わせる
 
 @Composable
 private fun LutRow(items: List<LutItem>, thumbnailBitmap: Bitmap?, onLutSelected: (LutItem) -> Unit) {
@@ -613,6 +672,7 @@ private fun GrainControls(
     viewModel: MainViewModel,
     glSurfaceView: GLSurfaceView?,
     renderer: FilmSimRenderer?,
+    isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit
 ) {
     var grainEnabled by remember { mutableStateOf(editState.grainEnabled) }
@@ -630,12 +690,13 @@ private fun GrainControls(
             onCheckedChange = { on ->
                 grainEnabled = on
                 viewModel.setGrainEnabled(on)
-                glSurfaceView?.queueEvent {
-                    renderer?.setGrainEnabled(on)
-                    if (on) renderer?.setGrainIntensity(grainIntensity)
-                    glSurfaceView.requestRender()
+                if (!isWatermarkActive) {
+                    glSurfaceView?.queueEvent {
+                        renderer?.setGrainEnabled(on)
+                        if (on) renderer?.setGrainIntensity(grainIntensity)
+                        glSurfaceView.requestRender()
+                    }
                 }
-                // 修正: 透かしモード時の更新漏れを防ぐ
                 onRefreshWatermark()
             },
             colors = CheckboxDefaults.colors(checkedColor = AccentPrimary),
@@ -649,9 +710,11 @@ private fun GrainControls(
         onValueChangeFinished = {
             viewModel.setGrainIntensity(grainIntensity)
             if (grainEnabled) {
-                glSurfaceView?.queueEvent {
-                    renderer?.setGrainIntensity(grainIntensity)
-                    glSurfaceView.requestRender()
+                if (!isWatermarkActive) {
+                    glSurfaceView?.queueEvent {
+                        renderer?.setGrainIntensity(grainIntensity)
+                        glSurfaceView.requestRender()
+                    }
                 }
                 onRefreshWatermark()
             }
@@ -675,9 +738,11 @@ private fun GrainControls(
                         if (grainEnabled) {
                             selectedStyle = key
                             viewModel.setGrainStyle(key)
-                            glSurfaceView?.queueEvent {
-                                renderer?.setGrainStyle(key)
-                                glSurfaceView.requestRender()
+                            if (!isWatermarkActive) {
+                                glSurfaceView?.queueEvent {
+                                    renderer?.setGrainStyle(key)
+                                    glSurfaceView.requestRender()
+                                }
                             }
                             onRefreshWatermark()
                         }
@@ -688,11 +753,9 @@ private fun GrainControls(
     }
 }
 
-// (WatermarkControls は変更なし、InputRowも同様)
+// (WatermarkControls and WatermarkInputRow remain unchanged...)
 @Composable
 private fun WatermarkControls(watermarkState: WatermarkState, viewModel: MainViewModel, onRefreshWatermark: () -> Unit) {
-    // ... (前回の実装と同じため省略。ただしMainScreen全体をコピーする場合は元のWatermarkControlsを含めてください)
-    // 重要なロジック変更はないが、一貫性のため前回提供したものをそのまま使用
     val defaultTime = remember { WatermarkProcessor.getDefaultTimeString() }
     val selectedBrand = watermarkState.brandName
     val selectedStyle = watermarkState.style
@@ -702,7 +765,6 @@ private fun WatermarkControls(watermarkState: WatermarkState, viewModel: MainVie
     var locationText by remember(watermarkState.locationText) { mutableStateOf(watermarkState.locationText) }
     var lensInfo by remember(watermarkState.lensInfo) { mutableStateOf(watermarkState.lensInfo) }
     
-    // スタイルリスト定義 (省略せず記述が必要)
     val honorStyles = listOf(R.string.watermark_frame to WatermarkStyle.FRAME, R.string.watermark_text to WatermarkStyle.TEXT, R.string.watermark_frame_yg to WatermarkStyle.FRAME_YG, R.string.watermark_text_yg to WatermarkStyle.TEXT_YG)
     val meizuStyles = listOf(R.string.meizu_norm to WatermarkStyle.MEIZU_NORM, R.string.meizu_pro to WatermarkStyle.MEIZU_PRO, R.string.meizu_z1 to WatermarkStyle.MEIZU_Z1, R.string.meizu_z2 to WatermarkStyle.MEIZU_Z2, R.string.meizu_z3 to WatermarkStyle.MEIZU_Z3, R.string.meizu_z4 to WatermarkStyle.MEIZU_Z4, R.string.meizu_z5 to WatermarkStyle.MEIZU_Z5, R.string.meizu_z6 to WatermarkStyle.MEIZU_Z6, R.string.meizu_z7 to WatermarkStyle.MEIZU_Z7)
     val vivoStyles = listOf(R.string.vivo_zeiss to WatermarkStyle.VIVO_ZEISS, R.string.vivo_classic to WatermarkStyle.VIVO_CLASSIC, R.string.vivo_pro to WatermarkStyle.VIVO_PRO, R.string.vivo_iqoo to WatermarkStyle.VIVO_IQOO, R.string.vivo_zeiss_v1 to WatermarkStyle.VIVO_ZEISS_V1, R.string.vivo_zeiss_sonnar to WatermarkStyle.VIVO_ZEISS_SONNAR, R.string.vivo_zeiss_humanity to WatermarkStyle.VIVO_ZEISS_HUMANITY, R.string.vivo_iqoo_v1 to WatermarkStyle.VIVO_IQOO_V1, R.string.vivo_iqoo_humanity to WatermarkStyle.VIVO_IQOO_HUMANITY, R.string.vivo_zeiss_frame to WatermarkStyle.VIVO_ZEISS_FRAME, R.string.vivo_zeiss_overlay to WatermarkStyle.VIVO_ZEISS_OVERLAY, R.string.vivo_zeiss_center to WatermarkStyle.VIVO_ZEISS_CENTER, R.string.vivo_frame to WatermarkStyle.VIVO_FRAME, R.string.vivo_frame_time to WatermarkStyle.VIVO_FRAME_TIME, R.string.vivo_iqoo_frame to WatermarkStyle.VIVO_IQOO_FRAME, R.string.vivo_iqoo_frame_time to WatermarkStyle.VIVO_IQOO_FRAME_TIME, R.string.vivo_os to WatermarkStyle.VIVO_OS, R.string.vivo_os_corner to WatermarkStyle.VIVO_OS_CORNER, R.string.vivo_os_simple to WatermarkStyle.VIVO_OS_SIMPLE, R.string.vivo_event to WatermarkStyle.VIVO_EVENT)
