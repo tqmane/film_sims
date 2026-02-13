@@ -12,7 +12,7 @@ class FilmSimsApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        memoryMonitor = MemoryMonitor(BitmapPool)
+        memoryMonitor = MemoryMonitor(BitmapPool())
         registerComponentCallbacks(memoryMonitor)
     }
 
