@@ -79,7 +79,6 @@
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
     <string name="brand_leica_fotos">Leica FOTOS</string>
-    <string name="brand_hasselblad_phocus">Hasselblad Phocus</string>
     
     <!-- Leica_lux filter names -->
     <string name="lut_leica_classic">Leica Classic</string>
@@ -119,15 +118,6 @@
     <string name="lut_fotos_mono_gregwilliams">모노 그렉 윌리엄스</string>
     <string name="lut_fotos_mono_selenium">모노 셀레늄</string>
     <string name="lut_fotos_mono_sepia">모노 세피아</string>
-    
-    <!-- HasselBlad_Phocus filter names -->
-    <string name="lut_hb_flash_repro">플래시 리프로</string>
-    <string name="lut_hb_flash_standard">플래시 스탠다드</string>
-    <string name="lut_hb_hightemp_repro">고색온도 리프로</string>
-    <string name="lut_hb_hightemp_standard">고색온도 스탠다드</string>
-    <string name="lut_hb_leica_standard">라이카 스탠다드</string>
-    <string name="lut_hb_tungsten_repro">텅스텐 리프로</string>
-    <string name="lut_hb_tungsten_standard">텅스텐 스탠다드</string>
     
     <!-- Nubia LUT names -->
     <string name="lut_nubia_landscape">풍경</string>

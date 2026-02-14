@@ -598,7 +598,7 @@ private fun BrandGenreLutSection(
 
     SectionHeader(stringResource(R.string.header_presets))
 
-    LutRow(items = lutItems, thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap, onLutSelected = { viewModel.applyLut(it) })
+    LutRow(items = lutItems, thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap, onLutSelected = { viewModel.applyLut(it) }, currentLutPath = editState.currentLutPath)
 }
 
 @Composable
@@ -615,11 +615,10 @@ private fun GlowChip(text: String, selected: Boolean, onClick: () -> Unit, enabl
 }
 
 @Composable
-private fun LutRow(items: List<LutItem>, thumbnailBitmap: Bitmap?, onLutSelected: (LutItem) -> Unit) {
-    var selectedIndex by rememberSaveable { mutableIntStateOf(-1) }
+private fun LutRow(items: List<LutItem>, thumbnailBitmap: Bitmap?, onLutSelected: (LutItem) -> Unit, currentLutPath: String?) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(120.dp)) {
         itemsIndexed(items) { index, item ->
-            LutCard(item = item, thumbnailBitmap = thumbnailBitmap, selected = index == selectedIndex, onClick = { selectedIndex = index; onLutSelected(item) })
+            LutCard(item = item, thumbnailBitmap = thumbnailBitmap, selected = item.assetPath == currentLutPath, onClick = { onLutSelected(item) })
         }
     }
 }

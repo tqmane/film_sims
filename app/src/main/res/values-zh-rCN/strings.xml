@@ -79,7 +79,6 @@
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
     <string name="brand_leica_fotos">Leica FOTOS</string>
-    <string name="brand_hasselblad_phocus">Hasselblad Phocus</string>
     
     <!-- Leica_lux filter names -->
     <string name="lut_leica_classic">Leica Classic</string>
@@ -119,15 +118,6 @@
     <string name="lut_fotos_mono_gregwilliams">单色 Greg Williams</string>
     <string name="lut_fotos_mono_selenium">单色硒</string>
     <string name="lut_fotos_mono_sepia">单色棕褐</string>
-    
-    <!-- HasselBlad_Phocus filter names -->
-    <string name="lut_hb_flash_repro">闪光灯 复制</string>
-    <string name="lut_hb_flash_standard">闪光灯 标准</string>
-    <string name="lut_hb_hightemp_repro">高色温 复制</string>
-    <string name="lut_hb_hightemp_standard">高色温 标准</string>
-    <string name="lut_hb_leica_standard">徕卡 标准</string>
-    <string name="lut_hb_tungsten_repro">钨丝灯 复制</string>
-    <string name="lut_hb_tungsten_standard">钨丝灯 标准</string>
     
     <!-- Nubia LUT names -->
     <string name="lut_nubia_landscape">风景</string>
