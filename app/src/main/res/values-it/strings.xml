@@ -62,4 +62,36 @@
     <string name="label_watermark_lens">Obiettivo</string>
     <string name="label_watermark_time">Ora</string>
     <string name="label_watermark_location">Posizione</string>
+
+    <!-- Brand names -->
+    <string name="brand_leica_lux">Leica LUX</string>
+    <string name="brand_leica_fotos">Leica FOTOS</string>
+    <string name="brand_hasselblad_phocus">Hasselblad Phocus</string>
+
+    <!-- Leica_FOTOS filter names -->
+    <string name="lut_fotos_bleach">Sbiancato</string>
+    <string name="lut_fotos_blue">Blu</string>
+    <string name="lut_fotos_brass">Ottone</string>
+    <string name="lut_fotos_chrome">Cromo</string>
+    <string name="lut_fotos_classic">Classico</string>
+    <string name="lut_fotos_contemporary">Contemporaneo</string>
+    <string name="lut_fotos_eternal">Eterno</string>
+    <string name="lut_fotos_gregwilliams">Greg Williams</string>
+    <string name="lut_fotos_selenium">Selenio</string>
+    <string name="lut_fotos_sepia">Seppia</string>
+    <string name="lut_fotos_silver">Argento</string>
+    <string name="lut_fotos_teal">Foglia di Tè</string>
+    <string name="lut_fotos_mono_blue">Mono Blu</string>
+    <string name="lut_fotos_mono_gregwilliams">Mono Greg Williams</string>
+    <string name="lut_fotos_mono_selenium">Mono Selenio</string>
+    <string name="lut_fotos_mono_sepia">Mono Seppia</string>
+
+    <!-- HasselBlad_Phocus filter names -->
+    <string name="lut_hb_flash_repro">Flash Repro</string>
+    <string name="lut_hb_flash_standard">Flash Standard</string>
+    <string name="lut_hb_hightemp_repro">Alta Temperatura Repro</string>
+    <string name="lut_hb_hightemp_standard">Alta Temperatura Standard</string>
+    <string name="lut_hb_leica_standard">Leica Standard</string>
+    <string name="lut_hb_tungsten_repro">Tungsteno Repro</string>
+    <string name="lut_hb_tungsten_standard">Tungsteno Standard</string>
 </resources>

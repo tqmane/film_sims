@@ -94,6 +94,8 @@
     
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
+    <string name="brand_leica_fotos">Leica FOTOS</string>
+    <string name="brand_hasselblad_phocus">Hasselblad Phocus</string>
     
     <!-- Leica_lux filter names -->
     <string name="lut_leica_classic">ライカ クラシック</string>
@@ -115,6 +117,33 @@
     <string name="lut_greg_williams_sepia_100">Greg Williams セピア 100%</string>
     <string name="lut_leica_standard">ライカ スタンダード</string>
     <string name="lut_leica_chrome">ライカ クローム</string>
+
+    <!-- Leica_FOTOS filter names -->
+    <string name="lut_fotos_bleach">ブリーチ</string>
+    <string name="lut_fotos_blue">ブルー</string>
+    <string name="lut_fotos_brass">ブラス</string>
+    <string name="lut_fotos_chrome">クローム</string>
+    <string name="lut_fotos_classic">クラシック</string>
+    <string name="lut_fotos_contemporary">コンテンポラリー</string>
+    <string name="lut_fotos_eternal">エターナル</string>
+    <string name="lut_fotos_gregwilliams">グレッグ・ウィリアムズ</string>
+    <string name="lut_fotos_selenium">セレニウム</string>
+    <string name="lut_fotos_sepia">セピア</string>
+    <string name="lut_fotos_silver">シルバー</string>
+    <string name="lut_fotos_teal">ティール</string>
+    <string name="lut_fotos_mono_blue">モノ ブルー</string>
+    <string name="lut_fotos_mono_gregwilliams">モノ グレッグ・ウィリアムズ</string>
+    <string name="lut_fotos_mono_selenium">モノ セレニウム</string>
+    <string name="lut_fotos_mono_sepia">モノ セピア</string>
+
+    <!-- HasselBlad_Phocus filter names -->
+    <string name="lut_hb_flash_repro">フラッシュ リプロ</string>
+    <string name="lut_hb_flash_standard">フラッシュ スタンダード</string>
+    <string name="lut_hb_hightemp_repro">高色温度 リプロ</string>
+    <string name="lut_hb_hightemp_standard">高色温度 スタンダード</string>
+    <string name="lut_hb_leica_standard">ライカ スタンダード</string>
+    <string name="lut_hb_tungsten_repro">タングステン リプロ</string>
+    <string name="lut_hb_tungsten_standard">タングステン スタンダード</string>
     
     <!-- Nubia LUT names -->
     <string name="lut_nubia_landscape">風景</string>

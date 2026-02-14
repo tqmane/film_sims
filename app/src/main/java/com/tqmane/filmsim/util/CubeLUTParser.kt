@@ -98,6 +98,7 @@ object CubeLUTParser {
             var channels = 3
             var dataOffset = 0
             var isBgr: Boolean
+            var isFloatFormat = false
             
             // Check for known headers
             val magic8 = String(bytes.copyOfRange(0, 8.coerceAtMost(bytes.size)))
@@ -202,16 +203,24 @@ object CubeLUTParser {
                     98304 -> { lutSize = 32; channels = 3 }
                     12288 -> { lutSize = 16; channels = 3 }
                     else -> {
-                        // Try 4 channels
-                        val sizeC4 = kotlin.math.round(Math.pow((fileSize / 4).toDouble(), 1.0/3.0)).toInt()
-                        if (sizeC4 * sizeC4 * sizeC4 * 4 == fileSize) {
-                            lutSize = sizeC4
-                            channels = 4
-                        } else {
-                            // Try 3 channels
-                            val sizeC3 = kotlin.math.round(Math.pow((fileSize / 3).toDouble(), 1.0/3.0)).toInt()
-                            lutSize = sizeC3
+                        // Try float32 RGB (12 bytes per pixel: 3 × float32)
+                        val sizeF3 = kotlin.math.round(Math.pow((fileSize / 12).toDouble(), 1.0/3.0)).toInt()
+                        if (sizeF3 in 8..128 && sizeF3 * sizeF3 * sizeF3 * 12 == fileSize) {
+                            lutSize = sizeF3
                             channels = 3
+                            isFloatFormat = true
+                        } else {
+                            // Try 4 channels uint8
+                            val sizeC4 = kotlin.math.round(Math.pow((fileSize / 4).toDouble(), 1.0/3.0)).toInt()
+                            if (sizeC4 * sizeC4 * sizeC4 * 4 == fileSize) {
+                                lutSize = sizeC4
+                                channels = 4
+                            } else {
+                                // Try 3 channels uint8
+                                val sizeC3 = kotlin.math.round(Math.pow((fileSize / 3).toDouble(), 1.0/3.0)).toInt()
+                                lutSize = sizeC3
+                                channels = 3
+                            }
                         }
                     }
                 }
@@ -220,8 +229,8 @@ object CubeLUTParser {
             // Detect if data is stored as floats (12 bytes per pixel) vs bytes (3/4 bytes per pixel)
             // Check header byte at 0x10 - value 3 indicates float format for some files
             // Also check by calculating data size
-            var isFloatFormat = false
-            if (hasMsLutHeader && bytes.size > 0x14) {
+            // (isFloatFormat may already be set by raw binary detection above)
+            if (!isFloatFormat && hasMsLutHeader && bytes.size > 0x14) {
                 val formatHint = bytes[0x10].toInt() and 0xFF
                 val dataSize = bytes.size - dataOffset
                 val expectedBytesPerPixel = dataSize / (lutSize * lutSize * lutSize)

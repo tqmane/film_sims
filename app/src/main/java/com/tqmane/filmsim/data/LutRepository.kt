@@ -217,10 +217,49 @@ object LutRepository {
     private fun getBrandDisplayName(context: Context, brandName: String): String {
         return when (brandName) {
             "Leica_lux" -> context.getString(R.string.brand_leica_lux)
+            "Leica_FOTOS" -> context.getString(R.string.brand_leica_fotos)
+            "HasselBlad_Phocus" -> context.getString(R.string.brand_hasselblad_phocus)
             else -> brandName
         }
     }
     
+    // Leica_FOTOS filter filename to localized display name
+    private fun getLeicaFotosFilterName(context: Context, fileName: String): String {
+        return when {
+            fileName.equals("default_bleach", ignoreCase = true) -> context.getString(R.string.lut_fotos_bleach)
+            fileName.equals("default_blue", ignoreCase = true) -> context.getString(R.string.lut_fotos_blue)
+            fileName.equals("default_brass", ignoreCase = true) -> context.getString(R.string.lut_fotos_brass)
+            fileName.equals("default_chrome", ignoreCase = true) -> context.getString(R.string.lut_fotos_chrome)
+            fileName.equals("default_classic", ignoreCase = true) -> context.getString(R.string.lut_fotos_classic)
+            fileName.equals("default_contemporary", ignoreCase = true) -> context.getString(R.string.lut_fotos_contemporary)
+            fileName.equals("default_eternal", ignoreCase = true) -> context.getString(R.string.lut_fotos_eternal)
+            fileName.equals("default_gregwilliams", ignoreCase = true) -> context.getString(R.string.lut_fotos_gregwilliams)
+            fileName.equals("default_selenium", ignoreCase = true) -> context.getString(R.string.lut_fotos_selenium)
+            fileName.equals("default_sepia", ignoreCase = true) -> context.getString(R.string.lut_fotos_sepia)
+            fileName.equals("default_silver", ignoreCase = true) -> context.getString(R.string.lut_fotos_silver)
+            fileName.equals("default_teal", ignoreCase = true) -> context.getString(R.string.lut_fotos_teal)
+            fileName.equals("mono_blue", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_blue)
+            fileName.equals("mono_gregwilliams", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_gregwilliams)
+            fileName.equals("mono_selenium", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_selenium)
+            fileName.equals("mono_sepia", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_sepia)
+            else -> fileName.replace("_", " ")
+        }
+    }
+
+    // HasselBlad_Phocus filter filename to localized display name
+    private fun getHasselbladFilterName(context: Context, fileName: String): String {
+        return when {
+            fileName.equals("Hasselblad_Flash_Repro", ignoreCase = true) -> context.getString(R.string.lut_hb_flash_repro)
+            fileName.equals("Hasselblad_Flash_Standard", ignoreCase = true) -> context.getString(R.string.lut_hb_flash_standard)
+            fileName.equals("Hasselblad_HighTemp_Repro", ignoreCase = true) -> context.getString(R.string.lut_hb_hightemp_repro)
+            fileName.equals("Hasselblad_HighTemp_Standard", ignoreCase = true) -> context.getString(R.string.lut_hb_hightemp_standard)
+            fileName.equals("Hasselblad_Leica_Standard", ignoreCase = true) -> context.getString(R.string.lut_hb_leica_standard)
+            fileName.equals("Hasselblad_Tungsten_Repro", ignoreCase = true) -> context.getString(R.string.lut_hb_tungsten_repro)
+            fileName.equals("Hasselblad_Tungsten_Standard", ignoreCase = true) -> context.getString(R.string.lut_hb_tungsten_standard)
+            else -> fileName.replace("_", " ")
+        }
+    }
+
     // Leica_lux filter filename to localized display name
     private fun getLeicaLuxFilterName(context: Context, fileName: String): String {
         return when {
@@ -311,6 +350,8 @@ object LutRepository {
                 
                 val categories = mutableListOf<LutCategory>()
                 val isLeicaLux = brandName == "Leica_lux"
+                val isLeicaFotos = brandName == "Leica_FOTOS"
+                val isHasselblad = brandName == "HasselBlad_Phocus"
                 val isVivo = brandName == "Vivo"
                 val isNubia = brandName == "Nubia"
                 val isHonor = brandName == "Honor"
@@ -330,6 +371,8 @@ object LutRepository {
                             
                         val displayName = when {
                             isLeicaLux -> getLeicaLuxFilterName(context, baseName)
+                            isLeicaFotos -> getLeicaFotosFilterName(context, baseName)
+                            isHasselblad -> getHasselbladFilterName(context, baseName)
                             isNubia -> getNubiaFilterName(context, baseName)
                             isVivo -> getVivoFilterName(baseName)
                             isHonor -> getHonorFilterName(context, baseName)
@@ -369,6 +412,8 @@ object LutRepository {
                         val isFilmCategory = categoryName == "Film"
                         val displayName = when {
                             isLeicaLux -> getLeicaLuxFilterName(context, baseName)
+                            isLeicaFotos -> getLeicaFotosFilterName(context, baseName)
+                            isHasselblad -> getHasselbladFilterName(context, baseName)
                             isFilmCategory -> getFilmLutName(context, baseName)
                             isVivo -> getVivoFilterName(baseName)
                             isHonor -> getHonorFilterName(context, baseName)
