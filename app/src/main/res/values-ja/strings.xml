@@ -58,6 +58,18 @@
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">すべて</string>
+
+    <!-- TECNO categories -->
+    <string name="category_a_series">Aシリーズ</string>
+    <string name="category_b_series">Bシリーズ</string>
+    <string name="category_c_series">Cシリーズ</string>
+    <string name="category_ai_camera">AIカメラ</string>
+    <string name="category_custom">カスタム</string>
+    <string name="category_filters">フィルター</string>
+    <string name="category_india_filters">インドフィルター</string>
+    <string name="category_misc">その他</string>
+    <string name="category_night_mode">ナイトモード</string>
+    <string name="category_street_photo">ストリートフォト</string>
     
     <!-- LUT Categories - Leica_lux -->
     <string name="category_leica_looks">Leica Looks</string>

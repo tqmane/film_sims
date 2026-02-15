@@ -46,6 +46,8 @@ object WatermarkProcessor {
         VIVO_IQOO_FRAME, VIVO_IQOO_FRAME_TIME,
         VIVO_OS, VIVO_OS_CORNER, VIVO_OS_SIMPLE,
         VIVO_EVENT,
+        // TECNO watermarks
+        TECNO_1, TECNO_2, TECNO_3, TECNO_4,
         // Config-driven watermarks (new accurate implementation)
         VIVO_ZEISS_0, VIVO_ZEISS_1, VIVO_ZEISS_2, VIVO_ZEISS_3, VIVO_ZEISS_4,
         VIVO_ZEISS_5, VIVO_ZEISS_6, VIVO_ZEISS_7, VIVO_ZEISS_8,
@@ -144,6 +146,11 @@ object WatermarkProcessor {
             WatermarkStyle.VIVO_OS_CORNER -> applyVivoOSCorner(context, source, config)
             WatermarkStyle.VIVO_OS_SIMPLE -> applyVivoOSSimple(context, source, config)
             WatermarkStyle.VIVO_EVENT -> applyVivoEvent(context, source, config)
+            // TECNO watermarks
+            WatermarkStyle.TECNO_1 -> applyTecnoWatermark(context, source, config, 1)
+            WatermarkStyle.TECNO_2 -> applyTecnoWatermark(context, source, config, 2)
+            WatermarkStyle.TECNO_3 -> applyTecnoWatermark(context, source, config, 3)
+            WatermarkStyle.TECNO_4 -> applyTecnoWatermark(context, source, config, 4)
             // Config-driven watermarks
             WatermarkStyle.VIVO_ZEISS_0 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss0.txt")
             WatermarkStyle.VIVO_ZEISS_1 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss1.txt")
@@ -3328,6 +3335,337 @@ object WatermarkProcessor {
             // Fallback to classic implementation on error
             Log.w("WatermarkProcessor", "Config-driven watermark failed, using fallback", e)
             applyVivoZeiss(context, source, config)
+        }
+    }
+
+    // ─── TECNO Watermark ────────────────────────────────
+
+    // Reference bar dimensions (from TranssionWM.json, portrait mode at 1080px width)
+    private const val TECNO_REF_WIDTH = 1080f
+    private const val TECNO_BAR_HEIGHT_PORTRAIT = 113f
+    private const val TECNO_BAR_HEIGHT_LANDSCAPE = 95f
+
+    // Cached TECNO typefaces
+    private var tecnoBrandTypeface: Typeface? = null
+    private var tecnoDateTypeface: Typeface? = null
+
+    private fun getTecnoBrandTypeface(context: Context): Typeface {
+        tecnoBrandTypeface?.let { return it }
+        return try {
+            Typeface.createFromAsset(context.assets, "watermark/TECNO/fonts/Transota0226-Regular.ttf").also {
+                tecnoBrandTypeface = it
+            }
+        } catch (e: Exception) {
+            Typeface.create("sans-serif", Typeface.NORMAL)
+        }
+    }
+
+    private fun getTecnoDateTypeface(context: Context): Typeface {
+        tecnoDateTypeface?.let { return it }
+        return try {
+            Typeface.createFromAsset(context.assets, "watermark/TECNO/fonts/tos_regular.ttf").also {
+                tecnoDateTypeface = it
+            }
+        } catch (e: Exception) {
+            Typeface.create("sans-serif", Typeface.NORMAL)
+        }
+    }
+
+    /**
+     * Apply TECNO watermark (modes 1-4).
+     *
+     * Mode 1: Brand name only + date/time on right
+     * Mode 2: Brand name (smaller) + date/time on right + secondary text below brand
+     * Mode 3: Brand name + date/time on right (2 lines) + secondary text below brand
+     * Mode 4: Brand name + date/time right + secondary text + location text
+     *
+     * All modes auto-detect portrait vs landscape based on image aspect ratio.
+     * Dimensions are scaled proportionally from the 1080px reference width.
+     */
+    private fun applyTecnoWatermark(
+        context: Context,
+        source: Bitmap,
+        config: WatermarkConfig,
+        mode: Int
+    ): Bitmap {
+        val imgWidth = source.width
+        val imgHeight = source.height
+        val isLandscape = imgWidth > imgHeight
+
+        val scale = imgWidth / TECNO_REF_WIDTH
+        val barHeight = if (isLandscape) TECNO_BAR_HEIGHT_LANDSCAPE else TECNO_BAR_HEIGHT_PORTRAIT
+        val scaledBarHeight = (barHeight * scale).toInt()
+
+        val totalHeight = imgHeight + scaledBarHeight
+
+        val result = Bitmap.createBitmap(imgWidth, totalHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(result)
+
+        // Draw original image
+        canvas.drawBitmap(source, 0f, 0f, null)
+
+        // Draw white bar
+        val barPaint = Paint().apply {
+            color = Color.WHITE
+            style = Paint.Style.FILL
+        }
+        canvas.drawRect(0f, imgHeight.toFloat(), imgWidth.toFloat(), totalHeight.toFloat(), barPaint)
+
+        val barTop = imgHeight.toFloat()
+
+        // Draw backdrop texture on the right side
+        try {
+            context.assets.open("watermark/TECNO/icons/TriangleTexture.png").use { stream ->
+                val texBitmap = BitmapFactory.decodeStream(stream)
+                if (texBitmap != null) {
+                    val texWidth = (429f * scale).toInt()
+                    val texHeight = scaledBarHeight
+                    val texX = (651f * scale).toInt()
+                    val texRect = Rect(texX, barTop.toInt(), texX + texWidth, barTop.toInt() + texHeight)
+                    canvas.drawBitmap(texBitmap, null, texRect, Paint(Paint.FILTER_BITMAP_FLAG).apply { alpha = 255 })
+                    texBitmap.recycle()
+                }
+            }
+        } catch (_: Exception) {}
+
+        // Prepare paints
+        val brandTypeface = getTecnoBrandTypeface(context)
+        val dateTypeface = getTecnoDateTypeface(context)
+
+        val deviceText = config.deviceName ?: "TECNO"
+        val timeText = config.timeText ?: ""
+        val lensText = config.lensInfo ?: ""
+        val locText = config.locationText ?: ""
+
+        val rightXLimit = (if (isLandscape) 1050f else 1041f) * scale
+
+        when (mode) {
+            1 -> {
+                // Mode 1: Brand name on left, date on right
+                val brandFontSize = (if (isLandscape) 22f else 29f) * scale
+                val brandY = (if (isLandscape) 59f else 72f) * scale
+                val brandX = (if (isLandscape) 30f else 39f) * scale
+                val dateFontSize = (if (isLandscape) 18f else 23f) * scale
+                val dateY = (if (isLandscape) 58f else 70f) * scale
+
+                val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    typeface = brandTypeface
+                    textSize = brandFontSize
+                    color = Color.BLACK
+                }
+                canvas.drawText(deviceText, brandX, barTop + brandY, brandPaint)
+
+                // Draw dot after brand name
+                val brandWidth = brandPaint.measureText(deviceText)
+                drawTecnoYellowDot(context, canvas,
+                    brandX + brandWidth + 5f * scale,
+                    barTop + brandY - (if (isLandscape) 25f else 34f) * scale / 2f,
+                    (if (isLandscape) 25f else 34f) * scale)
+
+                // Date on right
+                if (timeText.isNotEmpty()) {
+                    val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = dateFontSize
+                        color = Color.parseColor("#020202")
+                        textAlign = Paint.Align.RIGHT
+                    }
+                    canvas.drawText(timeText, rightXLimit, barTop + dateY, datePaint)
+                }
+            }
+            2 -> {
+                // Mode 2: Brand name (smaller) + date on right + lens info below
+                val brandFontSize = (if (isLandscape) 18f else 24f) * scale
+                val brandY = (if (isLandscape) 40f else 52f) * scale
+                val brandX = (if (isLandscape) 30f else 39f) * scale
+                val dateFontSize = (if (isLandscape) 18f else 23f) * scale
+                val dateY = (if (isLandscape) 58f else 70f) * scale
+                val secondaryFontSize = (if (isLandscape) 14f else 19f) * scale
+                val secondaryY = (if (isLandscape) 70f else 86f) * scale
+
+                val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    typeface = brandTypeface
+                    textSize = brandFontSize
+                    color = Color.BLACK
+                }
+                canvas.drawText(deviceText, brandX, barTop + brandY, brandPaint)
+
+                val brandWidth = brandPaint.measureText(deviceText)
+                drawTecnoYellowDot(context, canvas,
+                    brandX + brandWidth + 5f * scale,
+                    barTop + brandY - (if (isLandscape) 20f else 28f) * scale / 2f,
+                    (if (isLandscape) 20f else 28f) * scale)
+
+                // Date on right
+                if (timeText.isNotEmpty()) {
+                    val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = dateFontSize
+                        color = Color.BLACK
+                        textAlign = Paint.Align.RIGHT
+                    }
+                    canvas.drawText(timeText, rightXLimit, barTop + dateY, datePaint)
+                }
+
+                // Lens info below brand
+                if (lensText.isNotEmpty()) {
+                    val secondaryPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = secondaryFontSize
+                        color = Color.parseColor("#808080")
+                    }
+                    canvas.drawText(lensText, brandX, barTop + secondaryY, secondaryPaint)
+                }
+            }
+            3 -> {
+                // Mode 3: Brand name + time on right (2 lines - date top, time below) + lens below
+                val brandFontSize = (if (isLandscape) 22f else 29f) * scale
+                val brandY = (if (isLandscape) 59f else 72f) * scale
+                val brandX = (if (isLandscape) 30f else 39f) * scale
+                val dateFontSize = (if (isLandscape) 18f else 23f) * scale
+                val dateY = (if (isLandscape) 40f else 52f) * scale
+                val secondaryFontSize = (if (isLandscape) 14f else 19f) * scale
+                val secondaryY = (if (isLandscape) 70f else 85f) * scale
+
+                val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    typeface = brandTypeface
+                    textSize = brandFontSize
+                    color = Color.BLACK
+                }
+                canvas.drawText(deviceText, brandX, barTop + brandY, brandPaint)
+
+                val brandWidth = brandPaint.measureText(deviceText)
+                drawTecnoYellowDot(context, canvas,
+                    brandX + brandWidth + 5f * scale,
+                    barTop + brandY - 34f * scale / 2f,
+                    34f * scale)
+
+                // Date/time on right - split into two lines
+                if (timeText.isNotEmpty()) {
+                    val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = dateFontSize
+                        color = Color.BLACK
+                        textAlign = Paint.Align.RIGHT
+                    }
+                    // Split time: "2026/02/15 12:30" -> date on top, time below
+                    val parts = timeText.split(" ", limit = 2)
+                    canvas.drawText(parts[0], rightXLimit, barTop + dateY, datePaint)
+                    if (parts.size > 1) {
+                        val timePart = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                            typeface = dateTypeface
+                            textSize = secondaryFontSize
+                            color = Color.parseColor("#808080")
+                            textAlign = Paint.Align.RIGHT
+                        }
+                        canvas.drawText(parts[1], rightXLimit, barTop + secondaryY, timePart)
+                    }
+                }
+
+                // Lens info below brand on second line
+                if (lensText.isNotEmpty()) {
+                    val lensPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = secondaryFontSize
+                        color = Color.parseColor("#808080")
+                    }
+                    // Position relative to date/time right-aligned text
+                    val dateWidth = if (timeText.isNotEmpty()) {
+                        val dp = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                            typeface = dateTypeface
+                            textSize = dateFontSize
+                        }
+                        dp.measureText(timeText.split(" ", limit = 2)[0])
+                    } else 0f
+                    canvas.drawText(lensText, rightXLimit - dateWidth, barTop + secondaryY, lensPaint)
+                }
+            }
+            4 -> {
+                // Mode 4: Brand name + date on right + lens info + location
+                val brandFontSize = (if (isLandscape) 18f else 24f) * scale
+                val brandY = (if (isLandscape) 40f else 52f) * scale
+                val brandX = (if (isLandscape) 30f else 39f) * scale
+                val dateFontSize = (if (isLandscape) 18f else 23f) * scale
+                val dateY = (if (isLandscape) 40f else 52f) * scale
+                val secondaryFontSize = (if (isLandscape) 14f else 19f) * scale
+                val secondaryY = (if (isLandscape) 68f else 86f) * scale
+
+                val brandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    typeface = brandTypeface
+                    textSize = brandFontSize
+                    color = Color.BLACK
+                }
+                canvas.drawText(deviceText, brandX, barTop + brandY, brandPaint)
+
+                val brandWidth = brandPaint.measureText(deviceText)
+                drawTecnoYellowDot(context, canvas,
+                    brandX + brandWidth + 5f * scale,
+                    barTop + brandY - 28f * scale / 2f,
+                    28f * scale)
+
+                // Date on right
+                if (timeText.isNotEmpty()) {
+                    val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = dateFontSize
+                        color = Color.BLACK
+                        textAlign = Paint.Align.RIGHT
+                    }
+                    canvas.drawText(timeText, rightXLimit, barTop + dateY, datePaint)
+                }
+
+                // Lens info below brand
+                if (lensText.isNotEmpty()) {
+                    val secondaryPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = secondaryFontSize
+                        color = Color.parseColor("#808080")
+                    }
+                    canvas.drawText(lensText, brandX, barTop + secondaryY, secondaryPaint)
+                }
+
+                // Location text below date on right
+                if (locText.isNotEmpty()) {
+                    val locPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        typeface = dateTypeface
+                        textSize = secondaryFontSize
+                        color = Color.parseColor("#808080")
+                        textAlign = Paint.Align.RIGHT
+                    }
+                    canvas.drawText(locText, rightXLimit, barTop + secondaryY, locPaint)
+                }
+            }
+        }
+
+        return result
+    }
+
+    /**
+     * Draw the TECNO yellow/orange dot icon.
+     */
+    private fun drawTecnoYellowDot(
+        context: Context,
+        canvas: Canvas,
+        x: Float,
+        y: Float,
+        size: Float
+    ) {
+        try {
+            context.assets.open("watermark/TECNO/icons/YellowPoint.png").use { stream ->
+                val dotBitmap = BitmapFactory.decodeStream(stream)
+                if (dotBitmap != null) {
+                    val rect = Rect(x.toInt(), y.toInt(), (x + size).toInt(), (y + size).toInt())
+                    canvas.drawBitmap(dotBitmap, null, rect, Paint(Paint.FILTER_BITMAP_FLAG))
+                    dotBitmap.recycle()
+                }
+            }
+        } catch (_: Exception) {
+            // Fallback: draw a simple orange circle
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#FF8C00")
+                style = Paint.Style.FILL
+            }
+            canvas.drawCircle(x + size / 2f, y + size / 2f, size / 3f, paint)
         }
     }
 }
