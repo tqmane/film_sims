@@ -147,10 +147,10 @@ object WatermarkProcessor {
             WatermarkStyle.VIVO_OS_SIMPLE -> applyVivoOSSimple(context, source, config)
             WatermarkStyle.VIVO_EVENT -> applyVivoEvent(context, source, config)
             // TECNO watermarks
-            WatermarkStyle.TECNO_1 -> applyTecnoWatermark(context, source, config, 1)
-            WatermarkStyle.TECNO_2 -> applyTecnoWatermark(context, source, config, 2)
-            WatermarkStyle.TECNO_3 -> applyTecnoWatermark(context, source, config, 3)
-            WatermarkStyle.TECNO_4 -> applyTecnoWatermark(context, source, config, 4)
+            WatermarkStyle.TECNO_1 -> applyTecnoConfigDrivenWatermark(context, source, config, 1)
+            WatermarkStyle.TECNO_2 -> applyTecnoConfigDrivenWatermark(context, source, config, 2)
+            WatermarkStyle.TECNO_3 -> applyTecnoConfigDrivenWatermark(context, source, config, 3)
+            WatermarkStyle.TECNO_4 -> applyTecnoConfigDrivenWatermark(context, source, config, 4)
             // Config-driven watermarks
             WatermarkStyle.VIVO_ZEISS_0 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss0.txt")
             WatermarkStyle.VIVO_ZEISS_1 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss1.txt")
@@ -3372,7 +3372,55 @@ object WatermarkProcessor {
     }
 
     /**
-     * Apply TECNO watermark (modes 1-4).
+     * Apply TECNO watermark using config-driven approach (modes 1-4).
+     * This reads from TranssionWM.json for accurate positioning.
+     */
+    private fun applyTecnoConfigDrivenWatermark(
+        context: Context,
+        source: Bitmap,
+        config: WatermarkConfig,
+        mode: Int
+    ): Bitmap {
+        return try {
+            val parser = TecnoWatermarkConfigParser(context)
+            val template = parser.parseConfig()
+            
+            if (template != null) {
+                val isLandscape = source.width > source.height
+                val modeName = getTecnoModeName(mode, isLandscape)
+                
+                val renderer = TecnoWatermarkRenderer(context)
+                val renderConfig = TecnoRenderConfig(
+                    deviceName = config.deviceName,
+                    timeText = config.timeText,
+                    locationText = config.locationText,
+                    lensInfo = config.lensInfo
+                )
+                renderer.render(source, template, modeName, isLandscape, renderConfig)
+            } else {
+                // Fallback to legacy implementation
+                applyTecnoWatermark(context, source, config, mode)
+            }
+        } catch (e: Exception) {
+            Log.w("WatermarkProcessor", "TECNO config-driven watermark failed, using legacy", e)
+            applyTecnoWatermark(context, source, config, mode)
+        }
+    }
+    
+    /**
+     * Get the TECNO mode name based on mode number and orientation.
+     * Uses the 'a' variant which is most common.
+     */
+    private fun getTecnoModeName(mode: Int, isLandscape: Boolean): String {
+        val suffix = if (isLandscape) "_LANDSCAPE" else "_PORTRAIT"
+        
+        // Map mode to sub-mode (a, b, c variants)
+        // Using 'a' variant as default (most common)
+        return "Mode_${mode}a$suffix"
+    }
+
+    /**
+     * Apply TECNO watermark (modes 1-4) - Legacy implementation.
      *
      * Mode 1: Brand name only + date/time on right
      * Mode 2: Brand name (smaller) + date/time on right + secondary text below brand

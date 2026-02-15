@@ -826,11 +826,22 @@ private fun WatermarkControls(watermarkState: WatermarkState, viewModel: MainVie
 private fun WatermarkInputRow(label: String, value: String, onValueChange: (String) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth().padding(start = 30.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(label, color = TextTertiary, fontSize = 12.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.width(56.dp).padding(end = 8.dp))
-        TextField(
-            value = value, onValueChange = onValueChange, singleLine = true,
-            modifier = Modifier.weight(1f).height(34.dp).clip(RoundedCornerShape(12.dp)).background(InputBg).border(1.dp, InputBorder, RoundedCornerShape(12.dp)),
-            colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, cursorColor = AccentPrimary, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent),
-            textStyle = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.SansSerif)
-        )
+        Box(
+            modifier = Modifier.weight(1f).height(34.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(InputBg)
+                .border(1.dp, InputBorder, RoundedCornerShape(12.dp))
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            androidx.compose.foundation.text.BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.SansSerif, color = TextPrimary),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(AccentPrimary),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
