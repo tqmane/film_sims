@@ -535,7 +535,7 @@ private fun ControlPanel(
         }
 
         SectionHeader(stringResource(R.string.header_camera))
-        BrandGenreLutSection(viewModel.brands, viewModel, viewState, editState, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
+        BrandGenreLutSection(viewModel.brands, viewModel, viewState, editState, watermarkState, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
     }
 }
 
@@ -550,12 +550,18 @@ private fun BrandGenreLutSection(
     viewModel: MainViewModel,
     viewState: ViewState,
     editState: EditState,
+    watermarkState: WatermarkState,
     glSurfaceView: GLSurfaceView?,
     renderer: FilmSimRenderer?,
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit
 ) {
-    var selectedBrandIndex by rememberSaveable { mutableIntStateOf(0) }
+    // Initialize brand index from watermarkState to preserve selection across recompositions
+    // (e.g., when returning from full-screen preview)
+    val initialBrandIndex = remember(brands, watermarkState.brandName) {
+        brands.indexOfFirst { it.name == watermarkState.brandName }.takeIf { it >= 0 } ?: 0
+    }
+    var selectedBrandIndex by rememberSaveable { mutableIntStateOf(initialBrandIndex) }
     var selectedCategoryIndex by rememberSaveable { mutableIntStateOf(0) }
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
