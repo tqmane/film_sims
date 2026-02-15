@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FilmSims</string>
+
+    <!-- Image loading -->
+    <string name="image_loaded">Imagen cargada: %1$s (Vista previa: %2$s)</string>
+    <string name="image_load_failed">Error al cargar la imagen: %1$s</string>
+    <string name="select_image_first">Selecciona una imagen primero</string>
+
+    <!-- Export -->
+    <string name="exporting">Exportando…</string>
+    <string name="cpu_processing">Procesando por CPU… (Las imágenes grandes pueden tardar)</string>
+    <string name="save_error">Error al guardar: %1$s</string>
+    <string name="save_folder_create_failed">Error al crear la carpeta de guardado</string>
+    <string name="image_saved">Guardado (%1$s): %2$s/%3$s</string>
+    <string name="lut_load_failed">Error al cargar el filtro</string>
+
+    <!-- Settings -->
+    <string name="enter_save_folder">Introduce la carpeta de guardado</string>
+    <string name="save_path_hint">Ej: Pictures/MisFotos</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save_path_changed">Ruta de guardado cambiada: %1$s</string>
+
+    <!-- Update dialog -->
+    <string name="update_available">Actualización disponible</string>
+    <string name="new_version_available">Nueva versión %1$s disponible</string>
+    <string name="update_now">Actualizar</string>
+    <string name="later">Más tarde</string>
+    <string name="update_check_failed">Error al buscar actualizaciones</string>
+
+    <!-- UI Labels -->
+    <string name="subtitle_film_simulator">Simulador de película</string>
+    <string name="label_pick_image">Elegir imagen</string>
+    <string name="desc_pick_image">Elige una foto para aplicar simulaciones de película</string>
+    <string name="btn_open_gallery">Abrir galería</string>
+    <string name="header_grain">Efectos</string>
+    <string name="label_film_grain">Grano de película</string>
+    <string name="header_camera">Cámara</string>
+    <string name="header_style">Estilo</string>
+    <string name="label_intensity">Intensidad</string>
+    <string name="header_presets">Ajustes preestablecidos</string>
+    <string name="title_settings">Ajustes</string>
+    <string name="label_save_folder">Carpeta de guardado</string>
+    <string name="btn_change">Cambiar</string>
+    <string name="label_quality">Calidad</string>
+    <string name="btn_close">Cerrar</string>
+
+    <!-- Grain styles -->
+    <string name="label_grain_style">Estilo de grano</string>
+    <string name="grain_style_xiaomi">Xiaomi</string>
+    <string name="grain_style_oneplus">OnePlus</string>
+
+    <!-- Watermark -->
+    <string name="header_watermark">Marca de agua</string>
+    <string name="label_watermark">Marca de agua Honor</string>
+    <string name="label_watermark_style">Estilo</string>
+    <string name="label_watermark_brand">Marca</string>
+    <string name="watermark_none">Ninguno</string>
+    <string name="brand_none">Ninguno</string>
+    <string name="label_watermark_device">Dispositivo</string>
+    <string name="label_watermark_lens">Lente</string>
+    <string name="label_watermark_time">Hora</string>
+    <string name="label_watermark_location">Ubicación</string>
+
+    <!-- Brand names -->
+    <string name="brand_leica_lux">Leica LUX</string>
+    <string name="brand_leica_fotos">Leica FOTOS</string>
+
+    <!-- Leica_FOTOS filter names -->
+    <string name="lut_fotos_bleach">Blanqueado</string>
+    <string name="lut_fotos_blue">Azul</string>
+    <string name="lut_fotos_brass">Latón</string>
+    <string name="lut_fotos_chrome">Cromo</string>
+    <string name="lut_fotos_classic">Clásico</string>
+    <string name="lut_fotos_contemporary">Contemporáneo</string>
+    <string name="lut_fotos_eternal">Eterno</string>
+    <string name="lut_fotos_gregwilliams">Greg Williams</string>
+    <string name="lut_fotos_selenium">Selenio</string>
+    <string name="lut_fotos_sepia">Sepia</string>
+    <string name="lut_fotos_silver">Plata</string>
+    <string name="lut_fotos_teal">Cerceta</string>
+    <string name="lut_fotos_mono_blue">Mono Azul</string>
+    <string name="lut_fotos_mono_gregwilliams">Mono Greg Williams</string>
+    <string name="lut_fotos_mono_selenium">Mono Selenio</string>
+    <string name="lut_fotos_mono_sepia">Mono Sepia</string>
+</resources>

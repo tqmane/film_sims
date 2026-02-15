@@ -12,24 +12,21 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-    <!-- Card with Refined Border -->
     <FrameLayout
         android:id="@+id/lutCardContainer"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="86dp"
+        android:layout_height="86dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <!-- Glow layer (behind the card) -->
         <View
             android:id="@+id/glowView"
-            android:layout_width="84dp"
-            android:layout_height="84dp"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
             android:layout_gravity="center"
             android:background="@drawable/bg_lut_glow"
             android:visibility="gone" />
 
-        <!-- Main card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -47,7 +44,6 @@
                 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Selection border overlay -->
         <View
             android:id="@+id/selectionBorder"
             android:layout_width="match_parent"
@@ -59,14 +55,14 @@
 
     <TextView
         android:id="@+id/lutName"
-        android:layout_width="80dp"
+        android:layout_width="86dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:paddingBottom="2dp"
         android:gravity="center"
         android:text="LUT Name"
         android:textColor="@color/text_secondary"
-        android:textSize="10sp"
+        android:textSize="9sp"
         android:fontFamily="sans-serif"
         android:letterSpacing="0.01"
         android:maxLines="2"

@@ -228,6 +228,8 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
             GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_R, GLES30.GL_CLAMP_TO_EDGE)
             
+            // Reset buffer position — it may have been consumed by a previous upload
+            lut.data.position(0)
             // Use GL_RGB16F for MediaTek/Mali GPU compatibility
             // Mali requires sized internal format for float texture linear filtering
             GLES30.glTexImage3D(GLES30.GL_TEXTURE_3D, 0, GLES30.GL_RGB16F, 
