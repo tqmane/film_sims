@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -83,12 +84,18 @@ import com.tqmane.filmsim.gl.FilmSimRenderer
 import com.tqmane.filmsim.gl.GlCommandExecutor
 import com.tqmane.filmsim.gl.GlSurfaceViewExecutor
 import com.tqmane.filmsim.gl.GpuExportRenderer
-import com.tqmane.filmsim.ui.theme.AccentDark
-import com.tqmane.filmsim.ui.theme.AccentPrimary
-import com.tqmane.filmsim.ui.theme.AccentSecondary
-import com.tqmane.filmsim.ui.theme.TextPrimary
-import com.tqmane.filmsim.ui.theme.TextSecondary
-import com.tqmane.filmsim.ui.theme.TextTertiary
+import com.tqmane.filmsim.ui.components.GlassBottomSheet
+import com.tqmane.filmsim.ui.components.LiquidButton
+import com.tqmane.filmsim.ui.components.LiquidChip
+import com.tqmane.filmsim.ui.components.LiquidIntensitySlider
+import com.tqmane.filmsim.ui.components.LiquidLutCard
+import com.tqmane.filmsim.ui.components.LiquidPlaceholderContent
+import com.tqmane.filmsim.ui.components.LiquidRoundButton
+import com.tqmane.filmsim.ui.components.LiquidSectionHeader
+import com.tqmane.filmsim.ui.components.LiquidTopBar
+import com.tqmane.filmsim.ui.components.LivingBackground
+import com.tqmane.filmsim.ui.theme.LiquidColors
+import com.tqmane.filmsim.ui.theme.LiquidTheme
 import com.tqmane.filmsim.util.CubeLUTParser
 import com.tqmane.filmsim.util.LutBitmapProcessor
 import com.tqmane.filmsim.util.WatermarkProcessor
@@ -96,29 +103,9 @@ import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-// ─── Colors matching the XML resources faithfully ───────
-
-private val PanelBg = Color(0xDD111114)
-private val TopBarGradientStart = Color(0xE8111214)
-private val TopBarGradientCenter = Color(0xE50D0D10)
-private val TopBarGradientEnd = Color.Transparent
-private val AccentGradientStart = Color(0xFFFF8A50)
-private val AccentGradientEnd   = Color(0xFFFFC06A)
-private val RoundButtonBg     = Color(0x30FFFFFF)
-private val RoundButtonBorder = Color(0x20FFFFFF)
-private val ChipBgUnselected     = Color(0x30FFFFFF)
-private val ChipBgSelected       = AccentPrimary
-private val ChipStrokeUnselected = Color(0x18FFFFFF)
-private val ChipStrokeSelected   = AccentDark
-private val ChipTextUnselected   = Color(0xDDFFFFFF)
-private val ChipTextSelected     = Color(0xFF121212)
-private val InputBg     = Color(0x15FFFFFF)
-private val InputBorder = Color(0x25FFFFFF)
-private val DividerColor = Color(0x15FFFFFF)
-private val GlassPanelBg = Color(0x35FFFFFF)
-private val RootBg = Color(0xFF050508)
-
-// ─── Main Screen ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN SCREEN - Entry Point with Liquid Theme
+// ═══════════════════════════════════════════════════════════════════════════════
 
 @Composable
 fun MainScreen(
@@ -127,380 +114,270 @@ fun MainScreen(
     onShowSettings: () -> Unit,
     onShowUpdateDialog: (com.tqmane.filmsim.util.ReleaseInfo) -> Unit
 ) {
-    val context = LocalContext.current
-    val viewState by viewModel.viewState.collectAsState()
-    val editState by viewModel.editState.collectAsState()
-    val watermarkState by viewModel.watermarkState.collectAsState()
+    LiquidTheme {
+        val context = LocalContext.current
+        val viewState by viewModel.viewState.collectAsState()
+        val editState by viewModel.editState.collectAsState()
+        val watermarkState by viewModel.watermarkState.collectAsState()
 
-    // GL references
-    var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
-    var renderer by remember { mutableStateOf<FilmSimRenderer?>(null) }
-    var glExecutor by remember { mutableStateOf<GlCommandExecutor?>(null) }
-    var touchHandler by remember { mutableStateOf<GlTouchHandler?>(null) }
+        // GL references
+        var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
+        var renderer by remember { mutableStateOf<FilmSimRenderer?>(null) }
+        var glExecutor by remember { mutableStateOf<GlCommandExecutor?>(null) }
+        var touchHandler by remember { mutableStateOf<GlTouchHandler?>(null) }
 
-    // Watermark preview bitmap
-    var watermarkPreviewBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    
-    // State tracking for optimization
-    var lastAppliedLutPath by remember { mutableStateOf<String?>(null) }
+        // Watermark preview bitmap
+        var watermarkPreviewBitmap by remember { mutableStateOf<Bitmap?>(null) }
+        
+        // UI toggles
+        var isImmersive by rememberSaveable { mutableStateOf(false) }
+        var panelExpanded by rememberSaveable { mutableStateOf(true) }
 
-    // UI toggles
-    var isImmersive by rememberSaveable { mutableStateOf(false) }
-    var panelExpanded by rememberSaveable { mutableStateOf(true) }
-
-    // Handle UI events
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collect { event ->
-            when (event) {
-                is UiEvent.ShowToast -> {
-                    val msg = if (event.formatArgs.isNotEmpty())
-                        context.getString(event.messageResId, *event.formatArgs)
-                    else context.getString(event.messageResId)
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-                }
-                is UiEvent.ShowRawToast ->
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                is UiEvent.ShowUpdateDialog -> onShowUpdateDialog(event.release)
-                is UiEvent.ImageSaved -> {
-                    val msg = context.getString(
-                        R.string.image_saved,
-                        "${event.width}x${event.height}", event.path, event.filename
-                    )
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+        // Handle UI events
+        LaunchedEffect(Unit) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.ShowToast -> {
+                        val msg = if (event.formatArgs.isNotEmpty())
+                            context.getString(event.messageResId, *event.formatArgs)
+                        else context.getString(event.messageResId)
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiEvent.ShowRawToast ->
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    is UiEvent.ShowUpdateDialog -> onShowUpdateDialog(event.release)
+                    is UiEvent.ImageSaved -> {
+                        val msg = context.getString(
+                            R.string.image_saved,
+                            "${event.width}x${event.height}", event.path, event.filename
+                        )
+                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
-    }
 
-    // Watermark preview refresh helper — uses ViewModel's direct StateFlow check
-    // to avoid stale Compose state issues
-    fun refreshWatermarkPreview() {
-        viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
-    }
-
-    // 1. 画像読み込み時: プレビュービットマップをGLにセット
-    LaunchedEffect(viewState) {
-        val content = viewState as? ViewState.Content ?: return@LaunchedEffect
-        val r = renderer ?: return@LaunchedEffect
-        val gl = glSurfaceView ?: return@LaunchedEffect
-        touchHandler?.resetZoom()
-        // 値をキャプチャしてからGLスレッドに渡す
-        val bmp = content.previewBitmap
-        val lut = editState.currentLut
-        val intensity = editState.intensity
-        val grainOn = editState.grainEnabled
-        val grainVal = editState.grainIntensity
-        val grainSty = editState.grainStyle
-        gl.queueEvent {
-            r.setImage(bmp)
-            if (lut != null) r.setLut(lut)
-            r.setIntensity(intensity)
-            r.setGrainEnabled(grainOn)
-            if (grainOn) r.setGrainIntensity(grainVal)
-            r.setGrainStyle(grainSty)
-            gl.requestRender()
+        // Watermark preview refresh helper
+        fun refreshWatermarkPreview() {
+            viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
         }
-    }
 
-    // 2. 透かしプレビュー変更時: GLに透かし画像をセットまたは通常モードに復帰
-    LaunchedEffect(watermarkPreviewBitmap) {
-        val r = renderer ?: return@LaunchedEffect
-        val gl = glSurfaceView ?: return@LaunchedEffect
-        val wmBmp = watermarkPreviewBitmap
-        val content = viewState as? ViewState.Content
-        val lut = editState.currentLut
-        val intensity = editState.intensity
-        val grainOn = editState.grainEnabled
-        val grainVal = editState.grainIntensity
-        val grainSty = editState.grainStyle
-        gl.queueEvent {
-            if (wmBmp != null) {
-                r.setImage(wmBmp)
-                r.setIntensity(0f)
-                r.setGrainEnabled(false)
-            } else if (content != null) {
-                r.setImage(content.previewBitmap)
+        // 1. 画像読み込み時: プレビュービットマップをGLにセット
+        LaunchedEffect(viewState) {
+            val content = viewState as? ViewState.Content ?: return@LaunchedEffect
+            val r = renderer ?: return@LaunchedEffect
+            val gl = glSurfaceView ?: return@LaunchedEffect
+            touchHandler?.resetZoom()
+            val bmp = content.previewBitmap
+            val lut = editState.currentLut
+            val intensity = editState.intensity
+            val grainOn = editState.grainEnabled
+            val grainVal = editState.grainIntensity
+            val grainSty = editState.grainStyle
+            gl.queueEvent {
+                r.setImage(bmp)
                 if (lut != null) r.setLut(lut)
                 r.setIntensity(intensity)
                 r.setGrainEnabled(grainOn)
                 if (grainOn) r.setGrainIntensity(grainVal)
                 r.setGrainStyle(grainSty)
+                gl.requestRender()
             }
-            gl.requestRender()
         }
-    }
 
-    // 3. LUT/エフェクト変更時: GLパラメータを更新 (setImageは呼ばない)
-    //    lutVersionをキーにすることでFloatBufferの不安定なequals()を回避
-    LaunchedEffect(
-        editState.lutVersion, editState.intensity,
-        editState.grainEnabled, editState.grainIntensity, editState.grainStyle
-    ) {
-        val r = renderer ?: return@LaunchedEffect
-        val gl = glSurfaceView ?: return@LaunchedEffect
-        if (viewState !is ViewState.Content) return@LaunchedEffect
-        // 透かしモードでも LUT をGLに送る (透かしは renderPreview 側で適用するが、
-        // 透かし解除時にGLが最新LUTを持っている必要がある)
-        val wmActive = watermarkPreviewBitmap != null
-        val lut = editState.currentLut
-        val intensity = editState.intensity
-        val grainOn = editState.grainEnabled
-        val grainVal = editState.grainIntensity
-        val grainSty = editState.grainStyle
-        gl.queueEvent {
-            if (lut != null) r.setLut(lut)
-            if (!wmActive) {
-                r.setIntensity(intensity)
-                r.setGrainEnabled(grainOn)
-                if (grainOn) r.setGrainIntensity(grainVal)
-                r.setGrainStyle(grainSty)
+        // 2. 透かしプレビュー変更時
+        LaunchedEffect(watermarkPreviewBitmap) {
+            val r = renderer ?: return@LaunchedEffect
+            val gl = glSurfaceView ?: return@LaunchedEffect
+            val wmBmp = watermarkPreviewBitmap
+            val content = viewState as? ViewState.Content
+            val lut = editState.currentLut
+            val intensity = editState.intensity
+            val grainOn = editState.grainEnabled
+            val grainVal = editState.grainIntensity
+            val grainSty = editState.grainStyle
+            gl.queueEvent {
+                if (wmBmp != null) {
+                    r.setImage(wmBmp)
+                    r.setIntensity(0f)
+                    r.setGrainEnabled(false)
+                } else if (content != null) {
+                    r.setImage(content.previewBitmap)
+                    if (lut != null) r.setLut(lut)
+                    r.setIntensity(intensity)
+                    r.setGrainEnabled(grainOn)
+                    if (grainOn) r.setGrainIntensity(grainVal)
+                    r.setGrainStyle(grainSty)
+                }
+                gl.requestRender()
             }
-            gl.requestRender()
         }
-    }
 
-    // 4. 透かしモード中のLUT/エフェクト変更時: 透かしプレビューを再生成
-    LaunchedEffect(editState.lutVersion, editState.intensity, editState.grainEnabled, editState.grainIntensity, editState.grainStyle) {
-        // ViewModel 側で watermarkState を直接チェック (Compose state のラグを回避)
-        viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
-    }
-
-    // 5. 透かしスタイル変更時: 透かしプレビューを自動更新
-    LaunchedEffect(watermarkState.style) {
-        if (watermarkState.style != WatermarkStyle.NONE) {
-            viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
-        } else {
-            watermarkPreviewBitmap = null
+        // 3. LUT/エフェクト変更時
+        LaunchedEffect(
+            editState.lutVersion, editState.intensity,
+            editState.grainEnabled, editState.grainIntensity, editState.grainStyle
+        ) {
+            val r = renderer ?: return@LaunchedEffect
+            val gl = glSurfaceView ?: return@LaunchedEffect
+            if (viewState !is ViewState.Content) return@LaunchedEffect
+            val wmActive = watermarkPreviewBitmap != null
+            val lut = editState.currentLut
+            val intensity = editState.intensity
+            val grainOn = editState.grainEnabled
+            val grainVal = editState.grainIntensity
+            val grainSty = editState.grainStyle
+            gl.queueEvent {
+                if (lut != null) r.setLut(lut)
+                if (!wmActive) {
+                    r.setIntensity(intensity)
+                    r.setGrainEnabled(grainOn)
+                    if (grainOn) r.setGrainIntensity(grainVal)
+                    r.setGrainStyle(grainSty)
+                }
+                gl.requestRender()
+            }
         }
-    }
 
-    // ─── Root FrameLayout ───────────────────────────────
-    Box(modifier = Modifier.fillMaxSize().background(RootBg)) {
+        // 4. 透かしモード中のLUT/エフェクト変更時
+        LaunchedEffect(editState.lutVersion, editState.intensity, editState.grainEnabled, editState.grainIntensity, editState.grainStyle) {
+            viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
+        }
 
-        // GLSurfaceView (full screen)
-        AndroidView(
-            factory = { ctx ->
-                GLSurfaceView(ctx).apply {
-                    setEGLContextClientVersion(3)
-                    preserveEGLContextOnPause = true
-                    val r = FilmSimRenderer(ctx)
-                    setRenderer(r)
-                    renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
-                    renderer = r
-                    glSurfaceView = this
-                    glExecutor = GlSurfaceViewExecutor(this)
-                    queueEvent { viewModel.gpuExportRenderer = GpuExportRenderer(ctx) }
+        // 5. 透かしスタイル変更時
+        LaunchedEffect(watermarkState.style) {
+            if (watermarkState.style != WatermarkStyle.NONE) {
+                viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
+            } else {
+                watermarkPreviewBitmap = null
+            }
+        }
 
-                    val th = GlTouchHandler(
-                        this, r,
-                        onSingleTap = { isImmersive = !isImmersive },
-                        onLongPressStart = {
-                            if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
-                                queueEvent {
-                                    r.setIntensity(0f); r.setGrainEnabled(false)
-                                    requestRender()
+        // ─── Root Frame with Living Background ───────────────────────────────
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Living Background (aurora + noise)
+            LivingBackground(modifier = Modifier.fillMaxSize())
+
+            // GLSurfaceView (full screen)
+            AndroidView(
+                factory = { ctx ->
+                    GLSurfaceView(ctx).apply {
+                        setEGLContextClientVersion(3)
+                        preserveEGLContextOnPause = true
+                        val r = FilmSimRenderer(ctx)
+                        setRenderer(r)
+                        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+                        renderer = r
+                        glSurfaceView = this
+                        glExecutor = GlSurfaceViewExecutor(this)
+                        queueEvent { viewModel.gpuExportRenderer = GpuExportRenderer(ctx) }
+
+                        val th = GlTouchHandler(
+                            this, r,
+                            onSingleTap = { isImmersive = !isImmersive },
+                            onLongPressStart = {
+                                if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
+                                    queueEvent {
+                                        r.setIntensity(0f); r.setGrainEnabled(false)
+                                        requestRender()
+                                    }
+                                }
+                            },
+                            onLongPressEnd = {
+                                if (watermarkPreviewBitmap == null) {
+                                    queueEvent {
+                                        r.setIntensity(editState.intensity)
+                                        r.setGrainEnabled(editState.grainEnabled)
+                                        if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
+                                        requestRender()
+                                    }
+                                }
+                            }
+                        )
+                        th.install()
+                        touchHandler = th
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+            
+            // ─── Main vertical Layout ─────────────────────────────────────────
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                // ─── Top Bar ────────────────────────────────────────────────────
+                AnimatedVisibility(
+                    visible = !isImmersive,
+                    enter = slideInVertically { -it } + fadeIn(),
+                    exit = slideOutVertically { -it } + fadeOut()
+                ) {
+                    LiquidTopBar(
+                        onPickImage = onPickImage,
+                        onSettings = onShowSettings,
+                        onSave = {
+                            val gl = glExecutor
+                            if (viewState !is ViewState.Content) {
+                                Toast.makeText(context, context.getString(R.string.select_image_first), Toast.LENGTH_SHORT).show()
+                            } else if (gl != null) {
+                                Toast.makeText(context, context.getString(R.string.exporting), Toast.LENGTH_SHORT).show()
+                                viewModel.saveHighResImage(gl) {
+                                    Toast.makeText(context, context.getString(R.string.cpu_processing), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
-                        onLongPressEnd = {
-                            if (watermarkPreviewBitmap == null) {
-                                queueEvent {
-                                    r.setIntensity(editState.intensity)
-                                    r.setGrainEnabled(editState.grainEnabled)
-                                    if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
-                                    requestRender()
-                                }
-                            }
-                        }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
                     )
-                    th.install()
-                    touchHandler = th
                 }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-        
-        // ─── Main vertical LinearLayout ─────────────────
-        Column(modifier = Modifier.fillMaxSize()) {
 
-            // ─── Top Bar ────────────────────────────────
-            AnimatedVisibility(
-                visible = !isImmersive,
-                enter = slideInVertically { -it } + fadeIn(),
-                exit = slideOutVertically { -it } + fadeOut()
-            ) {
-                TopBar(
-                    onPickImage = onPickImage,
-                    onSettings = onShowSettings,
-                    onSave = {
-                        val gl = glExecutor
-                        if (viewState !is ViewState.Content) {
-                            Toast.makeText(context, context.getString(R.string.select_image_first), Toast.LENGTH_SHORT).show()
-                        } else if (gl != null) {
-                            Toast.makeText(context, context.getString(R.string.exporting), Toast.LENGTH_SHORT).show()
-                            viewModel.saveHighResImage(gl) {
-                                Toast.makeText(context, context.getString(R.string.cpu_processing), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
-                )
-            }
+                // ─── Content Area (weight=1) ────────────────────────────────────
+                Box(modifier = Modifier.weight(1f)) {
+                    if (viewState is ViewState.Empty) {
+                        LiquidPlaceholderContent(onPickImage = onPickImage)
+                    }
+                }
 
-            // ─── Content Area (weight=1) ────────────────
-            Box(modifier = Modifier.weight(1f)) {
-                if (viewState is ViewState.Empty) {
-                    PlaceholderContent(onPickImage = onPickImage)
+                // ─── Bottom Control Panel (Glass Bottom Sheet) ──────────────────
+                AnimatedVisibility(
+                    visible = !isImmersive,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut()
+                ) {
+                    GlassControlPanel(
+                        viewModel = viewModel,
+                        editState = editState,
+                        watermarkState = watermarkState,
+                        viewState = viewState,
+                        panelExpanded = panelExpanded,
+                        onTogglePanel = { panelExpanded = !panelExpanded },
+                        glSurfaceView = glSurfaceView,
+                        renderer = renderer,
+                        isWatermarkActive = watermarkPreviewBitmap != null,
+                        onRefreshWatermark = { refreshWatermarkPreview() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
+                    )
                 }
             }
-
-            // ─── Bottom Control Panel ───────────────────
-            AnimatedVisibility(
-                visible = !isImmersive,
-                enter = slideInVertically { it } + fadeIn(),
-                exit = slideOutVertically { it } + fadeOut()
-            ) {
-                ControlPanel(
-                    viewModel = viewModel,
-                    editState = editState,
-                    watermarkState = watermarkState,
-                    viewState = viewState,
-                    panelExpanded = panelExpanded,
-                    onTogglePanel = { panelExpanded = !panelExpanded },
-                    glSurfaceView = glSurfaceView,
-                    renderer = renderer,
-                    isWatermarkActive = watermarkPreviewBitmap != null,
-                    onRefreshWatermark = { refreshWatermarkPreview() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-                )
-            }
         }
-    }
 
-    // Cleanup
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.gpuExportRenderer?.release()
-            viewModel.gpuExportRenderer = null
-        }
-    }
-}
-
-// (TopBar, RoundGlassButton, PlaceholderContent remain unchanged...)
-@Composable
-private fun TopBar(
-    onPickImage: () -> Unit,
-    onSettings: () -> Unit,
-    onSave: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .padding(horizontal = 24.dp, vertical = 24.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.app_name),
-                    color = TextPrimary,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif,
-                    letterSpacing = 0.005.sp
-                )
-                Text(
-                    stringResource(R.string.subtitle_film_simulator).uppercase(),
-                    color = AccentPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif,
-                    letterSpacing = 0.1.sp,
-                    modifier = Modifier.padding(top = 3.dp)
-                )
-            }
-            RoundGlassButton(
-                iconRes = R.drawable.ic_add,
-                contentDesc = stringResource(R.string.btn_open_gallery),
-                onClick = onPickImage,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            RoundGlassButton(
-                iconRes = R.drawable.ic_settings,
-                contentDesc = stringResource(R.string.title_settings),
-                onClick = onSettings,
-                modifier = Modifier.padding(end = 12.dp)
-            )
-            Button(
-                onClick = onSave,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                shape = RoundedCornerShape(22.dp),
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                modifier = Modifier
-                    .height(44.dp)
-                    .background(
-                        Brush.linearGradient(listOf(AccentGradientStart, AccentGradientEnd)),
-                        RoundedCornerShape(22.dp)
-                    )
-            ) {
-                Text(
-                    stringResource(R.string.save),
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif
-                )
+        // Cleanup
+        DisposableEffect(Unit) {
+            onDispose {
+                viewModel.gpuExportRenderer?.release()
+                viewModel.gpuExportRenderer = null
             }
         }
     }
 }
 
-@Composable
-private fun RoundGlassButton(iconRes: Int, contentDesc: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.size(42.dp).clip(CircleShape).background(RoundButtonBg).border(1.dp, RoundButtonBorder, CircleShape).clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(painter = painterResource(iconRes), contentDescription = contentDesc, tint = TextPrimary, modifier = Modifier.size(22.dp))
-    }
-}
+// ═══════════════════════════════════════════════════════════════════════════════
+// GLASS CONTROL PANEL - Bottom sheet with controls
+// ═══════════════════════════════════════════════════════════════════════════════
 
 @Composable
-private fun PlaceholderContent(onPickImage: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize().background(RootBg).clickable { onPickImage() }.padding(56.dp),
-        verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier.size(100.dp).clip(RoundedCornerShape(20.dp)).background(GlassPanelBg).padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(painter = painterResource(R.drawable.ic_add_photo), contentDescription = null, tint = TextTertiary, modifier = Modifier.fillMaxSize())
-        }
-        Text(stringResource(R.string.label_pick_image), color = TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Light, fontFamily = FontFamily.SansSerif, letterSpacing = 0.005.sp, modifier = Modifier.padding(top = 36.dp))
-        Text(stringResource(R.string.desc_pick_image), color = TextTertiary, fontSize = 15.sp, textAlign = TextAlign.Center, lineHeight = (15 * 1.5).sp, modifier = Modifier.padding(top = 14.dp))
-        Button(
-            onClick = onPickImage,
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            shape = RoundedCornerShape(28.dp),
-            contentPadding = PaddingValues(horizontal = 32.dp),
-            modifier = Modifier.padding(top = 44.dp).height(56.dp).background(Brush.linearGradient(listOf(AccentGradientStart, AccentGradientEnd)), RoundedCornerShape(28.dp))
-        ) {
-            Icon(painter = painterResource(R.drawable.ic_gallery), contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.width(12.dp))
-            Text(stringResource(R.string.btn_open_gallery), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.015.sp)
-        }
-    }
-}
-
-@Composable
-private fun ControlPanel(
+private fun GlassControlPanel(
     viewModel: MainViewModel,
     editState: EditState,
     watermarkState: WatermarkState,
@@ -513,39 +390,71 @@ private fun ControlPanel(
     onRefreshWatermark: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val haptic = LocalHapticFeedback.current
+    
+    GlassBottomSheet(
         modifier = modifier
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            .background(PanelBg)
-            .padding(top = 16.dp, bottom = 20.dp, start = 16.dp, end = 16.dp)
     ) {
+        // Grain controls toggle
         AnimatedVisibility(visible = editState.hasSelectedLut, enter = fadeIn() + scaleIn(initialScale = 0.95f)) {
-            Row(modifier = Modifier.fillMaxWidth().clickable { onTogglePanel() }.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.header_grain).uppercase(), color = AccentPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.15.sp, modifier = Modifier.weight(1f))
-                Icon(painter = painterResource(R.drawable.ic_expand_less), contentDescription = null, tint = TextTertiary, modifier = Modifier.size(22.dp).rotate(if (panelExpanded) 0f else 180f))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { 
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        onTogglePanel() 
+                    }
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.header_grain).uppercase(),
+                    color = LiquidColors.AccentPrimary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.SansSerif,
+                    letterSpacing = 0.15.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    painter = painterResource(R.drawable.ic_expand_less),
+                    contentDescription = null,
+                    tint = LiquidColors.TextLowEmphasis,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .rotate(if (panelExpanded) 0f else 180f)
+                )
             }
         }
 
         AnimatedVisibility(visible = panelExpanded && editState.hasSelectedLut) {
             Column(modifier = Modifier.padding(bottom = 16.dp)) {
-                GrainControls(editState, viewModel, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
-                Spacer(Modifier.fillMaxWidth().padding(vertical = 8.dp).height(1.dp).background(DividerColor))
-                WatermarkControls(watermarkState, viewModel, onRefreshWatermark)
+                LiquidGrainControls(editState, viewModel, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .height(1.dp)
+                        .background(LiquidColors.GlassBorder)
+                )
+                LiquidWatermarkControls(watermarkState, viewModel, onRefreshWatermark)
             }
         }
 
-        SectionHeader(stringResource(R.string.header_camera))
-        BrandGenreLutSection(viewModel.brands, viewModel, viewState, editState, watermarkState, glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark)
+        LiquidSectionHeader(stringResource(R.string.header_camera))
+        LiquidBrandGenreLutSection(
+            viewModel.brands, viewModel, viewState, editState, watermarkState, 
+            glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark
+        )
     }
 }
 
-@Composable
-private fun SectionHeader(text: String) {
-    Text(text.uppercase(), color = AccentPrimary, fontSize = 11.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.12.sp, modifier = Modifier.padding(bottom = 8.dp))
-}
+// ═══════════════════════════════════════════════════════════════════════════════
+// BRAND/GENRE/LUT SECTION
+// ═══════════════════════════════════════════════════════════════════════════════
 
 @Composable
-private fun BrandGenreLutSection(
+private fun LiquidBrandGenreLutSection(
     brands: List<LutBrand>,
     viewModel: MainViewModel,
     viewState: ViewState,
@@ -556,8 +465,6 @@ private fun BrandGenreLutSection(
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit
 ) {
-    // Initialize brand index from watermarkState to preserve selection across recompositions
-    // (e.g., when returning from full-screen preview)
     val initialBrandIndex = remember(brands, watermarkState.brandName) {
         brands.indexOfFirst { it.name == watermarkState.brandName }.takeIf { it >= 0 } ?: 0
     }
@@ -566,113 +473,102 @@ private fun BrandGenreLutSection(
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
 
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(bottom = 10.dp)) {
-        itemsIndexed(brands) { index, brand ->
-            GlowChip(text = brand.displayName, selected = index == selectedBrandIndex, onClick = {
-                selectedBrandIndex = index
-                selectedCategoryIndex = 0
-                viewModel.updateWatermarkBrand(brand.name)
-            })
-        }
-    }
-
-    SectionHeader(stringResource(R.string.header_style))
-
-    if (categories.isNotEmpty()) {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(bottom = 10.dp)) {
-            itemsIndexed(categories) { index, cat ->
-                GlowChip(text = cat.displayName, selected = index == selectedCategoryIndex, onClick = { selectedCategoryIndex = index })
-            }
-        }
-    }
-
-    AnimatedVisibility(visible = editState.hasSelectedLut, enter = fadeIn() + scaleIn(initialScale = 0.95f)) {
-        QuickIntensitySlider(intensity = editState.intensity, onIntensityChange = { value ->
-            viewModel.setIntensity(value)
-            // 透かしモード中はGLに直接intensityを送らない
-            // (透かしビットマップには既にCPU側でLUTが適用済み;
-            //  GL側でも適用すると二重にかかる)
-            if (!isWatermarkActive) {
-                glSurfaceView?.queueEvent {
-                    renderer?.setIntensity(value)
-                    glSurfaceView.requestRender()
-                }
-            }
-            onRefreshWatermark()
-        })
-    }
-
-    SectionHeader(stringResource(R.string.header_presets))
-
-    LutRow(items = lutItems, thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap, onLutSelected = { viewModel.applyLut(it) }, currentLutPath = editState.currentLutPath)
-}
-
-@Composable
-private fun GlowChip(text: String, selected: Boolean, onClick: () -> Unit, enabled: Boolean = true) {
-    val bg = if (selected) ChipBgSelected else ChipBgUnselected
-    val stroke = if (selected) ChipStrokeSelected else ChipStrokeUnselected
-    val textCol = if (selected) ChipTextSelected else ChipTextUnselected
-    Box(
-        modifier = Modifier.height(32.dp).clip(RoundedCornerShape(16.dp)).background(bg).border(1.5.dp, stroke, RoundedCornerShape(16.dp)).clickable(enabled = enabled) { onClick() }.padding(horizontal = 12.dp),
-        contentAlignment = Alignment.Center
+    // Brand chips
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.padding(bottom = 10.dp)
     ) {
-        Text(text, color = textCol, fontSize = 12.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.01.sp)
-    }
-}
-
-@Composable
-private fun LutRow(items: List<LutItem>, thumbnailBitmap: Bitmap?, onLutSelected: (LutItem) -> Unit, currentLutPath: String?) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(120.dp)) {
-        itemsIndexed(items) { index, item ->
-            LutCard(item = item, thumbnailBitmap = thumbnailBitmap, selected = item.assetPath == currentLutPath, onClick = { onLutSelected(item) })
-        }
-    }
-}
-
-@Composable
-private fun LutCard(item: LutItem, thumbnailBitmap: Bitmap?, selected: Boolean, onClick: () -> Unit) {
-    val context = LocalContext.current
-    val previewState = produceState<Bitmap?>(initialValue = null, key1 = item.assetPath, key2 = thumbnailBitmap) {
-        if (thumbnailBitmap != null) {
-            value = withContext(Dispatchers.Default) {
-                try {
-                    val lut = CubeLUTParser.parse(context, item.assetPath)
-                    if (lut != null) LutBitmapProcessor.applyLutToBitmap(thumbnailBitmap, lut) else null
-                } catch (e: Exception) { null }
-            }
+        itemsIndexed(brands) { index, brand ->
+            LiquidChip(
+                text = brand.displayName,
+                selected = index == selectedBrandIndex,
+                onClick = {
+                    selectedBrandIndex = index
+                    selectedCategoryIndex = 0
+                    viewModel.updateWatermarkBrand(brand.name)
+                }
+            )
         }
     }
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(start = 4.dp, end = 8.dp, top = 4.dp, bottom = 4.dp).clickable { onClick() }) {
-        Box(
-            modifier = Modifier.size(86.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFF151519)).then(if (selected) Modifier.border(2.dp, AccentPrimary, RoundedCornerShape(10.dp)) else Modifier)
+    LiquidSectionHeader(stringResource(R.string.header_style))
+
+    // Category chips
+    if (categories.isNotEmpty()) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.padding(bottom = 10.dp)
         ) {
-            if (previewState.value != null) {
-                androidx.compose.foundation.Image(bitmap = previewState.value!!.asImageBitmap(), contentDescription = item.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            } else if (thumbnailBitmap != null) {
-                androidx.compose.foundation.Image(bitmap = thumbnailBitmap.asImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize().alpha(0.5f))
+            itemsIndexed(categories) { index, cat ->
+                LiquidChip(
+                    text = cat.displayName,
+                    selected = index == selectedCategoryIndex,
+                    onClick = { selectedCategoryIndex = index }
+                )
             }
         }
-        Text(item.name, color = TextSecondary, fontSize = 9.sp, fontFamily = FontFamily.SansSerif, letterSpacing = 0.01.sp, textAlign = TextAlign.Center, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 11.sp, modifier = Modifier.width(86.dp).padding(top = 6.dp, bottom = 2.dp))
     }
+
+    // Intensity slider
+    AnimatedVisibility(visible = editState.hasSelectedLut, enter = fadeIn() + scaleIn(initialScale = 0.95f)) {
+        LiquidIntensitySlider(
+            intensity = editState.intensity,
+            onIntensityChange = { value ->
+                viewModel.setIntensity(value)
+                if (!isWatermarkActive) {
+                    glSurfaceView?.queueEvent {
+                        renderer?.setIntensity(value)
+                        glSurfaceView.requestRender()
+                    }
+                }
+                onRefreshWatermark()
+            }
+        )
+    }
+
+    LiquidSectionHeader(stringResource(R.string.header_presets))
+
+    // LUT cards
+    LiquidLutRow(
+        items = lutItems,
+        thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap,
+        onLutSelected = { viewModel.applyLut(it) },
+        currentLutPath = editState.currentLutPath
+    )
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// LUT ROW
+// ═══════════════════════════════════════════════════════════════════════════════
+
 @Composable
-private fun QuickIntensitySlider(intensity: Float, onIntensityChange: (Float) -> Unit) {
-    var sliderValue by remember(intensity) { mutableFloatStateOf(intensity) }
-    Column(modifier = Modifier.padding(bottom = 14.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.ic_opacity), contentDescription = null, tint = AccentPrimary, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(10.dp))
-            Text(stringResource(R.string.label_intensity), color = TextSecondary, fontSize = 12.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.weight(1f))
-            Text("${(sliderValue * 100).toInt()}%", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, textAlign = TextAlign.End, modifier = Modifier.width(40.dp))
+private fun LiquidLutRow(
+    items: List<LutItem>,
+    thumbnailBitmap: Bitmap?,
+    onLutSelected: (LutItem) -> Unit,
+    currentLutPath: String?
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.height(120.dp)
+    ) {
+        itemsIndexed(items) { index, item ->
+            LiquidLutCard(
+                item = item,
+                thumbnailBitmap = thumbnailBitmap,
+                selected = item.assetPath == currentLutPath,
+                onClick = { onLutSelected(item) }
+            )
         }
-        Slider(value = sliderValue, onValueChange = { sliderValue = it }, onValueChangeFinished = { onIntensityChange(sliderValue) }, modifier = Modifier.fillMaxWidth(), colors = SliderDefaults.colors(thumbColor = AccentPrimary, activeTrackColor = AccentPrimary, inactiveTrackColor = Color(0x30FFFFFF)))
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// GRAIN CONTROLS
+// ═══════════════════════════════════════════════════════════════════════════════
+
 @Composable
-private fun GrainControls(
+private fun LiquidGrainControls(
     editState: EditState,
     viewModel: MainViewModel,
     glSurfaceView: GLSurfaceView?,
@@ -680,21 +576,45 @@ private fun GrainControls(
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
     var grainEnabled by remember { mutableStateOf(editState.grainEnabled) }
     var grainIntensity by remember { mutableFloatStateOf(editState.grainIntensity) }
     var selectedStyle by remember { mutableStateOf(editState.grainStyle) }
-    val accent = if (grainEnabled) AccentPrimary else TextTertiary
+    val accent = if (grainEnabled) LiquidColors.AccentPrimary else LiquidColors.TextLowEmphasis
 
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(painter = painterResource(R.drawable.ic_grain), contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_grain),
+            contentDescription = null,
+            tint = accent,
+            modifier = Modifier.size(18.dp)
+        )
         Spacer(Modifier.width(12.dp))
-        Text(stringResource(R.string.label_film_grain), color = TextSecondary, fontSize = 13.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.weight(1f))
-        Text("${(grainIntensity * 100).toInt()}%", color = accent, fontSize = 13.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, textAlign = TextAlign.End, modifier = Modifier.width(42.dp).padding(end = 8.dp))
+        Text(
+            stringResource(R.string.label_film_grain),
+            color = LiquidColors.TextMediumEmphasis,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            "${(grainIntensity * 100).toInt()}%",
+            color = accent,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.SansSerif,
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(42.dp).padding(end = 8.dp)
+        )
         Checkbox(
             checked = grainEnabled,
             onCheckedChange = { on ->
                 grainEnabled = on
                 viewModel.setGrainEnabled(on)
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (!isWatermarkActive) {
                     glSurfaceView?.queueEvent {
                         renderer?.setGrainEnabled(on)
@@ -704,7 +624,7 @@ private fun GrainControls(
                 }
                 onRefreshWatermark()
             },
-            colors = CheckboxDefaults.colors(checkedColor = AccentPrimary),
+            colors = CheckboxDefaults.colors(checkedColor = LiquidColors.AccentPrimary),
             modifier = Modifier.size(24.dp)
         )
     }
@@ -714,6 +634,7 @@ private fun GrainControls(
         onValueChange = { grainIntensity = it },
         onValueChangeFinished = {
             viewModel.setGrainIntensity(grainIntensity)
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
             if (grainEnabled) {
                 if (!isWatermarkActive) {
                     glSurfaceView?.queueEvent {
@@ -726,16 +647,37 @@ private fun GrainControls(
         },
         enabled = grainEnabled,
         modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-        colors = SliderDefaults.colors(thumbColor = accent, activeTrackColor = accent, inactiveTrackColor = Color(0x25FFFFFF), disabledThumbColor = TextTertiary, disabledActiveTrackColor = TextTertiary, disabledInactiveTrackColor = Color(0x25FFFFFF))
+        colors = SliderDefaults.colors(
+            thumbColor = accent,
+            activeTrackColor = accent,
+            inactiveTrackColor = LiquidColors.GlassSurfaceDark,
+            disabledThumbColor = LiquidColors.TextLowEmphasis,
+            disabledActiveTrackColor = LiquidColors.TextLowEmphasis,
+            disabledInactiveTrackColor = LiquidColors.GlassSurfaceDark
+        )
     )
 
-    Row(modifier = Modifier.fillMaxWidth().alpha(if (grainEnabled) 1f else 0.4f).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(painter = painterResource(R.drawable.ic_grain), contentDescription = null, tint = AccentSecondary, modifier = Modifier.size(18.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth().alpha(if (grainEnabled) 1f else 0.4f).padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_grain),
+            contentDescription = null,
+            tint = LiquidColors.AccentSecondary,
+            modifier = Modifier.size(18.dp)
+        )
         Spacer(Modifier.width(12.dp))
-        Text(stringResource(R.string.label_grain_style), color = TextSecondary, fontSize = 13.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.padding(end = 12.dp))
+        Text(
+            stringResource(R.string.label_grain_style),
+            color = LiquidColors.TextMediumEmphasis,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier.padding(end = 12.dp)
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("Xiaomi" to R.string.grain_style_xiaomi, "OnePlus" to R.string.grain_style_oneplus).forEach { (key, labelRes) ->
-                GlowChip(
+                LiquidChip(
                     text = stringResource(labelRes),
                     selected = selectedStyle == key,
                     enabled = grainEnabled,
@@ -743,6 +685,7 @@ private fun GrainControls(
                         if (grainEnabled) {
                             selectedStyle = key
                             viewModel.setGrainStyle(key)
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                             if (!isWatermarkActive) {
                                 glSurfaceView?.queueEvent {
                                     renderer?.setGrainStyle(key)
@@ -758,9 +701,17 @@ private fun GrainControls(
     }
 }
 
-// (WatermarkControls and WatermarkInputRow remain unchanged...)
+// ═══════════════════════════════════════════════════════════════════════════════
+// WATERMARK CONTROLS
+// ═══════════════════════════════════════════════════════════════════════════════
+
 @Composable
-private fun WatermarkControls(watermarkState: WatermarkState, viewModel: MainViewModel, onRefreshWatermark: () -> Unit) {
+private fun LiquidWatermarkControls(
+    watermarkState: WatermarkState,
+    viewModel: MainViewModel,
+    onRefreshWatermark: () -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
     val defaultTime = remember { WatermarkProcessor.getDefaultTimeString() }
     val selectedBrand = watermarkState.brandName
     val selectedStyle = watermarkState.style
@@ -787,50 +738,116 @@ private fun WatermarkControls(watermarkState: WatermarkState, viewModel: MainVie
     val showTime   = showFields && selectedStyle !in noTimeStyles
 
     Column {
-        Text(stringResource(R.string.header_watermark).uppercase(), color = AccentPrimary, fontSize = 10.sp, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif, letterSpacing = 0.15.sp, modifier = Modifier.padding(bottom = 4.dp))
-        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painter = painterResource(R.drawable.ic_watermark), contentDescription = null, tint = AccentSecondary, modifier = Modifier.size(18.dp))
+        Text(
+            stringResource(R.string.header_watermark).uppercase(),
+            color = LiquidColors.AccentPrimary,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.SansSerif,
+            letterSpacing = 0.15.sp,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_watermark),
+                contentDescription = null,
+                tint = LiquidColors.AccentSecondary,
+                modifier = Modifier.size(18.dp)
+            )
             Spacer(Modifier.width(12.dp))
-            Text(stringResource(R.string.label_watermark_brand), color = TextSecondary, fontSize = 13.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.padding(end = 12.dp))
-            Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                stringResource(R.string.label_watermark_brand),
+                color = LiquidColors.TextMediumEmphasis,
+                fontSize = 13.sp,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 listOf(R.string.brand_none to "None", R.string.brand_honor to "Honor", R.string.brand_meizu to "Meizu", R.string.brand_vivo to "Vivo", R.string.brand_tecno to "TECNO").forEach { (labelRes, brand) ->
-                    GlowChip(text = stringResource(labelRes), selected = selectedBrand == brand, onClick = {
-                        viewModel.updateWatermarkBrand(brand)
-                        if (brand == "None") viewModel.updateWatermarkStyle(WatermarkStyle.NONE)
-                        else viewModel.updateWatermarkStyle(when(brand){"Honor"->honorStyles;"Meizu"->meizuStyles;"Vivo"->vivoStyles;"TECNO"->tecnoStyles;else->emptyList()}.firstOrNull()?.second ?: WatermarkStyle.NONE)
-                        onRefreshWatermark()
-                    })
+                    LiquidChip(
+                        text = stringResource(labelRes),
+                        selected = selectedBrand == brand,
+                        onClick = {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                            viewModel.updateWatermarkBrand(brand)
+                            if (brand == "None") viewModel.updateWatermarkStyle(WatermarkStyle.NONE)
+                            else viewModel.updateWatermarkStyle(when(brand){"Honor"->honorStyles;"Meizu"->meizuStyles;"Vivo"->vivoStyles;"TECNO"->tecnoStyles;else->emptyList()}.firstOrNull()?.second ?: WatermarkStyle.NONE)
+                            onRefreshWatermark()
+                        }
+                    )
                 }
             }
         }
+        
         if (availableStyles.isNotEmpty()) {
-            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.label_watermark_style), color = TextSecondary, fontSize = 13.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.padding(end = 12.dp))
-                Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.label_watermark_style),
+                    color = LiquidColors.TextMediumEmphasis,
+                    fontSize = 13.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     availableStyles.forEach { (labelRes, style) ->
-                        GlowChip(text = stringResource(labelRes), selected = selectedStyle == style, onClick = { viewModel.updateWatermarkStyle(style); onRefreshWatermark() })
+                        LiquidChip(
+                            text = stringResource(labelRes),
+                            selected = selectedStyle == style,
+                            onClick = { 
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                viewModel.updateWatermarkStyle(style)
+                                onRefreshWatermark()
+                            }
+                        )
                     }
                 }
             }
         }
-        if (showDevice) WatermarkInputRow(stringResource(R.string.label_watermark_device), deviceName) { deviceName = it; viewModel.updateWatermarkFields(deviceName = it); onRefreshWatermark() }
-        if (showLens) WatermarkInputRow(stringResource(R.string.label_watermark_lens), lensInfo) { lensInfo = it; viewModel.updateWatermarkFields(lensInfo = it); onRefreshWatermark() }
+        
+        if (showDevice) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_device), deviceName) { deviceName = it; viewModel.updateWatermarkFields(deviceName = it); onRefreshWatermark() }
+        if (showLens) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_lens), lensInfo) { lensInfo = it; viewModel.updateWatermarkFields(lensInfo = it); onRefreshWatermark() }
         if (showTime) {
-            WatermarkInputRow(stringResource(R.string.label_watermark_time), timeText) { timeText = it; viewModel.updateWatermarkFields(timeText = it); onRefreshWatermark() }
-            WatermarkInputRow(stringResource(R.string.label_watermark_location), locationText) { locationText = it; viewModel.updateWatermarkFields(locationText = it); onRefreshWatermark() }
+            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_time), timeText) { timeText = it; viewModel.updateWatermarkFields(timeText = it); onRefreshWatermark() }
+            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_location), locationText) { locationText = it; viewModel.updateWatermarkFields(locationText = it); onRefreshWatermark() }
         }
     }
 }
 
 @Composable
-private fun WatermarkInputRow(label: String, value: String, onValueChange: (String) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().padding(start = 30.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, color = TextTertiary, fontSize = 12.sp, fontFamily = FontFamily.SansSerif, modifier = Modifier.width(56.dp).padding(end = 8.dp))
+private fun LiquidWatermarkInputRow(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = 30.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            color = LiquidColors.TextLowEmphasis,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier.width(56.dp).padding(end = 8.dp)
+        )
         Box(
             modifier = Modifier.weight(1f).height(34.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(InputBg)
-                .border(1.dp, InputBorder, RoundedCornerShape(12.dp))
+                .background(LiquidColors.GlassSurfaceDark)
+                .border(1.dp, LiquidColors.GlassBorder, RoundedCornerShape(12.dp))
                 .padding(horizontal = 8.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -838,8 +855,12 @@ private fun WatermarkInputRow(label: String, value: String, onValueChange: (Stri
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.SansSerif, color = TextPrimary),
-                cursorBrush = androidx.compose.ui.graphics.SolidColor(AccentPrimary),
+                textStyle = TextStyle(
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.SansSerif,
+                    color = LiquidColors.TextHighEmphasis
+                ),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(LiquidColors.AccentPrimary),
                 modifier = Modifier.fillMaxWidth()
             )
         }

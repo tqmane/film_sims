@@ -21,7 +21,6 @@ import androidx.appcompat.app.AlertDialog
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.ui.MainScreen
 import com.tqmane.filmsim.ui.MainViewModel
-import com.tqmane.filmsim.ui.theme.FilmSimsTheme
 import com.tqmane.filmsim.util.ReleaseInfo
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -50,14 +49,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            FilmSimsTheme {
-                MainScreen(
-                    viewModel = vm,
-                    onPickImage = { launchPicker() },
-                    onShowSettings = { showSettingsDialog() },
-                    onShowUpdateDialog = { showUpdateDialog(it) }
-                )
-            }
+            MainScreen(
+                viewModel = vm,
+                onPickImage = { launchPicker() },
+                onShowSettings = { showSettingsDialog() },
+                onShowUpdateDialog = { showUpdateDialog(it) }
+            )
         }
 
         vm.checkForUpdates()
