@@ -68,3 +68,8 @@ luts/
 textures/
 fonts/
 watermark/
+Meizu_watermark/
+vivo_watermark_full*/
+__pycache__/
+tools/
+tecno_watermark_extracted/
