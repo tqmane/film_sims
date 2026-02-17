@@ -1,5 +1,6 @@
 package com.tqmane.filmsim.util
 
+import android.app.ActivityManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,35 +15,70 @@ import kotlin.math.pow
 data class CubeLUT(val size: Int, val data: FloatBuffer)
 
 object CubeLUTParser {
-    // Cache parsed LUTs to avoid repeatedly parsing large files when user switches filters.
-    // Sized in KB; 16MB keeps several 64^3 LUTs without blowing memory.
-    private val lutCache = object : LruCache<String, CubeLUT>(16 * 1024) {
-        override fun sizeOf(key: String, value: CubeLUT): Int {
-            // Approximate native buffer bytes: size^3 * 3 * 4
-            val bytes = value.size * value.size * value.size * 3 * 4
-            return (bytes / 1024).coerceAtLeast(1)
+    private var lutCache: LruCache<String, CubeLUT>? = null
+
+    private fun getCacheSizeKb(context: Context): Int {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            ?: return 16 * 1024
+
+        // getMemoryClass returns the memory class in MB
+        val memoryClassMb = activityManager.memoryClass
+
+        // Use 1/8th of available memory for LUT cache, but at least 8MB and at most 64MB
+        // This is a reasonable heuristic to balance cache hits vs memory pressure
+        val cacheSizeMb = when {
+            memoryClassMb <= 64 -> memoryClassMb / 8
+            memoryClassMb <= 128 -> 16
+            memoryClassMb <= 256 -> 24
+            else -> 32
+        }.coerceIn(8, 64)
+
+        android.util.Log.d("CubeLUTParser", "Device memory class: ${memoryClassMb}MB, Cache size: ${cacheSizeMb}MB")
+        return cacheSizeMb * 1024
+    }
+
+    private fun getOrCreateCache(context: Context): LruCache<String, CubeLUT> {
+        return lutCache ?: synchronized(this) {
+            lutCache ?: object : LruCache<String, CubeLUT>(getCacheSizeKb(context)) {
+                override fun sizeOf(key: String, value: CubeLUT): Int {
+                    // Approximate native buffer bytes: size^3 * 3 * 4
+                    val bytes = value.size * value.size * value.size * 3 * 4
+                    return (bytes / 1024).coerceAtLeast(1)
+                }
+            }.also { lutCache = it }
         }
     }
 
     fun parse(context: Context, assetPath: String): CubeLUT? {
-        synchronized(lutCache) {
-            lutCache.get(assetPath)?.let { cached ->
+        val cache = getOrCreateCache(context)
+        synchronized(cache) {
+            cache.get(assetPath)?.let { cached ->
                 cached.data.position(0)
                 return cached
             }
         }
 
+        val fileName = assetPath.substringAfterLast('/')
+        val hasExtension = fileName.contains('.')
+
         val parsed = when {
             assetPath.endsWith(".png", ignoreCase = true) -> parsePngLut(context, assetPath)
+            assetPath.endsWith(".webp", ignoreCase = true) -> parsePngLut(context, assetPath)
+            assetPath.endsWith(".jpg", ignoreCase = true) -> parsePngLut(context, assetPath)
+            assetPath.endsWith(".jpeg", ignoreCase = true) -> parsePngLut(context, assetPath)
             assetPath.endsWith(".cube", ignoreCase = true) -> parseCubeLut(context, assetPath)
             assetPath.endsWith(".bin", ignoreCase = true) -> parseBinLut(context, assetPath)
+            // Some vendors ship binary LUTs without an extension (e.g. OnePlus/Uncategorized/default, ODT_Photo).
+            !hasExtension -> parseBinLut(context, assetPath)
+            // Keep this off the LUT listing (repository doesn't include .dat), but allow parsing if referenced.
+            assetPath.endsWith(".dat", ignoreCase = true) -> parseBinLut(context, assetPath)
             else -> null
         }
 
         if (parsed != null) {
             parsed.data.position(0)
-            synchronized(lutCache) {
-                lutCache.put(assetPath, parsed)
+            synchronized(cache) {
+                cache.put(assetPath, parsed)
             }
         }
 
@@ -62,16 +98,32 @@ object CubeLUTParser {
             var channels = 3
             var dataOffset = 0
             var isBgr: Boolean
+            var isFloatFormat = false
             
-            // Check for .MS-LUT header
-            val magic = String(bytes.copyOfRange(0, 8.coerceAtMost(bytes.size)))
-            val hasMsLutHeader = magic == ".MS-LUT "
+            // Check for known headers
+            val magic8 = String(bytes.copyOfRange(0, 8.coerceAtMost(bytes.size)))
+            val magic4 = String(bytes.copyOfRange(0, 4.coerceAtMost(bytes.size)))
+            val hasMsLutHeader = magic8 == ".MS-LUT "
+            val hasLut3Header = magic4 == "LUT3"
             
             // BGR detection will be determined by analyzing actual data pattern
             // after parsing header and getting data offset
             // (moved to after header parsing)
             
-            if (hasMsLutHeader) {
+            if (hasLut3Header && bytes.size >= 12) {
+                // LUT3 header (Huawei format):
+                // 0x00-0x03: "LUT3" magic
+                // 0x04-0x07: LUT size (little endian uint32)
+                // 0x08-0x0B: entry count (little endian uint32)  = lutSize³
+                // 0x0C..   : RGB data, 3 bytes per entry
+                lutSize = (bytes[0x04].toInt() and 0xFF) or
+                        ((bytes[0x05].toInt() and 0xFF) shl 8) or
+                        ((bytes[0x06].toInt() and 0xFF) shl 16) or
+                        ((bytes[0x07].toInt() and 0xFF) shl 24)
+                dataOffset = 12
+                channels = 3
+                android.util.Log.d("CubeLUTParser", "LUT3 header: lutSize=$lutSize")
+            } else if (hasMsLutHeader) {
                 // Parse MS-LUT header
                 // Header structure:
                 // 0x00-0x07: ".MS-LUT " magic
@@ -151,16 +203,24 @@ object CubeLUTParser {
                     98304 -> { lutSize = 32; channels = 3 }
                     12288 -> { lutSize = 16; channels = 3 }
                     else -> {
-                        // Try 4 channels
-                        val sizeC4 = kotlin.math.round(Math.pow((fileSize / 4).toDouble(), 1.0/3.0)).toInt()
-                        if (sizeC4 * sizeC4 * sizeC4 * 4 == fileSize) {
-                            lutSize = sizeC4
-                            channels = 4
-                        } else {
-                            // Try 3 channels
-                            val sizeC3 = kotlin.math.round(Math.pow((fileSize / 3).toDouble(), 1.0/3.0)).toInt()
-                            lutSize = sizeC3
+                        // Try float32 RGB (12 bytes per pixel: 3 × float32)
+                        val sizeF3 = kotlin.math.round(Math.pow((fileSize / 12).toDouble(), 1.0/3.0)).toInt()
+                        if (sizeF3 in 8..128 && sizeF3 * sizeF3 * sizeF3 * 12 == fileSize) {
+                            lutSize = sizeF3
                             channels = 3
+                            isFloatFormat = true
+                        } else {
+                            // Try 4 channels uint8
+                            val sizeC4 = kotlin.math.round(Math.pow((fileSize / 4).toDouble(), 1.0/3.0)).toInt()
+                            if (sizeC4 * sizeC4 * sizeC4 * 4 == fileSize) {
+                                lutSize = sizeC4
+                                channels = 4
+                            } else {
+                                // Try 3 channels uint8
+                                val sizeC3 = kotlin.math.round(Math.pow((fileSize / 3).toDouble(), 1.0/3.0)).toInt()
+                                lutSize = sizeC3
+                                channels = 3
+                            }
                         }
                     }
                 }
@@ -169,8 +229,8 @@ object CubeLUTParser {
             // Detect if data is stored as floats (12 bytes per pixel) vs bytes (3/4 bytes per pixel)
             // Check header byte at 0x10 - value 3 indicates float format for some files
             // Also check by calculating data size
-            var isFloatFormat = false
-            if (hasMsLutHeader && bytes.size > 0x14) {
+            // (isFloatFormat may already be set by raw binary detection above)
+            if (!isFloatFormat && hasMsLutHeader && bytes.size > 0x14) {
                 val formatHint = bytes[0x10].toInt() and 0xFF
                 val dataSize = bytes.size - dataOffset
                 val expectedBytesPerPixel = dataSize / (lutSize * lutSize * lutSize)
@@ -333,9 +393,14 @@ object CubeLUTParser {
                 return parse1DLut(bitmap)
             }
             
-            // Strip format: width = lutSize², height = lutSize (e.g. 1024x32, 256x16)
+            // Horizontal strip format: width = lutSize², height = lutSize (e.g. 1024x32, 256x16)
             if (width > height && height > 0 && width == height * height) {
                 return parseStripLut(bitmap, height)
+            }
+            
+            // Vertical strip format: height = width × width (e.g. 33x1089 for Meizu filterManager)
+            if (height > width && width > 0 && height == width * width) {
+                return parseVerticalStripLut(bitmap, width)
             }
             
             // 512x512 = 64³ in 8x8 grid of 64x64 slices (HALD format)
@@ -435,25 +500,117 @@ object CubeLUTParser {
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
             bitmap.recycle()
             
+            // Auto-detect axis convention by sampling the end of row 0 in tile 0.
+            // Standard (Vivo etc.): tile=B, X=R, Y=G → px[0, lutSize-1] has dominant Red
+            // Meizu classicFilter: tile=G, X=B, Y=R → px[0, lutSize-1] has dominant Blue
+            val samplePixel = pixels[lutSize - 1] // px[row=0, col=lutSize-1]
+            val sR = (samplePixel ushr 16) and 0xFF
+            val sG = (samplePixel ushr 8) and 0xFF
+            val sB = samplePixel and 0xFF
+            val isMeizuConvention = sB > sR && sB > sG
+            
+            android.util.Log.d("CubeLUTParser", "Strip axis detect: sample=($sR,$sG,$sB) meizu=$isMeizuConvention")
+            
             val entryCount = lutSize * lutSize * lutSize
             val floatBuffer = ByteBuffer.allocateDirect(entryCount * 3 * 4)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer()
             
-            // Strip format: lutSize tiles laid out horizontally, each tile is lutSize x lutSize
+            // OpenGL 3D texture expects data in order: R (fastest), G, B (slowest)
+            if (isMeizuConvention) {
+                // Meizu convention: Tile index = Green, X within tile = Blue, Y (row) = Red
+                for (b in 0 until lutSize) {
+                    for (g in 0 until lutSize) {
+                        for (r in 0 until lutSize) {
+                            val pixelX = g * lutSize + b
+                            val pixelY = r
+                            if (pixelX >= width || pixelY >= height) {
+                                floatBuffer.put(0f)
+                                floatBuffer.put(0f)
+                                floatBuffer.put(0f)
+                                continue
+                            }
+                            val pixel = pixels[pixelY * width + pixelX]
+                            val red = ((pixel ushr 16) and 0xFF) * 0.003921569f
+                            val green = ((pixel ushr 8) and 0xFF) * 0.003921569f
+                            val blue = (pixel and 0xFF) * 0.003921569f
+                            floatBuffer.put(red)
+                            floatBuffer.put(green)
+                            floatBuffer.put(blue)
+                        }
+                    }
+                }
+            } else {
+                // Standard convention: Tile index = Blue, X within tile = Red, Y (row) = Green
+                for (b in 0 until lutSize) {
+                    for (g in 0 until lutSize) {
+                        for (r in 0 until lutSize) {
+                            val pixelX = b * lutSize + r
+                            val pixelY = g
+                            if (pixelX >= width || pixelY >= height) {
+                                floatBuffer.put(0f)
+                                floatBuffer.put(0f)
+                                floatBuffer.put(0f)
+                                continue
+                            }
+                            val pixel = pixels[pixelY * width + pixelX]
+                            val red = ((pixel ushr 16) and 0xFF) * 0.003921569f
+                            val green = ((pixel ushr 8) and 0xFF) * 0.003921569f
+                            val blue = (pixel and 0xFF) * 0.003921569f
+                            floatBuffer.put(red)
+                            floatBuffer.put(green)
+                            floatBuffer.put(blue)
+                        }
+                    }
+                }
+            }
+            
+            floatBuffer.position(0)
+            android.util.Log.d("CubeLUTParser", "Parsed strip LUT: $entryCount entries")
+            return CubeLUT(lutSize, floatBuffer)
+            
+        } catch (e: Exception) {
+            android.util.Log.e("CubeLUTParser", "Error parsing strip LUT", e)
+            return null
+        }
+    }
+
+    /**
+     * Parse vertical strip LUT format (e.g. Meizu filterManager: 33x1089)
+     * Tiles are laid out vertically: each tile is lutSize x lutSize, stacked vertically
+     */
+    private fun parseVerticalStripLut(bitmap: Bitmap, lutSize: Int): CubeLUT? {
+        try {
+            val width = bitmap.width
+            val height = bitmap.height
+            
+            android.util.Log.d("CubeLUTParser", "Vertical Strip LUT: lutSize=$lutSize, image=${width}x${height}")
+            
+            val pixels = IntArray(width * height)
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+            bitmap.recycle()
+            
+            val entryCount = lutSize * lutSize * lutSize
+            val floatBuffer = ByteBuffer.allocateDirect(entryCount * 3 * 4)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer()
+            
+            // Vertical strip format: lutSize tiles laid out vertically, each tile is lutSize x lutSize
             for (b in 0 until lutSize) {
-                val baseX = b * lutSize
+                val baseY = b * lutSize
                 for (g in 0 until lutSize) {
-                    val rowOffset = g * width
+                    val pixelY = baseY + g
+                    if (pixelY >= height) continue
+                    val rowOffset = pixelY * width
+                    
                     for (r in 0 until lutSize) {
-                        val pixelX = baseX + r
-                        if (pixelX >= width || g >= height) {
+                        if (r >= width) {
                             floatBuffer.put(0f)
                             floatBuffer.put(0f)
                             floatBuffer.put(0f)
                             continue
                         }
-                        val pixel = pixels[rowOffset + pixelX]
+                        val pixel = pixels[rowOffset + r]
                         val red = ((pixel ushr 16) and 0xFF) * 0.003921569f
                         val green = ((pixel ushr 8) and 0xFF) * 0.003921569f
                         val blue = (pixel and 0xFF) * 0.003921569f
@@ -465,11 +622,11 @@ object CubeLUTParser {
             }
             
             floatBuffer.position(0)
-            android.util.Log.d("CubeLUTParser", "Parsed strip LUT: $entryCount entries")
+            android.util.Log.d("CubeLUTParser", "Parsed vertical strip LUT: $entryCount entries")
             return CubeLUT(lutSize, floatBuffer)
             
         } catch (e: Exception) {
-            android.util.Log.e("CubeLUTParser", "Error parsing strip LUT", e)
+            android.util.Log.e("CubeLUTParser", "Error parsing vertical strip LUT", e)
             return null
         }
     }

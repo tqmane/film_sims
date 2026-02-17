@@ -1,0 +1,23 @@
+{
+  "filters": {
+    "Classic_sRGB": "lut_leica_classic",
+    "Contemporary_sRGB": "lut_leica_contemporary",
+    "Leica-Filter_Monochrome": "lut_leica_monochrome_natural",
+    "Leica-Filter_Natural": "lut_leica_natural",
+    "Leica-Looks_Blue": "lut_leica_blue",
+    "Leica-Looks_Eternal": "lut_leica_eternal",
+    "Leica-Looks_Selenium": "lut_leica_selenium",
+    "Leica-Looks_Sepia": "lut_leica_sepia",
+    "Leica-Looks_Silver": "lut_leica_silver",
+    "Leica-Looks_Teal": "lut_leica_teal",
+    "Leica_Bleach": "lut_leica_bleach",
+    "Leica_Brass": "lut_leica_brass",
+    "Leica_Monochrome_High_Contrast": "lut_leica_high_contrast",
+    "Leica_Vivid": "lut_leica_vivid",
+    "Tyson_100yearsMono": "lut_100_years_mono",
+    "Tyson_GregWilliams_Sepia0": "lut_greg_williams_sepia_0",
+    "Tyson_GregWilliams_Sepia100": "lut_greg_williams_sepia_100",
+    "Tyson_Leica_Base_V3": "lut_leica_standard",
+    "Tyson_Leica_Chrome": "lut_leica_chrome"
+  }
+}

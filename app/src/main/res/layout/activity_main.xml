@@ -12,6 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Watermark Preview Overlay -->
+    <ImageView
+        android:id="@+id/watermarkPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:visibility="gone" />
+
     <!-- Main Container -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,10 +31,10 @@
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="48dp"
-            android:paddingBottom="20dp"
-            android:background="@drawable/gradient_top_shadow">
+            android:paddingHorizontal="24dp"
+            android:paddingTop="52dp"
+            android:paddingBottom="24dp"
+            android:background="@drawable/bg_liquid_glass_top_bar">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,20 +54,20 @@
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
                         android:textColor="@color/text_primary"
-                        android:textSize="22sp"
+                        android:textSize="24sp"
                         android:fontFamily="sans-serif-medium"
-                        android:letterSpacing="0.01" />
+                        android:letterSpacing="0.005" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/subtitle_film_simulator"
                         android:textColor="@color/accent_primary"
-                        android:textSize="10sp"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.12"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.1"
                         android:textAllCaps="true"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="3dp" />
 
                 </LinearLayout>
 
@@ -69,11 +77,14 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_round_button"
+                    android:background="@drawable/bg_round_button_static"
+                    android:foreground="@drawable/bg_round_button_ripple"
                     android:src="@drawable/ic_add"
                     app:tint="@color/text_primary"
                     android:padding="10dp"
                     android:scaleType="centerInside"
+                    android:stateListAnimator="@null"
+                    android:elevation="0dp"
                     android:contentDescription="@string/btn_open_gallery" />
 
                 <ImageButton
@@ -81,11 +92,14 @@
                     android:layout_width="42dp"
                     android:layout_height="42dp"
                     android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_round_button"
+                    android:background="@drawable/bg_round_button_static"
+                    android:foreground="@drawable/bg_round_button_ripple"
                     android:src="@drawable/ic_settings"
                     app:tint="@color/text_primary"
                     android:padding="10dp"
                     android:scaleType="centerInside"
+                    android:stateListAnimator="@null"
+                    android:elevation="0dp"
                     android:contentDescription="@string/title_settings" />
 
                 <!-- Export Button - Accent -->
@@ -93,18 +107,18 @@
                     android:id="@+id/btnSave"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:minHeight="40dp"
+                    android:layout_height="44dp"
+                    android:minHeight="44dp"
                     android:text="@string/save"
                     android:textColor="#FFFFFFFF"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textAllCaps="false"
                     android:fontFamily="sans-serif-medium"
-                    android:paddingHorizontal="20dp"
+                    android:paddingHorizontal="24dp"
                     android:background="@drawable/bg_accent_gradient_button"
                     app:backgroundTint="@null"
-                    app:cornerRadius="20dp"
-                    app:elevation="2dp"
+                    app:cornerRadius="22dp"
+                    android:stateListAnimator="@null"
                     android:insetTop="0dp"
                     android:insetBottom="0dp" />
 
@@ -128,7 +142,7 @@
                 android:background="#FF050508"
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="48dp">
+                android:padding="56dp">
 
                 <!-- Icon Container - Subtle glass effect -->
                 <FrameLayout
@@ -149,45 +163,45 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="36dp"
                     android:text="@string/label_pick_image"
                     android:textColor="@color/text_primary"
-                    android:textSize="24sp"
+                    android:textSize="26sp"
                     android:fontFamily="sans-serif-light"
-                    android:letterSpacing="0.01" />
+                    android:letterSpacing="0.005" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="14dp"
                     android:text="@string/desc_pick_image"
                     android:textColor="@color/text_tertiary"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textAlignment="center"
-                    android:lineSpacingMultiplier="1.4" />
+                    android:lineSpacingMultiplier="1.5" />
 
                 <!-- Primary Action Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPickImage"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="40dp"
-                    android:paddingHorizontal="28dp"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="44dp"
+                    android:paddingHorizontal="32dp"
                     android:text="@string/btn_open_gallery"
                     android:textColor="#FFFFFFFF"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textAllCaps="false"
                     android:fontFamily="sans-serif-medium"
-                    android:letterSpacing="0.02"
+                    android:letterSpacing="0.015"
                     android:background="@drawable/bg_accent_gradient_button"
                     app:backgroundTint="@null"
-                    app:cornerRadius="26dp"
-                    app:elevation="4dp"
+                    app:cornerRadius="28dp"
+                    android:stateListAnimator="@null"
                     app:icon="@drawable/ic_gallery"
                     app:iconTint="#FFFFFFFF"
-                    app:iconSize="20dp"
-                    app:iconPadding="10dp" />
+                    app:iconSize="22dp"
+                    app:iconPadding="12dp" />
 
             </LinearLayout>
 
@@ -199,10 +213,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_control_panel"
-            android:paddingTop="12dp"
-            android:paddingBottom="16dp"
-            android:paddingHorizontal="12dp">
+            android:background="@drawable/bg_liquid_glass_panel"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp"
+            android:paddingHorizontal="16dp">
 
             <!-- Adjustments Header (Collapsible) -->
             <LinearLayout
@@ -220,8 +234,8 @@
                     android:layout_weight="1"
                     android:text="@string/header_grain"
                     android:textColor="@color/accent_primary"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.18"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.15"
                     android:textAllCaps="true"
                     android:fontFamily="sans-serif-medium" />
 
@@ -384,11 +398,1075 @@
 
                 </LinearLayout>
 
+                <!-- Divider between grain and watermark -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#15FFFFFF"
                     android:layout_marginVertical="8dp" />
+
+                <!-- Watermark Section (inside collapsible panel) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_watermark"
+                    android:textColor="@color/accent_primary"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.15"
+                    android:textAllCaps="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="4dp" />
+
+                <!-- Watermark Brand Selection Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_watermark"
+                        app:tint="@color/accent_secondary"
+                        android:layout_marginEnd="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_brand"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="12dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fadingEdgeLength="16dp"
+                        android:requiresFadingEdge="horizontal">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/watermarkBrandChipGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            app:chipSpacingHorizontal="6dp"
+                            app:singleLine="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBrandNone"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/brand_none"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBrandHonor"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/brand_honor"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBrandMeizu"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/brand_meizu"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBrandVivo"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/brand_vivo"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+
+                <!-- Watermark Style Selection Row (filtered by brand) -->
+                <LinearLayout
+                    android:id="@+id/watermarkStyleRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:paddingStart="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_style"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="12dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:fadingEdgeLength="16dp"
+                        android:requiresFadingEdge="horizontal">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/watermarkStyleChipGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            app:chipSpacingHorizontal="6dp"
+                            app:singleLine="true">
+
+                            <!-- Honor styles -->
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipWatermarkFrame"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/watermark_frame"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipWatermarkText"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/watermark_text"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipWatermarkFrameYG"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/watermark_frame_yg"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipWatermarkTextYG"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/watermark_text_yg"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <!-- Meizu styles -->
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuNorm"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_norm"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuPro"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_pro"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ1"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z1"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ2"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z2"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ3"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z3"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ4"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z4"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ5"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z5"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ6"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z6"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipMeizuZ7"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/meizu_z7"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <!-- vivo styles -->
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeiss"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoClassic"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_classic"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoPro"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_pro"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoIqoo"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_iqoo"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissV1"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_v1"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissSonnar"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_sonnar"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissHumanity"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_humanity"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoIqooV1"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_iqoo_v1"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoIqooHumanity"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_iqoo_humanity"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissFrame"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_frame"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissOverlay"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_overlay"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoZeissCenter"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_zeiss_center"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoFrame"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_frame"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoFrameTime"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_frame_time"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoIqooFrame"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_iqoo_frame"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoIqooFrameTime"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_iqoo_frame_time"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoOS"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_os"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoOSCorner"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_os_corner"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoOSSimple"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_os_simple"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipVivoEvent"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/vivo_event"
+                                android:textColor="@color/simple_chip_text"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="0.01"
+                                app:chipBackgroundColor="@color/chip_glow_bg"
+                                app:chipStrokeWidth="1.5dp"
+                                app:chipStrokeColor="@color/chip_glow_stroke"
+                                app:chipCornerRadius="16dp"
+                                app:chipMinHeight="32dp"
+                                app:chipStartPadding="12dp"
+                                app:chipEndPadding="12dp"
+                                app:textStartPadding="0dp"
+                                app:textEndPadding="0dp"
+                                app:ensureMinTouchTargetSize="false"
+                                app:checkedIconVisible="false" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+
+                <!-- Watermark Text Input (Device Name) -->
+                <LinearLayout
+                    android:id="@+id/watermarkDeviceContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:paddingStart="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_device"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="8dp" />
+
+                    <EditText
+                        android:id="@+id/watermarkDeviceInput"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_liquid_glass_input"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+                <!-- Watermark Text Input (Lens Info) -->
+                <LinearLayout
+                    android:id="@+id/watermarkLensContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:paddingStart="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_lens"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="8dp" />
+
+                    <EditText
+                        android:id="@+id/watermarkLensInput"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_liquid_glass_input"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+                <!-- Watermark Text Input (Time) -->
+                <LinearLayout
+                    android:id="@+id/watermarkTimeContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:paddingStart="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_time"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="8dp" />
+
+                    <EditText
+                        android:id="@+id/watermarkTimeInput"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_liquid_glass_input"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+                <!-- Watermark Text Input (Location) -->
+                <LinearLayout
+                    android:id="@+id/watermarkLocationContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="4dp"
+                    android:paddingStart="30dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="56dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_watermark_location"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        android:layout_marginEnd="8dp" />
+
+                    <EditText
+                        android:id="@+id/watermarkLocationInput"
+                        android:layout_width="0dp"
+                        android:layout_height="34dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_liquid_glass_input"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="10dp"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -398,11 +1476,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/header_camera"
                 android:textColor="@color/accent_primary"
-                android:textSize="10sp"
-                android:letterSpacing="0.15"
+                android:textSize="11sp"
+                android:letterSpacing="0.12"
                 android:textAllCaps="true"
                 android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/brandList"
@@ -419,11 +1497,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/header_style"
                 android:textColor="@color/accent_primary"
-                android:textSize="10sp"
-                android:letterSpacing="0.15"
+                android:textSize="11sp"
+                android:letterSpacing="0.12"
                 android:textAllCaps="true"
                 android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/genreList"
@@ -495,19 +1573,19 @@
                 android:layout_height="wrap_content"
                 android:text="@string/header_presets"
                 android:textColor="@color/accent_primary"
-                android:textSize="10sp"
-                android:letterSpacing="0.15"
+                android:textSize="11sp"
+                android:letterSpacing="0.12"
                 android:textAllCaps="true"
                 android:fontFamily="sans-serif-medium"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginBottom="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lutList"
                 android:layout_width="match_parent"
-                android:layout_height="96dp"
+                android:layout_height="120dp"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
-                android:scrollbars="none" />
+                android:scrollbars="horizontal" />
 
         </LinearLayout>
 

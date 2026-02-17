@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base Dark Theme Colors - Deeper, more refined blacks -->
-    <color name="surface_dark">#FF050508</color>
-    <color name="surface_medium">#FF0C0C10</color>
-    <color name="surface_light">#FF151519</color>
-    <color name="surface_elevated">#FF1E1E24</color>
+    <color name="surface_dark">#FF000000</color>
+    <color name="surface_medium">#FF0A0A0E</color>
+    <color name="surface_light">#FF121216</color>
+    <color name="surface_elevated">#FF1A1A20</color>
     
     <!-- Glass Effect Colors - More subtle transparency -->
     <color name="glass_bg">#F0101014</color>
@@ -27,9 +27,9 @@
     <color name="accent_secondary">#FF50D0B8</color>
     
     <!-- Text Colors - Improved hierarchy -->
-    <color name="text_primary">#FFFAFAFA</color>
-    <color name="text_secondary">#D0D8D8D8</color>
-    <color name="text_tertiary">#70A0A0A8</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#D8FFFFFF</color>
+    <color name="text_tertiary">#80FFFFFF</color>
     <color name="text_disabled">#40FFFFFF</color>
     
     <!-- Utility Colors -->

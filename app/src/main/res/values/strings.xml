@@ -94,6 +94,7 @@
     
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
+    <string name="brand_leica_fotos">Leica FOTOS</string>
     
     <!-- Leica_lux filter names -->
     <string name="lut_leica_classic">Leica Classic</string>
@@ -115,7 +116,25 @@
     <string name="lut_greg_williams_sepia_100">Greg Williams Sepia 100%</string>
     <string name="lut_leica_standard">Leica Standard</string>
     <string name="lut_leica_chrome">Leica Chrome</string>
-    
+
+    <!-- Leica_FOTOS filter names -->
+    <string name="lut_fotos_bleach">Bleach</string>
+    <string name="lut_fotos_blue">Blue</string>
+    <string name="lut_fotos_brass">Brass</string>
+    <string name="lut_fotos_chrome">Chrome</string>
+    <string name="lut_fotos_classic">Classic</string>
+    <string name="lut_fotos_contemporary">Contemporary</string>
+    <string name="lut_fotos_eternal">Eternal</string>
+    <string name="lut_fotos_gregwilliams">Greg Williams</string>
+    <string name="lut_fotos_selenium">Selenium</string>
+    <string name="lut_fotos_sepia">Sepia</string>
+    <string name="lut_fotos_silver">Silver</string>
+    <string name="lut_fotos_teal">Teal</string>
+    <string name="lut_fotos_mono_blue">Mono Blue</string>
+    <string name="lut_fotos_mono_gregwilliams">Mono Greg Williams</string>
+    <string name="lut_fotos_mono_selenium">Mono Selenium</string>
+    <string name="lut_fotos_mono_sepia">Mono Sepia</string>
+
     <!-- Nubia LUT names -->
     <string name="lut_nubia_landscape">Landscape</string>
     <string name="lut_nubia_food">Food</string>
@@ -125,13 +144,122 @@
     <string name="lut_nubia_daily">Daily Life</string>
     <string name="lut_nubia_life_bg">Life (BG)</string>
     <string name="lut_nubia_life_skin">Life (Skin)</string>
+    
+    <!-- Honor LUT names -->
+    <string name="lut_honor_baixi">Sketch</string>
+    <string name="lut_honor_fendiao">Pink Tone</string>
+    <string name="lut_honor_heibai">Black \u0026 White</string>
+    <string name="lut_honor_heijin">Black Gold</string>
+    <string name="lut_honor_huaijiu">Nostalgic</string>
+    <string name="lut_honor_huidiao">Gray Tone</string>
+    <string name="lut_honor_jiaotang">Caramel</string>
+    <string name="lut_honor_jingdian">Classic</string>
+    <string name="lut_honor_landiao">Blue Tone</string>
+    <string name="lut_honor_qingcheng">Clear City</string>
+    <string name="lut_honor_senxi">Forest</string>
+    <string name="lut_honor_tangguo">Candy</string>
+    <string name="lut_honor_yingxiang">Shadow</string>
+    <string name="lut_honor_zhishi">Knowledge</string>
+    <string name="lut_honor_ziran">Natural</string>
+    <string name="lut_honor_danya">Elegant</string>
+    <string name="lut_honor_jiaopian">Film</string>
+    <string name="lut_honor_qingchun">Youth</string>
+    <string name="lut_honor_rouhe">Soft</string>
+    <string name="lut_honor_xianming">Vivid</string>
+    <string name="lut_honor_xianyan">Vibrant</string>
+    <string name="lut_honor_yuanqi">Vitality</string>
+    
+    <!-- Meizu categories -->
+    <string name="category_ai_filters">AI Filters</string>
+    <string name="category_classic_filter">Classic Filter</string>
+    <string name="category_filter_manager">Filter Manager</string>
+    <string name="category_general">General</string>
+
+    <!-- TECNO categories -->
+    <string name="category_a_series">A Series</string>
+    <string name="category_b_series">B Series</string>
+    <string name="category_c_series">C Series</string>
+    <string name="category_ai_camera">AI Camera</string>
+    <string name="category_custom">Custom</string>
+    <string name="category_filters">Filters</string>
+    <string name="category_india_filters">India Filters</string>
+    <string name="category_misc">Misc</string>
+    <string name="category_night_mode">Night Mode</string>
+    <string name="category_street_photo">Street Photo</string>
+    
+    <!-- Meizu LUT names -->
+    <string name="lut_meizu_warm">Warm</string>
+    <string name="lut_meizu_warm_front">Warm (Front)</string>
+    <string name="lut_meizu_retro">Retro</string>
+    <string name="lut_meizu_retro_front">Retro (Front)</string>
+    <string name="lut_meizu_tender">Tender</string>
+    <string name="lut_meizu_tender_front">Tender (Front)</string>
+    <string name="lut_meizu_warm_tone">Warm Tone</string>
+    <string name="lut_meizu_warm_tone_front">Warm Tone (Front)</string>
+    <string name="lut_meizu_vivid">Vivid</string>
+    <string name="lut_meizu_vivid_front">Vivid (Front)</string>
+    <string name="lut_meizu_original">Original</string>
+    <string name="lut_meizu_skin_whiten">Skin Whiten</string>
+    
+    <!-- Watermark -->
+    <string name="header_watermark">Watermark</string>
+    <string name="label_watermark">Honor Watermark</string>
+    <string name="label_watermark_style">Style</string>
+    <string name="label_watermark_brand">Brand</string>
+    <string name="watermark_frame">Frame</string>
+    <string name="watermark_text">Text</string>
+    <string name="watermark_frame_yg">Frame YG</string>
+    <string name="watermark_text_yg">Text YG</string>
+    <string name="watermark_none">None</string>
+    <string name="meizu_norm">Norm</string>
+    <string name="meizu_pro">Pro</string>
+    <string name="meizu_z1">Z1</string>
+    <string name="meizu_z2">Z2</string>
+    <string name="meizu_z3">Z3</string>
+    <string name="meizu_z4">Z4</string>
+    <string name="meizu_z5">Z5</string>
+    <string name="meizu_z6">Z6</string>
+    <string name="meizu_z7">Z7</string>
+    <string name="vivo_zeiss">ZEISS</string>
+    <string name="vivo_classic">Classic</string>
+    <string name="vivo_pro">Pro</string>
+    <string name="vivo_iqoo">iQOO</string>
+    <string name="vivo_zeiss_v1">ZEISS v1</string>
+    <string name="vivo_zeiss_sonnar">Sonnar</string>
+    <string name="vivo_zeiss_humanity">人文 ZEISS</string>
+    <string name="vivo_iqoo_v1">iQOO v1</string>
+    <string name="vivo_iqoo_humanity">人文 iQOO</string>
+    <string name="vivo_zeiss_frame">ZEISS枠</string>
+    <string name="vivo_zeiss_overlay">ZEISS OL</string>
+    <string name="vivo_zeiss_center">ZEISS中央</string>
+    <string name="vivo_frame">vivo枠</string>
+    <string name="vivo_frame_time">vivo枠+時</string>
+    <string name="vivo_iqoo_frame">iQOO枠</string>
+    <string name="vivo_iqoo_frame_time">iQOO枠+時</string>
+    <string name="vivo_os">OriginOS</string>
+    <string name="vivo_os_corner">OS Corner</string>
+    <string name="vivo_os_simple">OS Simple</string>
+    <string name="vivo_event">Event</string>
+    <string name="tecno_1">Mode 1</string>
+    <string name="tecno_2">Mode 2</string>
+    <string name="tecno_3">Mode 3</string>
+    <string name="tecno_4">Mode 4</string>
+    <string name="brand_none">None</string>
+    <string name="brand_honor">Honor</string>
+    <string name="brand_meizu">Meizu</string>
+    <string name="brand_vivo">vivo</string>
+    <string name="brand_tecno">TECNO</string>
+    <string name="label_watermark_device">Device</string>
+    <string name="label_watermark_lens">Lens</string>
+    <string name="label_watermark_time">Time</string>
+    <string name="label_watermark_location">Location</string>
 
     <!-- UI Labels -->
     <string name="subtitle_film_simulator">Film Simulator</string>
     <string name="label_pick_image">Pick Image</string>
     <string name="desc_pick_image">Pick a photo to apply film simulations</string>
     <string name="btn_open_gallery">Open Gallery</string>
-    <string name="header_grain">Grain</string>
+    <string name="header_grain">Effects</string>
     <string name="label_film_grain">Film Grain</string>
     <string name="header_camera">Camera</string>
     <string name="header_style">Style</string>
@@ -142,4 +270,18 @@
     <string name="btn_change">Change</string>
     <string name="label_quality">Quality</string>
     <string name="btn_close">Close</string>
+
+    <!-- Hardcoded configuration values -->
+    <string name="github_api_url" translatable="false">https://api.github.com/repos/tqmane/film_sims/releases/latest</string>
+    <string name="honor_font_path" translatable="false">watermark/Honor/fonts/HONORSansVFCN.ttf</string>
+
+    <!-- Compose UI additions -->
+    <string name="adjustments">Adjustments</string>
+    <string name="grain">Grain</string>
+    <string name="watermark">Watermark</string>
+    <string name="watermark_select_brand">Select a brand to see watermark styles</string>
+    <string name="device_name">Device Name</string>
+    <string name="time">Time</string>
+    <string name="location">Location</string>
+    <string name="lens_info">Lens Info</string>
 </resources>

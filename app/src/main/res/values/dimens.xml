@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default dimensions for phones -->
+
+    <!-- Top Bar -->
+    <dimen name="top_bar_padding_horizontal">20dp</dimen>
+    <dimen name="top_bar_padding_top">48dp</dimen>
+    <dimen name="top_bar_padding_bottom">20dp</dimen>
+
+    <!-- Button Sizes -->
+    <dimen name="button_width">42dp</dimen>
+    <dimen name="button_height">42dp</dimen>
+    <dimen name="icon_button_padding">10dp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="app_title_text_size">22sp</dimen>
+    <dimen name="subtitle_text_size">10sp</dimen>
+
+    <!-- Control Panel -->
+    <dimen name="control_panel_padding_horizontal">16dp</dimen>
+    <dimen name="control_panel_padding_top">16dp</dimen>
+    <dimen name="control_panel_padding_bottom">20dp</dimen>
+
+    <!-- LUT List Height for phones -->
+    <dimen name="lut_list_height">104dp</dimen>
+
+    <!-- Chip spacing -->
+    <dimen name="chip_spacing_horizontal">6dp</dimen>
+
+    <!-- Slider heights -->
+    <dimen name="slider_height">40dp</dimen>
+
+    <!-- Input fields -->
+    <dimen name="input_field_height">34dp</dimen>
+</resources>

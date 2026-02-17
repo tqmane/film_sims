@@ -1,0 +1,12 @@
+{
+  "filters": {
+    "fengjing": "lut_nubia_landscape",
+    "meishi": "lut_nubia_food",
+    "renxiang_bg": "lut_nubia_portrait_bg",
+    "renxiang_skin_2": "lut_nubia_portrait_skin_2",
+    "renxiang_skin": "lut_nubia_portrait_skin",
+    "richang": "lut_nubia_daily",
+    "shenghuo_bg": "lut_nubia_life_bg",
+    "shenghuo_skin": "lut_nubia_life_skin"
+  }
+}

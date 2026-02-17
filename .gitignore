@@ -68,8 +68,11 @@ luts/
 textures/
 fonts/
 watermark/
+<<<<<<< HEAD
 Meizu_watermark/
 vivo_watermark_full*/
 __pycache__/
 tools/
 tecno_watermark_extracted/
+=======
+>>>>>>> e2e48ba593b7b843038b978380fc491b59d27dea

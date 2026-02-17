@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network Security Configuration for FilmSims.
+  - Disables cleartext (HTTP) traffic.
+  - Pins certificates for api.github.com (used by UpdateChecker).
+  - Trusts only system CAs (rejects user-added certificates).
+
+  HOW TO UPDATE PINS:
+  1. Run: openssl s_client -connect api.github.com:443 -servername api.github.com < /dev/null 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+  2. Replace the first <pin> value below.
+  3. Keep previous pin as a backup for rotation grace period.
+  4. Also check intermediate CA pins.
+-->
+<network-security-config>
+
+    <!-- Disable cleartext HTTP globally -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust only system CAs -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Certificate pinning for GitHub API -->
+    <domain-config>
+        <domain includeSubdomains="true">api.github.com</domain>
+        <domain includeSubdomains="true">github.com</domain>
+
+        <pin-set expiration="2027-01-01">
+            <!-- DigiCert Global Root G2 (current GitHub CA) -->
+            <pin digest="SHA-256">i7WTqTvh0OioIruIfFR4kMPnBqrS2rdiVPl/s2uC/CY=</pin>
+            <!-- DigiCert Global Root CA (backup / rotation) -->
+            <pin digest="SHA-256">r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E=</pin>
+        </pin-set>
+    </domain-config>
+
+</network-security-config>

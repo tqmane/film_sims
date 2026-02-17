@@ -1,6 +1,7 @@
 package com.tqmane.filmsim.data
 
 import android.content.Context
+import android.content.res.AssetManager
 import com.tqmane.filmsim.R
 
 data class LutItem(
@@ -23,7 +24,54 @@ data class LutBrand(
 object LutRepository {
     
     // Supported LUT file extensions
-    private val lutExtensions = listOf(".cube", ".png", ".bin")
+    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg")
+
+    private fun isAssetDirectory(assetManager: AssetManager, assetPath: String): Boolean {
+        return try {
+            val children = assetManager.list(assetPath)
+            !children.isNullOrEmpty()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun isLutAssetFile(assetManager: AssetManager, parentAssetPath: String, name: String): Boolean {
+        val leaf = name.substringAfterLast('/')
+        val fullPath = "$parentAssetPath/$name"
+
+        // Never treat directories as LUT files.
+        if (isAssetDirectory(assetManager, fullPath)) return false
+
+        // Some vendors ship raw LUT binaries without an extension (e.g. OnePlus/Uncategorized/default).
+        // Treat extensionless *files* as LUT candidates; non-LUT metadata (xml) still has an extension.
+        if (!leaf.contains('.')) return true
+
+        return lutExtensions.any { ext -> leaf.endsWith(ext, ignoreCase = true) }
+    }
+
+    private fun stripKnownExtension(fileName: String): String {
+        val leaf = fileName.substringAfterLast('/')
+        if (!leaf.contains('.')) return leaf
+        return lutExtensions.fold(leaf) { acc, ext ->
+            acc.removeSuffix(ext).removeSuffix(ext.uppercase())
+        }
+    }
+
+    private fun selectBestVariant(variants: List<String>): String {
+        fun priority(name: String): Int {
+            val leaf = name.substringAfterLast('/')
+            if (!leaf.contains('.')) return 0 // extensionless raw bin
+            return when {
+                leaf.endsWith(".bin", ignoreCase = true) -> 1
+                leaf.endsWith(".cube", ignoreCase = true) -> 2
+                leaf.endsWith(".png", ignoreCase = true) -> 3
+                leaf.endsWith(".webp", ignoreCase = true) -> 4
+                leaf.endsWith(".jpg", ignoreCase = true) || leaf.endsWith(".jpeg", ignoreCase = true) -> 5
+                else -> 9
+            }
+        }
+        return variants.minBy { priority(it) }
+    }
     
     // Category name to string resource ID mapping
     private fun getCategoryDisplayName(context: Context, categoryName: String): String {
@@ -67,8 +115,26 @@ object LutRepository {
             "collage_filters" -> context.getString(R.string.category_collage_filters)
             "nightstylefilter" -> context.getString(R.string.category_night_style)
             "superzoom" -> context.getString(R.string.category_superzoom)
+            // Honor categories
+            "luts" -> context.getString(R.string.category_all)
+            // Meizu categories
+            "aiFilters" -> context.getString(R.string.category_ai_filters)
+            "classicFilter" -> context.getString(R.string.category_classic_filter)
+            "filterManager" -> context.getString(R.string.category_filter_manager)
+            "General" -> context.getString(R.string.category_general)
             // Common/Nothing
             "_all" -> context.getString(R.string.category_all)
+            // TECNO categories
+            "A_series" -> context.getString(R.string.category_a_series)
+            "B_series" -> context.getString(R.string.category_b_series)
+            "C_series" -> context.getString(R.string.category_c_series)
+            "AI_camera" -> context.getString(R.string.category_ai_camera)
+            "Custom" -> context.getString(R.string.category_custom)
+            "Filters" -> context.getString(R.string.category_filters)
+            "India_filters" -> context.getString(R.string.category_india_filters)
+            "Misc" -> context.getString(R.string.category_misc)
+            "Night_mode" -> context.getString(R.string.category_night_mode)
+            "Street_photo" -> context.getString(R.string.category_street_photo)
             // Fallback - keep original name for Fujifilm, Kodak Film, etc.
             else -> categoryName.replace("_", " ").replace("-", " - ")
         }
@@ -90,14 +156,106 @@ object LutRepository {
         }
     }
     
+    // Honor filter filename to localized display name
+    private fun getHonorFilterName(context: Context, fileName: String): String {
+        return when {
+            fileName.equals("baixi", ignoreCase = true) -> context.getString(R.string.lut_honor_baixi)
+            fileName.equals("fendiao", ignoreCase = true) -> context.getString(R.string.lut_honor_fendiao)
+            fileName.equals("heibai", ignoreCase = true) -> context.getString(R.string.lut_honor_heibai)
+            fileName.equals("heijin", ignoreCase = true) -> context.getString(R.string.lut_honor_heijin)
+            fileName.equals("huaijiu", ignoreCase = true) -> context.getString(R.string.lut_honor_huaijiu)
+            fileName.equals("huidiao", ignoreCase = true) -> context.getString(R.string.lut_honor_huidiao)
+            fileName.equals("jiaotang", ignoreCase = true) -> context.getString(R.string.lut_honor_jiaotang)
+            fileName.equals("jingdian", ignoreCase = true) -> context.getString(R.string.lut_honor_jingdian)
+            fileName.equals("landiao", ignoreCase = true) -> context.getString(R.string.lut_honor_landiao)
+            fileName.equals("qingcheng", ignoreCase = true) -> context.getString(R.string.lut_honor_qingcheng)
+            fileName.equals("senxi", ignoreCase = true) -> context.getString(R.string.lut_honor_senxi)
+            fileName.equals("tangguo", ignoreCase = true) -> context.getString(R.string.lut_honor_tangguo)
+            fileName.equals("yingxiang", ignoreCase = true) -> context.getString(R.string.lut_honor_yingxiang)
+            fileName.equals("zhishi", ignoreCase = true) -> context.getString(R.string.lut_honor_zhishi)
+            fileName.equals("ziran", ignoreCase = true) -> context.getString(R.string.lut_honor_ziran)
+            fileName.startsWith("hn_", ignoreCase = true) -> {
+                val name = fileName.removePrefix("hn_")
+                getHonorFilterName(context, name)
+            }
+            // Fallback: use Chinese filter naming
+            fileName.equals("danya", ignoreCase = true) -> context.getString(R.string.lut_honor_danya)
+            fileName.equals("jiaopian", ignoreCase = true) -> context.getString(R.string.lut_honor_jiaopian)
+            fileName.equals("qingchun", ignoreCase = true) -> context.getString(R.string.lut_honor_qingchun)
+            fileName.equals("rouhe", ignoreCase = true) -> context.getString(R.string.lut_honor_rouhe)
+            fileName.equals("xianming", ignoreCase = true) -> context.getString(R.string.lut_honor_xianming)
+            fileName.equals("xianyan", ignoreCase = true) -> context.getString(R.string.lut_honor_xianyan)
+            fileName.equals("yuanqi", ignoreCase = true) -> context.getString(R.string.lut_honor_yuanqi)
+            else -> fileName.replace("_", " ")
+        }
+    }
+
+    // Meizu filter filename to localized display name
+    private fun getMeizuFilterName(context: Context, fileName: String, categoryName: String): String {
+        // classicFilter camera_* prefix handling
+        if (categoryName == "classicFilter") {
+            return when {
+                fileName.contains("fanchanuan", ignoreCase = true) && fileName.contains("front", ignoreCase = true) -> context.getString(R.string.lut_meizu_warm_front)
+                fileName.contains("fanchanuan", ignoreCase = true) -> context.getString(R.string.lut_meizu_warm)
+                fileName.contains("fanchase", ignoreCase = true) && fileName.contains("front", ignoreCase = true) -> context.getString(R.string.lut_meizu_retro_front)
+                fileName.contains("fanchase", ignoreCase = true) -> context.getString(R.string.lut_meizu_retro)
+                fileName.contains("nense", ignoreCase = true) && fileName.contains("front", ignoreCase = true) -> context.getString(R.string.lut_meizu_tender_front)
+                fileName.contains("nense", ignoreCase = true) -> context.getString(R.string.lut_meizu_tender)
+                fileName.contains("nuanse", ignoreCase = true) && fileName.contains("front", ignoreCase = true) -> context.getString(R.string.lut_meizu_warm_tone_front)
+                fileName.contains("nuanse", ignoreCase = true) -> context.getString(R.string.lut_meizu_warm_tone)
+                fileName.contains("xianming", ignoreCase = true) && fileName.contains("front", ignoreCase = true) -> context.getString(R.string.lut_meizu_vivid_front)
+                fileName.contains("xianming", ignoreCase = true) -> context.getString(R.string.lut_meizu_vivid)
+                fileName.contains("filtertable") -> {
+                    val suffix = fileName.removePrefix("filtertable_rgb_second_")
+                    suffix.replaceFirstChar { it.titlecase() }
+                }
+                else -> fileName.replace("_", " ")
+            }
+        }
+        // General folder
+        if (categoryName == "General") {
+            return when {
+                fileName.equals("original512", ignoreCase = true) -> context.getString(R.string.lut_meizu_original)
+                fileName.equals("skinWhiten", ignoreCase = true) -> context.getString(R.string.lut_meizu_skin_whiten)
+                else -> fileName.replaceFirstChar { it.titlecase() }.replace("_", " ")
+            }
+        }
+        // aiFilters and filterManager: already have nice names (Bright, Gentle, etc.)
+        return fileName.replace("_", " ")
+    }
+
     // Brand name to display name mapping
     private fun getBrandDisplayName(context: Context, brandName: String): String {
         return when (brandName) {
             "Leica_lux" -> context.getString(R.string.brand_leica_lux)
+            "Leica_FOTOS" -> context.getString(R.string.brand_leica_fotos)
             else -> brandName
         }
     }
     
+    // Leica_FOTOS filter filename to localized display name
+    private fun getLeicaFotosFilterName(context: Context, fileName: String): String {
+        return when {
+            fileName.equals("default_bleach", ignoreCase = true) -> context.getString(R.string.lut_fotos_bleach)
+            fileName.equals("default_blue", ignoreCase = true) -> context.getString(R.string.lut_fotos_blue)
+            fileName.equals("default_brass", ignoreCase = true) -> context.getString(R.string.lut_fotos_brass)
+            fileName.equals("default_chrome", ignoreCase = true) -> context.getString(R.string.lut_fotos_chrome)
+            fileName.equals("default_classic", ignoreCase = true) -> context.getString(R.string.lut_fotos_classic)
+            fileName.equals("default_contemporary", ignoreCase = true) -> context.getString(R.string.lut_fotos_contemporary)
+            fileName.equals("default_eternal", ignoreCase = true) -> context.getString(R.string.lut_fotos_eternal)
+            fileName.equals("default_gregwilliams", ignoreCase = true) -> context.getString(R.string.lut_fotos_gregwilliams)
+            fileName.equals("default_selenium", ignoreCase = true) -> context.getString(R.string.lut_fotos_selenium)
+            fileName.equals("default_sepia", ignoreCase = true) -> context.getString(R.string.lut_fotos_sepia)
+            fileName.equals("default_silver", ignoreCase = true) -> context.getString(R.string.lut_fotos_silver)
+            fileName.equals("default_teal", ignoreCase = true) -> context.getString(R.string.lut_fotos_teal)
+            fileName.equals("mono_blue", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_blue)
+            fileName.equals("mono_gregwilliams", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_gregwilliams)
+            fileName.equals("mono_selenium", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_selenium)
+            fileName.equals("mono_sepia", ignoreCase = true) -> context.getString(R.string.lut_fotos_mono_sepia)
+            else -> fileName.replace("_", " ")
+        }
+    }
+
     // Leica_lux filter filename to localized display name
     private fun getLeicaLuxFilterName(context: Context, fileName: String): String {
         return when {
@@ -159,6 +317,40 @@ object LutRepository {
         }
     }
     
+    // TECNO filter filename to display name
+    private fun getTecnoFilterName(fileName: String, categoryName: String): String {
+        var name = fileName
+        // Strip category-specific prefixes
+        when (categoryName) {
+            "A_series" -> name = name.removePrefix("A_")
+            "B_series" -> name = name.removePrefix("B_")
+            "C_series" -> name = name.removePrefix("C_")
+            "AI_camera" -> {
+                // aicam1a -> AI Cam 1
+                val match = Regex("aicam(\\d+)a?", RegexOption.IGNORE_CASE).find(name)
+                if (match != null) return "AI Cam ${match.groupValues[1]}"
+            }
+            "Night_mode" -> {
+                val match = Regex("supernight(\\d+)a?", RegexOption.IGNORE_CASE).find(name)
+                if (match != null) return "Super Night ${match.groupValues[1]}"
+            }
+            "Street_photo" -> name = name.removePrefix("streetphoto_")
+            "India_filters" -> {
+                // Strip leading digit
+                name = name.removePrefix("1")
+            }
+            "Filters" -> {
+                name = name.removePrefix("lut_")
+                    .removePrefix("Bright_")
+                    .removePrefix("Camon_")
+            }
+        }
+        // Clean up underscores, add spaces, title case
+        return name.replace("_", " ").split(" ").joinToString(" ") { word ->
+            word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
+    }
+
     // Nubia filter filename to localized display name
     private fun getNubiaFilterName(context: Context, fileName: String): String {
         return when {
@@ -188,34 +380,33 @@ object LutRepository {
                 
                 val categories = mutableListOf<LutCategory>()
                 val isLeicaLux = brandName == "Leica_lux"
+                val isLeicaFotos = brandName == "Leica_FOTOS"
                 val isVivo = brandName == "Vivo"
                 val isNubia = brandName == "Nubia"
+                val isHonor = brandName == "Honor"
+                val isMeizu = brandName == "Meizu"
+                val isTecno = brandName == "TECNO"
                 
                 // Check if brand has flat structure (LUT files directly in brand folder)
-                val directLutFiles = contents.filter { file -> 
-                    lutExtensions.any { ext -> file.endsWith(ext, ignoreCase = true) }
-                }
+                val directLutFiles = contents.filter { file -> isLutAssetFile(assetManager, brandPath, file) }
                 
                 if (directLutFiles.isNotEmpty()) {
                     // Flat structure (e.g., Nothing) - create a single "All" category
                     
                     // Group by basename to handle duplicates (prefer .bin > .cube > .png)
-                    val groupedFiles = directLutFiles.groupBy { filename ->
-                        lutExtensions.fold(filename) { acc, ext -> 
-                            acc.removeSuffix(ext).removeSuffix(ext.uppercase())
-                        }
-                    }
+                    val groupedFiles = directLutFiles.groupBy { filename -> stripKnownExtension(filename) }
                     
                     val lutItems = groupedFiles.map { (baseName, files) ->
-                        // Select best file: .bin -> .cube -> .png
-                        val selectedFile = files.find { it.endsWith(".bin", ignoreCase = true) }
-                            ?: files.find { it.endsWith(".cube", ignoreCase = true) }
-                            ?: files.first()
+                        val selectedFile = selectBestVariant(files)
                             
                         val displayName = when {
                             isLeicaLux -> getLeicaLuxFilterName(context, baseName)
+                            isLeicaFotos -> getLeicaFotosFilterName(context, baseName)
                             isNubia -> getNubiaFilterName(context, baseName)
                             isVivo -> getVivoFilterName(baseName)
+                            isHonor -> getHonorFilterName(context, baseName)
+                            isMeizu -> getMeizuFilterName(context, baseName, "_all")
+                            isTecno -> getTecnoFilterName(baseName, "_all")
                             else -> baseName.replace("_", " ")
                         }
                         LutItem(
@@ -234,9 +425,7 @@ object LutRepository {
                 }
                 
                 // Check for subdirectories (category folders)
-                val categoryFolders = contents.filter { name ->
-                    !lutExtensions.any { ext -> name.endsWith(ext, ignoreCase = true) }
-                }
+                val categoryFolders = contents.filter { name -> isAssetDirectory(assetManager, "$brandPath/$name") }
                 
                 for (categoryName in categoryFolders) {
                     val categoryPath = "$brandPath/$categoryName"
@@ -244,26 +433,21 @@ object LutRepository {
                     
                     // Group by basename to handle duplicates (prefer .bin > .cube > .png)
                     val groupedFiles = files
-                        .filter { file -> 
-                            lutExtensions.any { ext -> file.endsWith(ext, ignoreCase = true) }
-                        }
-                        .groupBy { filename ->
-                            lutExtensions.fold(filename) { acc, ext -> 
-                                acc.removeSuffix(ext).removeSuffix(ext.uppercase())
-                            }
-                        }
+                        .filter { file -> isLutAssetFile(assetManager, categoryPath, file) }
+                        .groupBy { filename -> stripKnownExtension(filename) }
 
                     val lutItems = groupedFiles.map { (baseName, variants) ->
-                        // Select best file: .bin -> .cube -> .png
-                        val selectedFile = variants.find { it.endsWith(".bin", ignoreCase = true) }
-                            ?: variants.find { it.endsWith(".cube", ignoreCase = true) }
-                            ?: variants.first()
+                        val selectedFile = selectBestVariant(variants)
 
                         val isFilmCategory = categoryName == "Film"
                         val displayName = when {
                             isLeicaLux -> getLeicaLuxFilterName(context, baseName)
+                            isLeicaFotos -> getLeicaFotosFilterName(context, baseName)
                             isFilmCategory -> getFilmLutName(context, baseName)
                             isVivo -> getVivoFilterName(baseName)
+                            isHonor -> getHonorFilterName(context, baseName)
+                            isMeizu -> getMeizuFilterName(context, baseName, categoryName)
+                            isTecno -> getTecnoFilterName(baseName, categoryName)
                             else -> baseName.replace("_", " ")
                         }
                         LutItem(

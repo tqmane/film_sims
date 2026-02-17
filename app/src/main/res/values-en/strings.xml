@@ -78,6 +78,7 @@
     
     <!-- Brand names -->
     <string name="brand_leica_lux">Leica LUX</string>
+    <string name="brand_leica_fotos">Leica FOTOS</string>
     
     <!-- Leica_lux filter names -->
     <string name="lut_leica_classic">Leica Classic</string>
@@ -100,6 +101,24 @@
     <string name="lut_leica_standard">Leica Standard</string>
     <string name="lut_leica_chrome">Leica Chrome</string>
     
+    <!-- Leica_FOTOS filter names -->
+    <string name="lut_fotos_bleach">Bleach</string>
+    <string name="lut_fotos_blue">Blue</string>
+    <string name="lut_fotos_brass">Brass</string>
+    <string name="lut_fotos_chrome">Chrome</string>
+    <string name="lut_fotos_classic">Classic</string>
+    <string name="lut_fotos_contemporary">Contemporary</string>
+    <string name="lut_fotos_eternal">Eternal</string>
+    <string name="lut_fotos_gregwilliams">Greg Williams</string>
+    <string name="lut_fotos_selenium">Selenium</string>
+    <string name="lut_fotos_sepia">Sepia</string>
+    <string name="lut_fotos_silver">Silver</string>
+    <string name="lut_fotos_teal">Teal</string>
+    <string name="lut_fotos_mono_blue">Mono Blue</string>
+    <string name="lut_fotos_mono_gregwilliams">Mono Greg Williams</string>
+    <string name="lut_fotos_mono_selenium">Mono Selenium</string>
+    <string name="lut_fotos_mono_sepia">Mono Sepia</string>
+    
     <!-- Nubia LUT names -->
     <string name="lut_nubia_landscape">Landscape</string>
     <string name="lut_nubia_food">Food</string>
@@ -115,7 +134,7 @@
     <string name="label_pick_image">Pick Image</string>
     <string name="desc_pick_image">Pick a photo to apply film simulations</string>
     <string name="btn_open_gallery">Open Gallery</string>
-    <string name="header_grain">Grain</string>
+    <string name="header_grain">Effects</string>
     <string name="label_film_grain">Film Grain</string>
     <string name="header_camera">Camera</string>
     <string name="header_style">Style</string>

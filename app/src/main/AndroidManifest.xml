@@ -5,13 +5,20 @@
     <uses-feature android:glEsVersion="0x00030000" android:required="true" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Not strictly needed for Photo Picker reading, but good for saving on older versions if backported, 
-         though we target SDK 33+. WRITE_EXTERNAL_STORAGE is deprecated but simple gallery inserts work via MediaStore. -->
+    <!-- Storage permissions for API 26-32 backward compatibility (P6) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <!-- API 33+ granular media permission -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
+        android:name=".FilmSimsApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="FilmSims"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FilmSims">
