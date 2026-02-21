@@ -17,6 +17,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -39,6 +41,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -327,7 +331,8 @@ fun LiquidSlider(
 ) {
     val haptic = LocalHapticFeedback.current
     var isDragging by remember { mutableStateOf(false) }
-    
+    var trackWidth by remember { mutableFloatStateOf(0f) }
+
     val thumbScale by animateFloatAsState(
         targetValue = if (isDragging) 1.2f else 1f,
         animationSpec = spring(
@@ -336,24 +341,38 @@ fun LiquidSlider(
         ),
         label = "thumb_scale"
     )
-    
+
+    fun offsetToValue(xPx: Float): Float {
+        if (trackWidth <= 0f) return value
+        val ratio = (xPx / trackWidth).coerceIn(0f, 1f)
+        return valueRange.start + ratio * (valueRange.endInclusive - valueRange.start)
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp)
-            .pointerInput(enabled) {
-                if (enabled) {
-                    detectTapGestures(
-                        onPress = { offset ->
-                            isDragging = true
-                            haptic.performHapticFeedback(
-                                androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
-                            )
-                            tryAwaitRelease()
-                            isDragging = false
-                            onValueChangeFinished?.invoke()
-                        }
+            .pointerInput(enabled, valueRange) {
+                if (!enabled) return@pointerInput
+                trackWidth = size.width.toFloat()
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    isDragging = true
+                    haptic.performHapticFeedback(
+                        androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
                     )
+                    onValueChange(offsetToValue(down.position.x))
+                    var pointer = down
+                    while (pointer.pressed) {
+                        val event = awaitPointerEvent()
+                        pointer = event.changes.firstOrNull { it.id == down.id } ?: break
+                        if (pointer.pressed) {
+                            pointer.consume()
+                            onValueChange(offsetToValue(pointer.position.x))
+                        }
+                    }
+                    isDragging = false
+                    onValueChangeFinished?.invoke()
                 }
             },
         verticalAlignment = Alignment.CenterVertically
@@ -370,7 +389,7 @@ fun LiquidSlider(
                     .fillMaxSize()
                     .background(LiquidColors.GlassSurfaceDark)
             )
-            
+
             // Active track with liquid deformation
             val progress = (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
             Box(
@@ -397,50 +416,54 @@ fun LiquidIntensitySlider(
 ) {
     var sliderValue by remember(intensity) { mutableFloatStateOf(intensity) }
     val haptic = LocalHapticFeedback.current
-    
-    Column(modifier = modifier.padding(bottom = 14.dp)) {
+
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 6.dp),
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_opacity),
                 contentDescription = null,
                 tint = LiquidColors.AccentPrimary,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(12.dp))
             Text(
                 stringResource(R.string.label_intensity),
                 color = LiquidColors.TextMediumEmphasis,
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontFamily = FontFamily.SansSerif,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 "${(sliderValue * 100).toInt()}%",
-                color = LiquidColors.TextHighEmphasis,
-                fontSize = 12.sp,
+                color = LiquidColors.AccentPrimary,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
                 textAlign = TextAlign.End,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(42.dp).padding(end = 8.dp)
             )
         }
-        
-        // Custom liquid slider track
-        LiquidSlider(
+
+        Slider(
             value = sliderValue,
-            onValueChange = { 
+            onValueChange = {
                 sliderValue = it
                 haptic.performHapticFeedback(
                     androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
                 )
             },
             onValueChangeFinished = { onIntensityChange(sliderValue) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            colors = SliderDefaults.colors(
+                thumbColor = LiquidColors.AccentPrimary,
+                activeTrackColor = LiquidColors.AccentPrimary,
+                inactiveTrackColor = LiquidColors.GlassSurfaceDark
+            )
         )
     }
 }
@@ -721,6 +744,84 @@ fun LiquidLutCard(
                             )
                         )
                 )
+                // Adjust hint overlay — bottom scrim with sliders icon + label
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(30.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.70f)
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        // Sliders icon drawn with Canvas (matching sketch)
+                        androidx.compose.foundation.Canvas(modifier = Modifier.size(13.dp)) {
+                            val w = size.width
+                            val h = size.height
+                            val stroke = 1.6.dp.toPx()
+                            val knobR = 2.4.dp.toPx()
+                            // Top slider line
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(0f, h * 0.28f),
+                                end = Offset(w, h * 0.28f),
+                                strokeWidth = stroke,
+                                cap = androidx.compose.ui.graphics.StrokeCap.Round
+                            )
+                            // Top slider knob (filled circle)
+                            drawCircle(
+                                color = Color.White,
+                                radius = knobR,
+                                center = Offset(w * 0.68f, h * 0.28f)
+                            )
+                            // Top knob inner (dark fill to make it a ring)
+                            drawCircle(
+                                color = Color.Black.copy(alpha = 0.6f),
+                                radius = knobR * 0.45f,
+                                center = Offset(w * 0.68f, h * 0.28f)
+                            )
+                            // Bottom slider line
+                            drawLine(
+                                color = Color.White,
+                                start = Offset(0f, h * 0.72f),
+                                end = Offset(w, h * 0.72f),
+                                strokeWidth = stroke,
+                                cap = androidx.compose.ui.graphics.StrokeCap.Round
+                            )
+                            // Bottom slider knob (filled circle)
+                            drawCircle(
+                                color = Color.White,
+                                radius = knobR,
+                                center = Offset(w * 0.32f, h * 0.72f)
+                            )
+                            // Bottom knob inner
+                            drawCircle(
+                                color = Color.Black.copy(alpha = 0.6f),
+                                radius = knobR * 0.45f,
+                                center = Offset(w * 0.32f, h * 0.72f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "調整",
+                            color = Color.White,
+                            fontSize = 8.sp,
+                            fontFamily = FontFamily.SansSerif,
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.sp
+                        )
+                    }
+                }
             }
         }
         
@@ -753,11 +854,13 @@ fun LiquidLutCard(
 @Composable
 fun GlassBottomSheet(
     modifier: Modifier = Modifier,
+    squareTop: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val topRadius = if (squareTop) 0.dp else 20.dp
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+            .clip(RoundedCornerShape(topStart = topRadius, topEnd = topRadius))
             .background(LiquidColors.SurfaceDark.copy(alpha = 0.85f))
             .then(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

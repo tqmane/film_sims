@@ -46,15 +46,13 @@
     <string name="category_vintage_retro">复古</string>
     <string name="category_warm_tones">暖色调</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">电影</string>
-    <string name="category_film_simulation">胶片模拟</string>
-    <string name="category_monochrome">单色</string>
-    <string name="category_nature_landscape">自然风景</string>
-    <string name="category_portrait_soft">人像柔和</string>
-    <string name="category_special_effects">特效</string>
-    <string name="category_vivid_natural">鲜艳自然</string>
-    <string name="category_warm_vintage">暖色复古</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">特效</string>
+    <string name="category_xiaomi_film">胶片</string>
+    <string name="category_xiaomi_leica">徕卡风格</string>
+    <string name="category_xiaomi_normal">普通</string>
+    <string name="category_xiaomi_portrait">人像</string>
+    <string name="category_xiaomi_video">视频</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">全部</string>

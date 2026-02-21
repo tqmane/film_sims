@@ -46,15 +46,13 @@
     <string name="category_vintage_retro">빈티지-레트로</string>
     <string name="category_warm_tones">웜 톤</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">시네마틱</string>
-    <string name="category_film_simulation">필름 시뮬레이션</string>
-    <string name="category_monochrome">모노크롬</string>
-    <string name="category_nature_landscape">자연-풍경</string>
-    <string name="category_portrait_soft">인물-소프트</string>
-    <string name="category_special_effects">특수 효과</string>
-    <string name="category_vivid_natural">비비드-내추럴</string>
-    <string name="category_warm_vintage">웜-빈티지</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">이펙트</string>
+    <string name="category_xiaomi_film">필름</string>
+    <string name="category_xiaomi_leica">라이카 스타일</string>
+    <string name="category_xiaomi_normal">노멀</string>
+    <string name="category_xiaomi_portrait">인물</string>
+    <string name="category_xiaomi_video">비디오</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">전체</string>

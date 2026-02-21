@@ -46,15 +46,13 @@
     <string name="category_vintage_retro">Vintage-Retro</string>
     <string name="category_warm_tones">Warm Tones</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">Cinematic</string>
-    <string name="category_film_simulation">Film Simulation</string>
-    <string name="category_monochrome">Monochrome</string>
-    <string name="category_nature_landscape">Nature-Landscape</string>
-    <string name="category_portrait_soft">Portrait-Soft</string>
-    <string name="category_special_effects">Special Effects</string>
-    <string name="category_vivid_natural">Vivid-Natural</string>
-    <string name="category_warm_vintage">Warm-Vintage</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">Effects</string>
+    <string name="category_xiaomi_film">Film</string>
+    <string name="category_xiaomi_leica">Leica Style</string>
+    <string name="category_xiaomi_normal">Normal</string>
+    <string name="category_xiaomi_portrait">Portrait</string>
+    <string name="category_xiaomi_video">Video</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">All</string>
