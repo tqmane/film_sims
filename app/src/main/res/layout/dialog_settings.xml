@@ -161,10 +161,10 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/btn_sign_in_google"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
-            android:background="@drawable/bg_button_primary"
+            android:backgroundTint="@color/accent_primary"
             android:stateListAnimator="@null" />
     </LinearLayout>
 

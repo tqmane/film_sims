@@ -13,6 +13,8 @@
     <string name="save_error">Save error: %1$s</string>
     <string name="save_folder_create_failed">Failed to create save folder</string>
     <string name="image_saved">Saved (%1$s): %2$s/%3$s</string>
+    <string name="export_success">Exported successfully</string>
+    <string name="export_error">Error during export</string>
     <string name="lut_load_failed">Failed to load filter</string>
     
     <!-- Settings -->

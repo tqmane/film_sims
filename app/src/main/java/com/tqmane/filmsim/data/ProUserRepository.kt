@@ -9,32 +9,38 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import com.tqmane.filmsim.util.SecurityManager
+
 /**
  * Checks whether the currently signed-in user's email exists in the
  * Firestore `pro_users` collection.
  *
  * Firestore構成:
  *   pro_users/{docId} (docIdは任意のID)
- *   email: string  ← Proユーザーのメールアドレス
+ *   emails: array  ← Proユーザーのメールアドレスのリスト
  *
  * 例:
  *   pro_users/ID_list
- *     email: "example@example.com"
+ *     emails: ["example@example.com", "example2@example.com"]
  *
  * Firestoreセキュリティルール:
  *   match /pro_users/{docId} {
- *     allow list: if request.auth != null;  // whereEqualToクエリに必要
+ *     allow list: if request.auth != null;  // array-contains クエリに必要
  *     allow write: if false;
  *   }
  */
 @Singleton
-class ProUserRepository @Inject constructor() {
+class ProUserRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     companion object {
         private const val TAG = "ProUserRepository"
     }
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance(com.google.firebase.FirebaseApp.getInstance(), "login")
 
     private val _isPending = MutableStateFlow(false)
     val isPending: StateFlow<Boolean> = _isPending.asStateFlow()
@@ -58,11 +64,18 @@ class ProUserRepository @Inject constructor() {
         Log.d(TAG, "Querying pro_users where email == '$normalizedEmail'")
         try {
             val querySnap = firestore.collection("pro_users")
-                .whereEqualTo("email", normalizedEmail)
+                .whereArrayContains("emails", normalizedEmail)
                 .get()
                 .await()
-            val found = !querySnap.isEmpty
+            var found = !querySnap.isEmpty
             Log.d(TAG, "Query result: found=$found, docCount=${querySnap.size()}")
+            
+            // SECURITY CHECK: Verify app signature before enabling Pro features
+            if (found && !SecurityManager.verifySignature(context)) {
+                Log.e(TAG, "Signature verification failed! Denying Pro access.")
+                found = false
+            }
+            
             _isProUser.value = found
         } catch (e: Exception) {
             Log.e(TAG, "Firestore query FAILED: ${e.javaClass.simpleName}: ${e.message}")

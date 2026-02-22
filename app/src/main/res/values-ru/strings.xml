@@ -12,6 +12,9 @@
     <string name="cpu_processing">Обработка на CPU… (Большие изображения могут занять время)</string>
     <string name="save_error">Ошибка сохранения: %1$s</string>
     <string name="save_folder_create_failed">Не удалось создать папку для сохранения</string>
+    
+    <string name="export_success">Успешно экспортировано</string>
+    <string name="export_error">Ошибка при экспорте</string>
     <string name="image_saved">Сохранено (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">Не удалось загрузить фильтр</string>
 

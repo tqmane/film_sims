@@ -12,6 +12,9 @@
     <string name="cpu_processing">Elaborazione CPU… (Le immagini grandi possono richiedere tempo)</string>
     <string name="save_error">Errore di salvataggio: %1$s</string>
     <string name="save_folder_create_failed">Impossibile creare la cartella di salvataggio</string>
+    
+    <string name="export_success">Esportato con successo</string>
+    <string name="export_error">Errore durante l\'esportazione</string>
     <string name="image_saved">Salvato (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">Impossibile caricare il filtro</string>
 

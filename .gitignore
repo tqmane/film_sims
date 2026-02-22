@@ -1,8 +1,8 @@
 # Built application files
 *.apk
-*.aar
 *.ap_
 *.aab
+*.aar
 
 # Files for the ART/Dalvik VM
 *.dex
@@ -46,13 +46,24 @@ captures/
 *.keystore
 *.p12
 *.key
+*.pem
+*.der
+
+# Google Services & Firebase (e.g. APIs key JSON)
+google-services.json
+firebase-*.json
+credentials.json
+client_secret.json
+
+# Additional Secrets & Configuration
+key.properties
+secrets.properties
+.env
+.env.*
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
-
-# Google Services (e.g. APIs key JSON)
-google-services.json
 
 # OS specific
 .DS_Store

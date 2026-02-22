@@ -69,8 +69,14 @@
 -keep class org.json.** { *; }
 
 # --- ViewModel (AndroidX Lifecycle) ---
--keep class * extends androidx.lifecycle.ViewModel { *; }
--keep class * extends androidx.lifecycle.AndroidViewModel { *; }
+# Keep class names for instantiation but ALOW aggressive obfuscation of members for security
+-keepnames class * extends androidx.lifecycle.ViewModel
+-keepnames class * extends androidx.lifecycle.AndroidViewModel
+
+# --- Security / Anti-Crack ---
+# Flatten package hierarchy to make reversing harder
+-repackageclasses ""
+-flattenpackagehierarchy ""
 
 # --- Hilt (if/when added) ---
 -dontwarn dagger.**

@@ -31,8 +31,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val contentResolver: ContentResolver,
     private val imageLoadUseCase: ImageLoadUseCase,
     private val lutApplyUseCase: LutApplyUseCase,
@@ -58,6 +62,21 @@ class MainViewModel @Inject constructor(
         )
     )
     val editState: StateFlow<EditState> = _editState.asStateFlow()
+
+    // Lifted UI State for Brand/Category Selection
+    private val _selectedBrandIndex = MutableStateFlow(0)
+    val selectedBrandIndex: StateFlow<Int> = _selectedBrandIndex.asStateFlow()
+
+    private val _selectedCategoryIndex = MutableStateFlow(0)
+    val selectedCategoryIndex: StateFlow<Int> = _selectedCategoryIndex.asStateFlow()
+
+    fun setSelectedBrandIndex(index: Int) {
+        _selectedBrandIndex.value = index
+    }
+
+    fun setSelectedCategoryIndex(index: Int) {
+        _selectedCategoryIndex.value = index
+    }
 
     private val _watermarkState = MutableStateFlow(WatermarkState())
     val watermarkState: StateFlow<WatermarkState> = _watermarkState.asStateFlow()
@@ -114,6 +133,8 @@ class MainViewModel @Inject constructor(
     // ─── LUT application ────────────────────────────────
 
     fun applyLut(lutItem: LutItem) {
+        if (!com.tqmane.filmsim.util.SecurityManager.verifySignature(context)) return
+
         val path = lutItem.assetPath
         _editState.value = _editState.value.copy(currentLutPath = path, hasSelectedLut = true)
 
@@ -229,6 +250,13 @@ class MainViewModel @Inject constructor(
         val state = _viewState.value as? ViewState.Content ?: return
         val edit = _editState.value
         val wm = _watermarkState.value
+
+        if (!com.tqmane.filmsim.util.SecurityManager.verifySignature(context)) {
+            viewModelScope.launch {
+                _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
+            }
+            return
+        }
 
         viewModelScope.launch(ioDispatcher) {
             runCatching {

@@ -13,6 +13,8 @@
     <string name="save_error">保存エラー: %1$s</string>
     <string name="save_folder_create_failed">保存先の作成に失敗しました</string>
     <string name="image_saved">保存しました (%1$s): %2$s/%3$s</string>
+    <string name="export_success">書き出しに成功しました</string>
+    <string name="export_error">書き出し中にエラーが発生しました</string>
     <string name="lut_load_failed">フィルターの読み込みに失敗しました</string>
     
     <!-- Settings -->

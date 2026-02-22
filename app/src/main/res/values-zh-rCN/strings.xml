@@ -12,6 +12,9 @@
     <string name="cpu_processing">CPU处理中… (大图片可能需要较长时间)</string>
     <string name="save_error">保存错误: %1$s</string>
     <string name="save_folder_create_failed">创建保存文件夹失败</string>
+    
+    <string name="export_success">导出成功</string>
+    <string name="export_error">导出期间出错</string>
     <string name="image_saved">已保存 (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">滤镜加载失败</string>
     

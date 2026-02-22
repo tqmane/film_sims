@@ -12,6 +12,9 @@
     <string name="cpu_processing">معالجة بالمعالج… (الصور الكبيرة قد تستغرق وقتاً)</string>
     <string name="save_error">خطأ في الحفظ: %1$s</string>
     <string name="save_folder_create_failed">فشل إنشاء مجلد الحفظ</string>
+    
+    <string name="export_success">تم التصدير بنجاح</string>
+    <string name="export_error">خطأ أثناء التصدير</string>
     <string name="image_saved">تم الحفظ (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">فشل تحميل الفلتر</string>
 

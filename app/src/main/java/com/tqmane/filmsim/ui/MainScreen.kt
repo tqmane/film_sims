@@ -77,8 +77,8 @@ fun MainScreen(
         var showAdjustPanel by rememberSaveable { mutableStateOf(false) }
 
         // Lifted brand/category selection state (survives immersive toggle)
-        var selectedBrandIndex by rememberSaveable { mutableStateOf(0) }
-        var selectedCategoryIndex by rememberSaveable { mutableStateOf(0) }
+        val selectedBrandIndex by viewModel.selectedBrandIndex.collectAsState()
+        val selectedCategoryIndex by viewModel.selectedCategoryIndex.collectAsState()
 
         // Handle UI events
         LaunchedEffect(Unit) {
@@ -334,9 +334,9 @@ fun MainScreen(
                         onLutReselected = { showAdjustPanel = !showAdjustPanel },
                         isProUser = isProUser,
                         selectedBrandIndex = selectedBrandIndex,
-                        onBrandIndexChanged = { selectedBrandIndex = it },
+                        onBrandIndexChanged = { viewModel.setSelectedBrandIndex(it) },
                         selectedCategoryIndex = selectedCategoryIndex,
-                        onCategoryIndexChanged = { selectedCategoryIndex = it },
+                        onCategoryIndexChanged = { viewModel.setSelectedCategoryIndex(it) },
                         squareTop = showAdjustPanel && editState.hasSelectedLut,
                         modifier = Modifier
                             .fillMaxWidth()
