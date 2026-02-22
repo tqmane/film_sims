@@ -13,6 +13,8 @@
     <string name="save_error">保存エラー: %1$s</string>
     <string name="save_folder_create_failed">保存先の作成に失敗しました</string>
     <string name="image_saved">保存しました (%1$s): %2$s/%3$s</string>
+    <string name="export_success">書き出しに成功しました</string>
+    <string name="export_error">書き出し中にエラーが発生しました</string>
     <string name="lut_load_failed">フィルターの読み込みに失敗しました</string>
     
     <!-- Settings -->
@@ -46,15 +48,13 @@
     <string name="category_vintage_retro">ヴィンテージ・レトロ</string>
     <string name="category_warm_tones">ウォームトーン</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">シネマティック</string>
-    <string name="category_film_simulation">フィルムシミュレーション</string>
-    <string name="category_monochrome">モノクロ</string>
-    <string name="category_nature_landscape">自然・風景</string>
-    <string name="category_portrait_soft">ポートレート・ソフト</string>
-    <string name="category_special_effects">特殊効果</string>
-    <string name="category_vivid_natural">ビビッド・ナチュラル</string>
-    <string name="category_warm_vintage">ウォーム・ヴィンテージ</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">エフェクト</string>
+    <string name="category_xiaomi_film">フィルム</string>
+    <string name="category_xiaomi_leica">Leicaスタイル</string>
+    <string name="category_xiaomi_normal">ノーマル</string>
+    <string name="category_xiaomi_portrait">ポートレート</string>
+    <string name="category_xiaomi_video">ビデオ</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">すべて</string>

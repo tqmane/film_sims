@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -5,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -15,8 +17,20 @@ android {
         applicationId = "com.tqmane.filmsim"
         minSdk = 26
         targetSdk = 34
-        versionCode = 11
-        versionName = "1.0.8"
+        versionCode = 13
+        versionName = "1.1.0"
+
+        // Read ASSET_KEY from secrets.properties (or use a fallback for external contributors)
+        val secretsFile = rootProject.file("secrets.properties")
+        var assetKey = "placeholder_key"
+        if (secretsFile.exists()) {
+            val properties = Properties()
+            secretsFile.inputStream().use { stream ->
+                properties.load(stream)
+            }
+            assetKey = properties.getProperty("ASSET_KEY", "placeholder_key")
+        }
+        buildConfigField("String", "ASSET_KEY", "\"$assetKey\"")
     }
 
     buildTypes {
@@ -80,10 +94,22 @@ dependencies {
     // For update checking
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+    // Google Sign-In (Credential Manager)
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     // Unit Testing
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.2")
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 }

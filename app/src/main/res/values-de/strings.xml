@@ -12,6 +12,9 @@
     <string name="cpu_processing">CPU-Verarbeitung… (Große Bilder können länger dauern)</string>
     <string name="save_error">Speicherfehler: %1$s</string>
     <string name="save_folder_create_failed">Speicherordner konnte nicht erstellt werden</string>
+    
+    <string name="export_success">Erfolgreich exportiert</string>
+    <string name="export_error">Fehler beim Exportieren</string>
     <string name="image_saved">Gespeichert (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">Filter konnte nicht geladen werden</string>
 

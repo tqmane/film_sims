@@ -12,6 +12,9 @@
     <string name="cpu_processing">CPU处理中… (大图片可能需要较长时间)</string>
     <string name="save_error">保存错误: %1$s</string>
     <string name="save_folder_create_failed">创建保存文件夹失败</string>
+    
+    <string name="export_success">导出成功</string>
+    <string name="export_error">导出期间出错</string>
     <string name="image_saved">已保存 (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">滤镜加载失败</string>
     
@@ -46,15 +49,13 @@
     <string name="category_vintage_retro">复古</string>
     <string name="category_warm_tones">暖色调</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">电影</string>
-    <string name="category_film_simulation">胶片模拟</string>
-    <string name="category_monochrome">单色</string>
-    <string name="category_nature_landscape">自然风景</string>
-    <string name="category_portrait_soft">人像柔和</string>
-    <string name="category_special_effects">特效</string>
-    <string name="category_vivid_natural">鲜艳自然</string>
-    <string name="category_warm_vintage">暖色复古</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">特效</string>
+    <string name="category_xiaomi_film">胶片</string>
+    <string name="category_xiaomi_leica">徕卡风格</string>
+    <string name="category_xiaomi_normal">普通</string>
+    <string name="category_xiaomi_portrait">人像</string>
+    <string name="category_xiaomi_video">视频</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">全部</string>

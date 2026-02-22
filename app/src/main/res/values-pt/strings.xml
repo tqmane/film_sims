@@ -12,6 +12,9 @@
     <string name="cpu_processing">Processamento por CPU… (Imagens grandes podem demorar)</string>
     <string name="save_error">Erro ao salvar: %1$s</string>
     <string name="save_folder_create_failed">Falha ao criar a pasta de salvamento</string>
+    
+    <string name="export_success">Exportado com sucesso</string>
+    <string name="export_error">Erro durante a exportação</string>
     <string name="image_saved">Salvo (%1$s): %2$s/%3$s</string>
     <string name="lut_load_failed">Falha ao carregar o filtro</string>
 

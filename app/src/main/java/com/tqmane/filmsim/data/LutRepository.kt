@@ -24,7 +24,7 @@ data class LutBrand(
 object LutRepository {
     
     // Supported LUT file extensions
-    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg")
+    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".enc")
 
     private fun isAssetDirectory(assetManager: AssetManager, assetPath: String): Boolean {
         return try {
@@ -50,23 +50,30 @@ object LutRepository {
     }
 
     private fun stripKnownExtension(fileName: String): String {
-        val leaf = fileName.substringAfterLast('/')
+        var leaf = fileName.substringAfterLast('/')
         if (!leaf.contains('.')) return leaf
-        return lutExtensions.fold(leaf) { acc, ext ->
-            acc.removeSuffix(ext).removeSuffix(ext.uppercase())
+        var changed = true
+        while (changed) {
+            val before = leaf
+            leaf = lutExtensions.fold(leaf) { acc, ext ->
+                acc.removeSuffix(ext).removeSuffix(ext.uppercase())
+            }
+            changed = before != leaf
         }
+        return leaf
     }
 
     private fun selectBestVariant(variants: List<String>): String {
         fun priority(name: String): Int {
             val leaf = name.substringAfterLast('/')
             if (!leaf.contains('.')) return 0 // extensionless raw bin
+            val baseLeaf = leaf.removeSuffix(".enc").removeSuffix(".ENC")
             return when {
-                leaf.endsWith(".bin", ignoreCase = true) -> 1
-                leaf.endsWith(".cube", ignoreCase = true) -> 2
-                leaf.endsWith(".png", ignoreCase = true) -> 3
-                leaf.endsWith(".webp", ignoreCase = true) -> 4
-                leaf.endsWith(".jpg", ignoreCase = true) || leaf.endsWith(".jpeg", ignoreCase = true) -> 5
+                baseLeaf.endsWith(".bin", ignoreCase = true) -> 1
+                baseLeaf.endsWith(".cube", ignoreCase = true) -> 2
+                baseLeaf.endsWith(".png", ignoreCase = true) -> 3
+                baseLeaf.endsWith(".webp", ignoreCase = true) -> 4
+                baseLeaf.endsWith(".jpg", ignoreCase = true) || baseLeaf.endsWith(".jpeg", ignoreCase = true) -> 5
                 else -> 9
             }
         }
@@ -92,15 +99,13 @@ object LutRepository {
             "Uncategorized" -> context.getString(R.string.category_uncategorized)
             "Vintage-Retro" -> context.getString(R.string.category_vintage_retro)
             "Warm Tones" -> context.getString(R.string.category_warm_tones)
-            // Xiaomi categories
-            "Cinematic" -> context.getString(R.string.category_cinematic)
-            "Film Simulation" -> context.getString(R.string.category_film_simulation)
-            "Monochrome" -> context.getString(R.string.category_monochrome)
-            "Nature-Landscape" -> context.getString(R.string.category_nature_landscape)
-            "Portrait-Soft" -> context.getString(R.string.category_portrait_soft)
-            "Special Effects" -> context.getString(R.string.category_special_effects)
-            "Vivid-Natural" -> context.getString(R.string.category_vivid_natural)
-            "Warm-Vintage" -> context.getString(R.string.category_warm_vintage)
+            // Xiaomi categories (actual folder names)
+            "effect" -> context.getString(R.string.category_xiaomi_effect)
+            "film" -> context.getString(R.string.category_xiaomi_film)
+            "leica" -> context.getString(R.string.category_xiaomi_leica)
+            "normal" -> context.getString(R.string.category_xiaomi_normal)
+            "portrait" -> context.getString(R.string.category_xiaomi_portrait)
+            "video" -> context.getString(R.string.category_xiaomi_video)
             // Leica_lux categories
             "Leica Looks" -> context.getString(R.string.category_leica_looks)
             "Artist Looks" -> context.getString(R.string.category_artist_looks)
@@ -481,7 +486,12 @@ object LutRepository {
             e.printStackTrace()
         }
         
-        return brands.sortedBy { it.displayName }
+        // フリーブランドを先頭に、それ以外はアルファベット順
+        val freeBrands = setOf("TECNO", "Nothing", "Nubia")
+        return brands.sortedWith(compareBy(
+            { if (it.name in freeBrands) 0 else 1 },
+            { it.displayName }
+        ))
     }
     
     // Legacy support

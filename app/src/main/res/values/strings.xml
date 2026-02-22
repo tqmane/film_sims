@@ -13,6 +13,8 @@
     <string name="save_error">Save error: %1$s</string>
     <string name="save_folder_create_failed">Failed to create save folder</string>
     <string name="image_saved">Saved (%1$s): %2$s/%3$s</string>
+    <string name="export_success">Exported successfully</string>
+    <string name="export_error">Error during export</string>
     <string name="lut_load_failed">Failed to load filter</string>
     
     <!-- Settings -->
@@ -46,15 +48,13 @@
     <string name="category_vintage_retro">Vintage-Retro</string>
     <string name="category_warm_tones">Warm Tones</string>
     
-    <!-- LUT Categories - Xiaomi -->
-    <string name="category_cinematic">Cinematic</string>
-    <string name="category_film_simulation">Film Simulation</string>
-    <string name="category_monochrome">Monochrome</string>
-    <string name="category_nature_landscape">Nature-Landscape</string>
-    <string name="category_portrait_soft">Portrait-Soft</string>
-    <string name="category_special_effects">Special Effects</string>
-    <string name="category_vivid_natural">Vivid-Natural</string>
-    <string name="category_warm_vintage">Warm-Vintage</string>
+    <!-- LUT Categories - Xiaomi (actual folder names) -->
+    <string name="category_xiaomi_effect">Effects</string>
+    <string name="category_xiaomi_film">Film</string>
+    <string name="category_xiaomi_leica">Leica Style</string>
+    <string name="category_xiaomi_normal">Normal</string>
+    <string name="category_xiaomi_portrait">Portrait</string>
+    <string name="category_xiaomi_video">Video</string>
     
     <!-- LUT Categories - Nothing/Common -->
     <string name="category_all">All</string>
@@ -284,4 +284,16 @@
     <string name="time">Time</string>
     <string name="location">Location</string>
     <string name="lens_info">Lens Info</string>
+
+    <!-- Account / Auth -->
+    <string name="label_account">Account</string>
+    <string name="sign_in_description">Sign in with Google to unlock Pro features</string>
+    <string name="btn_sign_in_google">Sign in with Google</string>
+    <string name="btn_sign_out">Sign Out</string>
+    <string name="label_pro">PRO</string>
+
+    <!-- Pro restrictions -->
+    <string name="pro_brand_locked">Pro feature: Sign in to unlock this brand</string>
+    <string name="pro_watermark_locked">Pro feature: Sign in to unlock watermarks</string>
+    <string name="pro_quality_limit">Pro feature: Quality above 60% requires Pro</string>
 </resources>

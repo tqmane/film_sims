@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_liquid_glass_dialog">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="24dp"
     android:paddingTop="24dp"
-    android:paddingBottom="20dp"
-    android:background="@drawable/bg_liquid_glass_dialog">
+    android:paddingBottom="20dp">
 
     <!-- Title -->
     <TextView
@@ -116,6 +120,125 @@
 
     </LinearLayout>
 
+    <!-- ────── Account Section ────── -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/glass_border"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_account"
+        android:textColor="@color/text_tertiary"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.1"
+        android:textAllCaps="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="4dp" />
+
+    <!-- Signed-out state -->
+    <LinearLayout
+        android:id="@+id/layoutSignedOut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_in_description"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginStart="4dp" />
+
+        <Button
+            android:id="@+id/btnGoogleSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/btn_sign_in_google"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:backgroundTint="@color/accent_primary"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <!-- Signed-in state -->
+    <LinearLayout
+        android:id="@+id/layoutSignedIn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_liquid_glass_input"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:id="@+id/tvUserEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvProBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_pro"
+                android:textColor="@color/chip_selected_text"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-bold"
+                android:background="@drawable/bg_liquid_glass_chip"
+                android:backgroundTint="@color/accent_primary"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSignOut"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:text="@string/btn_sign_out"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/bg_button_secondary"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
     <!-- Close Button -->
     <Button
         android:id="@+id/btnCloseSettings"
@@ -129,3 +252,5 @@
         android:stateListAnimator="@null" />
 
 </LinearLayout>
+
+</ScrollView>

@@ -69,14 +69,29 @@
 -keep class org.json.** { *; }
 
 # --- ViewModel (AndroidX Lifecycle) ---
--keep class * extends androidx.lifecycle.ViewModel { *; }
--keep class * extends androidx.lifecycle.AndroidViewModel { *; }
+# Keep class names for instantiation but ALOW aggressive obfuscation of members for security
+-keepnames class * extends androidx.lifecycle.ViewModel
+-keepnames class * extends androidx.lifecycle.AndroidViewModel
+
+# --- Security / Anti-Crack ---
+# Flatten package hierarchy to make reversing harder
+-repackageclasses ""
 
 # --- Hilt (if/when added) ---
 -dontwarn dagger.**
 -keep class dagger.** { *; }
 -keep class javax.inject.** { *; }
 -keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
+
+# --- Firebase / Google Auth ---
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+-keep class com.google.android.libraries.identity.googleid.** { *; }
+-dontwarn com.google.android.libraries.identity.googleid.**
+-keep class androidx.credentials.** { *; }
+-dontwarn androidx.credentials.**
 
 # --- General ---
 # Keep native methods

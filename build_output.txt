@@ -1,0 +1,50 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac FAILED
+C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: ';'がありません
+  public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                           ^
+C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: <identifier>がありません
+  public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                                                ^
+C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: '#'は不正な文字です
+  public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                                                      ^
+エラー3個
+
+[Incubating] Problems report is available at: file:///C:/Users/Tqmane/Documents/Git/film_sims/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler output below.
+  C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: '#'は不正な文字です
+    public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                                                        ^
+  C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: ';'がありません
+    public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                             ^
+  C:\Users\Tqmane\Documents\Git\film_sims\app\build\generated\source\buildConfig\debug\com\tqmane\filmsim\BuildConfig.java:13: エラー: <identifier>がありません
+    public static final String ASSET_KEY = ""AppAssetEncryptionKey-2026!#"";
+                                                                  ^
+  エラー3個
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+
+BUILD FAILED in 966ms
+11 actionable tasks: 1 executed, 10 up-to-date
