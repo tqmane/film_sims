@@ -367,7 +367,7 @@ class TecnoWatermarkRenderer(private val context: Context) {
 
         for (path in searchPaths) {
             try {
-                context.assets.open(path).use { stream ->
+                com.tqmane.filmsim.util.AssetUtil.openAsset(context, path).use { stream ->
                     val bmp = BitmapFactory.decodeStream(stream)
                     if (bmp != null) return bmp
                 }

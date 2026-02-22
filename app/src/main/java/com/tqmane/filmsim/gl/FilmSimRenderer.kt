@@ -116,7 +116,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         if (path != grainStylePath) {
             grainStylePath = path
             try {
-                val inputStream = context.assets.open(grainStylePath)
+                val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, grainStylePath)
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream.close()
                 if (bitmap != null) {
@@ -184,7 +184,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     
     private fun loadDefaultGrainTexture() {
         try {
-            val inputStream = context.assets.open(grainStylePath)
+            val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, grainStylePath)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             if (bitmap != null) {

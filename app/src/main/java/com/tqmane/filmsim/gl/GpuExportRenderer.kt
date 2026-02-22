@@ -124,7 +124,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     
     private fun loadGrainTexture() {
         try {
-            val inputStream = context.assets.open(grainStylePath)
+            val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, grainStylePath)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             if (bitmap != null) {

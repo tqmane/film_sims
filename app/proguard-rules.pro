@@ -76,7 +76,6 @@
 # --- Security / Anti-Crack ---
 # Flatten package hierarchy to make reversing harder
 -repackageclasses ""
--flattenpackagehierarchy ""
 
 # --- Hilt (if/when added) ---
 -dontwarn dagger.**

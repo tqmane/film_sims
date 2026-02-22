@@ -59,19 +59,21 @@ object CubeLUTParser {
         }
 
         val fileName = assetPath.substringAfterLast('/')
-        val hasExtension = fileName.contains('.')
+        val isEncrypted = fileName.endsWith(".enc", ignoreCase = true)
+        val strippedFileName = if (isEncrypted) fileName.removeSuffix(".enc").removeSuffix(".ENC") else fileName
+        val hasExtension = strippedFileName.contains('.')
 
         val parsed = when {
-            assetPath.endsWith(".png", ignoreCase = true) -> parsePngLut(context, assetPath)
-            assetPath.endsWith(".webp", ignoreCase = true) -> parsePngLut(context, assetPath)
-            assetPath.endsWith(".jpg", ignoreCase = true) -> parsePngLut(context, assetPath)
-            assetPath.endsWith(".jpeg", ignoreCase = true) -> parsePngLut(context, assetPath)
-            assetPath.endsWith(".cube", ignoreCase = true) -> parseCubeLut(context, assetPath)
-            assetPath.endsWith(".bin", ignoreCase = true) -> parseBinLut(context, assetPath)
+            strippedFileName.endsWith(".png", ignoreCase = true) -> parsePngLut(context, assetPath)
+            strippedFileName.endsWith(".webp", ignoreCase = true) -> parsePngLut(context, assetPath)
+            strippedFileName.endsWith(".jpg", ignoreCase = true) -> parsePngLut(context, assetPath)
+            strippedFileName.endsWith(".jpeg", ignoreCase = true) -> parsePngLut(context, assetPath)
+            strippedFileName.endsWith(".cube", ignoreCase = true) -> parseCubeLut(context, assetPath)
+            strippedFileName.endsWith(".bin", ignoreCase = true) -> parseBinLut(context, assetPath)
             // Some vendors ship binary LUTs without an extension (e.g. OnePlus/Uncategorized/default, ODT_Photo).
             !hasExtension -> parseBinLut(context, assetPath)
             // Keep this off the LUT listing (repository doesn't include .dat), but allow parsing if referenced.
-            assetPath.endsWith(".dat", ignoreCase = true) -> parseBinLut(context, assetPath)
+            strippedFileName.endsWith(".dat", ignoreCase = true) -> parseBinLut(context, assetPath)
             else -> null
         }
 
@@ -87,7 +89,7 @@ object CubeLUTParser {
     
     private fun parseBinLut(context: Context, assetPath: String): CubeLUT? {
         try {
-            val inputStream = context.assets.open(assetPath)
+            val inputStream = openAssetStream(context, assetPath)
             val bytes = inputStream.readBytes()
             inputStream.close()
             
@@ -374,7 +376,7 @@ object CubeLUTParser {
 
     private fun parsePngLut(context: Context, assetPath: String): CubeLUT? {
         try {
-            val inputStream = context.assets.open(assetPath)
+            val inputStream = openAssetStream(context, assetPath)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             
@@ -703,7 +705,7 @@ object CubeLUTParser {
     
     private fun parseCubeLut(context: Context, assetPath: String): CubeLUT? {
         try {
-            val inputStream = context.assets.open(assetPath)
+            val inputStream = openAssetStream(context, assetPath)
             val reader = BufferedReader(InputStreamReader(inputStream))
             
             var size = -1
@@ -755,6 +757,15 @@ object CubeLUTParser {
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    private fun openAssetStream(context: Context, assetPath: String): java.io.InputStream {
+        val stream = context.assets.open(assetPath)
+        return if (assetPath.endsWith(".enc", ignoreCase = true)) {
+            com.tqmane.filmsim.util.AssetDecryptor.decryptStream(stream)
+        } else {
+            stream
         }
     }
 }

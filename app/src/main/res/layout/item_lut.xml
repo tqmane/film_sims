@@ -66,7 +66,8 @@
         android:fontFamily="sans-serif"
         android:letterSpacing="0.01"
         android:maxLines="2"
-        android:ellipsize="end"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"
         android:lineSpacingExtra="1dp" />
 
 </LinearLayout>

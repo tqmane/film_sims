@@ -21,7 +21,7 @@ class TecnoWatermarkConfigParser(private val context: Context) {
 
     fun parseConfig(assetPath: String = "watermark/TECNO/TranssionWM.json"): TecnoWatermarkTemplate? {
         return try {
-            val inputStream = context.assets.open(assetPath)
+            val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, assetPath)
             val content = inputStream.bufferedReader().use { it.readText() }
             parseContent(content)
         } catch (e: Exception) {
@@ -60,7 +60,7 @@ class TecnoWatermarkConfigParser(private val context: Context) {
 
     fun getMode(template: TecnoWatermarkTemplate, modeName: String, isLandscape: Boolean): TecnoModeConfig? {
         return try {
-            val inputStream = context.assets.open("watermark/TECNO/TranssionWM.json")
+            val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/TECNO/TranssionWM.json")
             val content = inputStream.bufferedReader().use { it.readText() }
             val root = JSONObject(content)
             val watermark = root.getJSONObject("WATERMARK")

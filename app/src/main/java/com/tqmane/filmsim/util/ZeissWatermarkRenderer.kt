@@ -633,7 +633,7 @@ class ZeissWatermarkRenderer(private val context: Context) {
         )
         for (path in searchPaths) {
             try {
-                context.assets.open(path).use { stream ->
+                com.tqmane.filmsim.util.AssetUtil.openAsset(context, path).use { stream ->
                     return BitmapFactory.decodeStream(stream)
                 }
             } catch (_: Exception) {}

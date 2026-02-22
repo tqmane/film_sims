@@ -212,7 +212,7 @@ object WatermarkProcessor {
 
         // Load Honor logo
         val logoBitmap = try {
-            context.assets.open("watermark/Honor/FrameWatermark/logo.png").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/Honor/FrameWatermark/logo.png").use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         } catch (e: Exception) {
@@ -625,7 +625,7 @@ object WatermarkProcessor {
         // Load and draw YG logo
         // From content.json: width=672, height=504, margin=[0,0,188,92], right|bottom
         val ygBitmap = try {
-            context.assets.open("watermark/Honor/FrameWatermarkYG/yg.png").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/Honor/FrameWatermarkYG/yg.png").use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         } catch (e: Exception) {
@@ -690,7 +690,7 @@ object WatermarkProcessor {
         // Load and draw YG logo
         // From content.json: width=672, height=504, margin=[0,0,299,86], right|bottom
         val ygBitmap = try {
-            context.assets.open("watermark/Honor/TextWatermarkYG/yg.png").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/Honor/TextWatermarkYG/yg.png").use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         } catch (e: Exception) {
@@ -759,7 +759,7 @@ object WatermarkProcessor {
 
     private fun loadMeizuLogo(context: Context, name: String): Bitmap? {
         return try {
-            context.assets.open("watermark/Meizu/logos/$name").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/Meizu/logos/$name").use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         } catch (_: Exception) { null }
@@ -1607,7 +1607,7 @@ object WatermarkProcessor {
 
     private fun loadVivoLogo(context: Context, name: String): Bitmap? {
         return try {
-            context.assets.open("watermark/vivo/logos/$name").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/vivo/logos/$name").use { stream ->
                 BitmapFactory.decodeStream(stream)
             }
         } catch (_: Exception) { null }
@@ -2198,7 +2198,7 @@ object WatermarkProcessor {
         pathL: Int, pathT: Int, pathR: Int, pathB: Int
     ): Pair<Bitmap, Canvas>? {
         val frameBmp = try {
-            context.assets.open("watermark/vivo/frames/$frameName").use {
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/vivo/frames/$frameName").use {
                 BitmapFactory.decodeStream(it)
             }
         } catch (_: Exception) { return null }
@@ -2756,7 +2756,7 @@ object WatermarkProcessor {
         // Load frame overlay on top
         val frameName = if (isPortrait) "zeiss4.png" else "zeiss5_new.png"
         try {
-            context.assets.open("watermark/vivo/frames/$frameName").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/vivo/frames/$frameName").use { stream ->
                 BitmapFactory.decodeStream(stream)?.let { frameBmp ->
                     canvas.drawBitmap(frameBmp, null, Rect(0, 0, imgW, imgH),
                         Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
@@ -3463,7 +3463,7 @@ object WatermarkProcessor {
 
         // Draw backdrop texture on the right side
         try {
-            context.assets.open("watermark/TECNO/icons/TriangleTexture.png").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/TECNO/icons/TriangleTexture.png").use { stream ->
                 val texBitmap = BitmapFactory.decodeStream(stream)
                 if (texBitmap != null) {
                     val texWidth = (429f * scale).toInt()
@@ -3699,7 +3699,7 @@ object WatermarkProcessor {
         size: Float
     ) {
         try {
-            context.assets.open("watermark/TECNO/icons/YellowPoint.png").use { stream ->
+            com.tqmane.filmsim.util.AssetUtil.openAsset(context, "watermark/TECNO/icons/YellowPoint.png").use { stream ->
                 val dotBitmap = BitmapFactory.decodeStream(stream)
                 if (dotBitmap != null) {
                     val rect = Rect(x.toInt(), y.toInt(), (x + size).toInt(), (y + size).toInt())

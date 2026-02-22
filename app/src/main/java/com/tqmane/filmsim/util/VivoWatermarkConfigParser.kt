@@ -20,7 +20,7 @@ class VivoWatermarkConfigParser(private val context: Context) {
 
     private fun readAssetFile(assetPath: String): String? {
         return try {
-            val inputStream = context.assets.open(assetPath)
+            val inputStream = com.tqmane.filmsim.util.AssetUtil.openAsset(context, assetPath)
             val reader = BufferedReader(inputStream.reader())
             reader.use { it.readText() }
         } catch (e: Exception) {

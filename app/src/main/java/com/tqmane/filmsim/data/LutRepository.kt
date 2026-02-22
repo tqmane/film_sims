@@ -24,7 +24,7 @@ data class LutBrand(
 object LutRepository {
     
     // Supported LUT file extensions
-    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg")
+    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".enc")
 
     private fun isAssetDirectory(assetManager: AssetManager, assetPath: String): Boolean {
         return try {
@@ -50,23 +50,30 @@ object LutRepository {
     }
 
     private fun stripKnownExtension(fileName: String): String {
-        val leaf = fileName.substringAfterLast('/')
+        var leaf = fileName.substringAfterLast('/')
         if (!leaf.contains('.')) return leaf
-        return lutExtensions.fold(leaf) { acc, ext ->
-            acc.removeSuffix(ext).removeSuffix(ext.uppercase())
+        var changed = true
+        while (changed) {
+            val before = leaf
+            leaf = lutExtensions.fold(leaf) { acc, ext ->
+                acc.removeSuffix(ext).removeSuffix(ext.uppercase())
+            }
+            changed = before != leaf
         }
+        return leaf
     }
 
     private fun selectBestVariant(variants: List<String>): String {
         fun priority(name: String): Int {
             val leaf = name.substringAfterLast('/')
             if (!leaf.contains('.')) return 0 // extensionless raw bin
+            val baseLeaf = leaf.removeSuffix(".enc").removeSuffix(".ENC")
             return when {
-                leaf.endsWith(".bin", ignoreCase = true) -> 1
-                leaf.endsWith(".cube", ignoreCase = true) -> 2
-                leaf.endsWith(".png", ignoreCase = true) -> 3
-                leaf.endsWith(".webp", ignoreCase = true) -> 4
-                leaf.endsWith(".jpg", ignoreCase = true) || leaf.endsWith(".jpeg", ignoreCase = true) -> 5
+                baseLeaf.endsWith(".bin", ignoreCase = true) -> 1
+                baseLeaf.endsWith(".cube", ignoreCase = true) -> 2
+                baseLeaf.endsWith(".png", ignoreCase = true) -> 3
+                baseLeaf.endsWith(".webp", ignoreCase = true) -> 4
+                baseLeaf.endsWith(".jpg", ignoreCase = true) || baseLeaf.endsWith(".jpeg", ignoreCase = true) -> 5
                 else -> 9
             }
         }

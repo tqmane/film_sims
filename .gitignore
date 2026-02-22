@@ -75,6 +75,7 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific (Large assets or generated resources)
+app/src/main/assets_raw/
 luts/
 textures/
 fonts/

@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -18,6 +19,18 @@ android {
         targetSdk = 34
         versionCode = 12
         versionName = "1.0.9"
+
+        // Read ASSET_KEY from secrets.properties (or use a fallback for external contributors)
+        val secretsFile = rootProject.file("secrets.properties")
+        var assetKey = "placeholder_key"
+        if (secretsFile.exists()) {
+            val properties = Properties()
+            secretsFile.inputStream().use { stream ->
+                properties.load(stream)
+            }
+            assetKey = properties.getProperty("ASSET_KEY", "placeholder_key")
+        }
+        buildConfigField("String", "ASSET_KEY", "\"$assetKey\"")
     }
 
     buildTypes {
