@@ -25,6 +25,10 @@ class ProUserRepository @Inject constructor() {
     /**
      * Query Firestore to see if [email] is a registered Pro user.
      * Updates [isProUser] accordingly.
+     *
+     * Firestore構成:
+     *   pro_users/{docId} (docIdはランダムID)
+     *   email: string (メールアドレス)
      */
     suspend fun checkProStatus(email: String?) {
         if (email.isNullOrBlank()) {
@@ -32,11 +36,11 @@ class ProUserRepository @Inject constructor() {
             return
         }
         try {
-            val doc = firestore.collection("pro_users")
-                .document(email.lowercase())
+            val querySnapshot = firestore.collection("pro_users")
+                .whereEqualTo("email", email.lowercase())
                 .get()
                 .await()
-            _isProUser.value = doc.exists()
+            _isProUser.value = !querySnapshot.isEmpty
         } catch (_: Exception) {
             _isProUser.value = false
         }
