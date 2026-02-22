@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -131,6 +132,22 @@ private fun LiquidBrandGenreLutSection(
 ) {
     val context = LocalContext.current
     val freeBrands = setOf("TECNO", "Nothing", "Nubia")
+
+    // 非Proユーザーがlockedブランド（Honor等）を初期選択していた場合、
+    // 最初のfreeブランドへ強制リセットする
+    LaunchedEffect(isProUser, brands.size) {
+        if (!isProUser && brands.isNotEmpty()) {
+            val currentBrand = brands.getOrNull(selectedBrandIndex)
+            if (currentBrand != null && currentBrand.name !in freeBrands) {
+                val firstFreeIndex = brands.indexOfFirst { it.name in freeBrands }
+                if (firstFreeIndex >= 0) {
+                    onBrandIndexChanged(firstFreeIndex)
+                    onCategoryIndexChanged(0)
+                }
+            }
+        }
+    }
+
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
 
@@ -180,10 +197,18 @@ private fun LiquidBrandGenreLutSection(
     LiquidSectionHeader(stringResource(R.string.header_presets))
 
     // LUT cards - re-tap selected card to open adjust panel
+    // クラック耐性: LUTカード選択時にもProチェックを二重実施
+    val currentBrand = brands.getOrNull(selectedBrandIndex)
+    val isCurrentBrandLocked = currentBrand != null && currentBrand.name !in freeBrands && !isProUser
     LiquidLutRow(
         items = lutItems,
         thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap,
         onLutSelected = { item ->
+            // Proが必要なブランドのフィルターはサーバー確認が完了するまで適用しない
+            if (isCurrentBrandLocked) {
+                Toast.makeText(context, context.getString(R.string.pro_brand_locked), Toast.LENGTH_SHORT).show()
+                return@LiquidLutRow
+            }
             if (item.assetPath == editState.currentLutPath) {
                 // Already selected → toggle adjust panel
                 onLutReselected()

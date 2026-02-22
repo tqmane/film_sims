@@ -479,7 +479,12 @@ object LutRepository {
             e.printStackTrace()
         }
         
-        return brands.sortedBy { it.displayName }
+        // フリーブランドを先頭に、それ以外はアルファベット順
+        val freeBrands = setOf("TECNO", "Nothing", "Nubia")
+        return brands.sortedWith(compareBy(
+            { if (it.name in freeBrands) 0 else 1 },
+            { it.displayName }
+        ))
     }
     
     // Legacy support

@@ -90,13 +90,15 @@ class AuthViewModel @Inject constructor(
                 val user = authResult.user
 
                 if (user != null) {
+                    // checkProStatus が完了するまで isLoading=true のまま維持
+                    proUserRepository.checkProStatus(user.email)
                     _authState.value = AuthState(
                         isSignedIn = true,
                         userName = user.displayName,
                         userEmail = user.email,
-                        userPhotoUrl = user.photoUrl?.toString()
+                        userPhotoUrl = user.photoUrl?.toString(),
+                        isLoading = false
                     )
-                    proUserRepository.checkProStatus(user.email)
                 } else {
                     _authState.value = _authState.value.copy(
                         isLoading = false,
