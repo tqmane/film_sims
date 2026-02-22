@@ -37,6 +37,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -151,8 +154,38 @@ private fun LiquidBrandGenreLutSection(
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
 
+    // Scroll states backed by ViewModel for persistence across recomposition
+    val brandScrollIndex by viewModel.brandScrollIndex.collectAsState()
+    val categoryScrollIndex by viewModel.categoryScrollIndex.collectAsState()
+    val lutScrollIndex by viewModel.lutScrollIndex.collectAsState()
+
+    val brandListState = rememberLazyListState()
+    val categoryListState = rememberLazyListState()
+
+    // Restore scroll positions on recomposition
+    LaunchedEffect(brandScrollIndex) {
+        if (brandListState.firstVisibleItemIndex != brandScrollIndex) {
+            brandListState.scrollToItem(brandScrollIndex.coerceAtMost((brands.size - 1).coerceAtLeast(0)))
+        }
+    }
+    LaunchedEffect(selectedBrandIndex, categoryScrollIndex) {
+        if (categoryListState.firstVisibleItemIndex != categoryScrollIndex) {
+            categoryListState.scrollToItem(categoryScrollIndex.coerceAtMost((categories.size - 1).coerceAtLeast(0)))
+        }
+    }
+
+    // Save scroll positions on scroll
+    LaunchedEffect(brandListState) {
+        snapshotFlow { brandListState.firstVisibleItemIndex }.collect { viewModel.setBrandScrollIndex(it) }
+    }
+    LaunchedEffect(categoryListState) {
+        snapshotFlow { categoryListState.firstVisibleItemIndex }.collect { viewModel.setCategoryScrollIndex(it) }
+    }
+
+    val brandListState2 = brandListState // alias for clarity
     // Brand chips
     LazyRow(
+        state = brandListState2,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.padding(bottom = 10.dp)
     ) {
@@ -179,6 +212,7 @@ private fun LiquidBrandGenreLutSection(
     // Category chips
     if (categories.isNotEmpty()) {
         LazyRow(
+            state = categoryListState,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.padding(bottom = 10.dp)
         ) {
@@ -216,7 +250,9 @@ private fun LiquidBrandGenreLutSection(
                 viewModel.applyLut(item)
             }
         },
-        currentLutPath = editState.currentLutPath
+        currentLutPath = editState.currentLutPath,
+        savedScrollIndex = lutScrollIndex,
+        onScrollIndexChanged = { viewModel.setLutScrollIndex(it) }
     )
 }
 
@@ -229,9 +265,25 @@ private fun LiquidLutRow(
     items: List<LutItem>,
     thumbnailBitmap: Bitmap?,
     onLutSelected: (LutItem) -> Unit,
-    currentLutPath: String?
+    currentLutPath: String?,
+    savedScrollIndex: Int = 0,
+    onScrollIndexChanged: (Int) -> Unit = {}
 ) {
+    val lutListState = rememberLazyListState()
+
+    // Restore scroll position
+    LaunchedEffect(savedScrollIndex) {
+        if (lutListState.firstVisibleItemIndex != savedScrollIndex) {
+            lutListState.scrollToItem(savedScrollIndex.coerceAtMost((items.size - 1).coerceAtLeast(0)))
+        }
+    }
+    // Save scroll position
+    LaunchedEffect(lutListState) {
+        snapshotFlow { lutListState.firstVisibleItemIndex }.collect { onScrollIndexChanged(it) }
+    }
+
     LazyRow(
+        state = lutListState,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.height(120.dp)
     ) {
@@ -273,7 +325,7 @@ fun LiquidAdjustPanel(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-            .background(LiquidColors.SurfaceDark.copy(alpha = 0.92f))
+            .background(LiquidColors.SurfaceDark.copy(alpha = 0.87f))
             .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
     ) {
         // ─── Tab Bar (Pill UI) ─────────────────────────────────────────────

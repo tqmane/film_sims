@@ -70,6 +70,16 @@ class MainViewModel @Inject constructor(
     private val _selectedCategoryIndex = MutableStateFlow(0)
     val selectedCategoryIndex: StateFlow<Int> = _selectedCategoryIndex.asStateFlow()
 
+    // Scroll positions for LazyRows (persisted across immersive toggle)
+    private val _brandScrollIndex = MutableStateFlow(0)
+    val brandScrollIndex: StateFlow<Int> = _brandScrollIndex.asStateFlow()
+
+    private val _categoryScrollIndex = MutableStateFlow(0)
+    val categoryScrollIndex: StateFlow<Int> = _categoryScrollIndex.asStateFlow()
+
+    private val _lutScrollIndex = MutableStateFlow(0)
+    val lutScrollIndex: StateFlow<Int> = _lutScrollIndex.asStateFlow()
+
     fun setSelectedBrandIndex(index: Int) {
         _selectedBrandIndex.value = index
     }
@@ -77,6 +87,10 @@ class MainViewModel @Inject constructor(
     fun setSelectedCategoryIndex(index: Int) {
         _selectedCategoryIndex.value = index
     }
+
+    fun setBrandScrollIndex(index: Int) { _brandScrollIndex.value = index }
+    fun setCategoryScrollIndex(index: Int) { _categoryScrollIndex.value = index }
+    fun setLutScrollIndex(index: Int) { _lutScrollIndex.value = index }
 
     private val _watermarkState = MutableStateFlow(WatermarkState())
     val watermarkState: StateFlow<WatermarkState> = _watermarkState.asStateFlow()

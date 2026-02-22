@@ -834,7 +834,7 @@ fun LiquidLutCard(
             textAlign = TextAlign.Center,
             maxLines = 2,
             minLines = 2,
-            overflow = TextOverflow.Ellipsis,
+            overflow = TextOverflow.Clip,
             lineHeight = 11.0.sp,
             modifier = Modifier
                 .width(86.dp)
@@ -861,22 +861,7 @@ fun GlassBottomSheet(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(topStart = topRadius, topEnd = topRadius))
-            .background(LiquidColors.SurfaceDark.copy(alpha = 0.85f))
-            .then(
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Modifier.drawBehind {
-                        drawIntoCanvas { canvas ->
-                            val paint = Paint()
-                            paint.asFrameworkPaint().apply {
-                                this.color = LiquidColors.SurfaceDark.copy(alpha = 0.87f).toArgb()
-                            }
-                            canvas.drawRect(0f, 0f, size.width, size.height, paint)
-                        }
-                    }
-                } else {
-                    Modifier
-                }
-            )
+            .background(LiquidColors.SurfaceDark.copy(alpha = 0.87f))
             .padding(top = 16.dp, bottom = 20.dp, start = 16.dp, end = 16.dp),
         content = content
     )
