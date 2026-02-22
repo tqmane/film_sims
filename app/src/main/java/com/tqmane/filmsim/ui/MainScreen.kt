@@ -50,6 +50,7 @@ import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
+    authViewModel: AuthViewModel,
     onPickImage: () -> Unit,
     onShowSettings: () -> Unit,
     onShowUpdateDialog: (com.tqmane.filmsim.util.ReleaseInfo) -> Unit
@@ -59,6 +60,7 @@ fun MainScreen(
         val viewState by viewModel.viewState.collectAsState()
         val editState by viewModel.editState.collectAsState()
         val watermarkState by viewModel.watermarkState.collectAsState()
+        val isProUser by authViewModel.isProUser.collectAsState()
 
         // GL references
         var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
@@ -73,6 +75,10 @@ fun MainScreen(
         var isImmersive by rememberSaveable { mutableStateOf(false) }
         var panelExpanded by rememberSaveable { mutableStateOf(true) }
         var showAdjustPanel by rememberSaveable { mutableStateOf(false) }
+
+        // Lifted brand/category selection state (survives immersive toggle)
+        var selectedBrandIndex by rememberSaveable { mutableStateOf(0) }
+        var selectedCategoryIndex by rememberSaveable { mutableStateOf(0) }
 
         // Handle UI events
         LaunchedEffect(Unit) {
@@ -303,6 +309,7 @@ fun MainScreen(
                         renderer = renderer,
                         isWatermarkActive = watermarkPreviewBitmap != null,
                         onRefreshWatermark = { refreshWatermarkPreview() },
+                        isProUser = isProUser,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -325,6 +332,11 @@ fun MainScreen(
                         isWatermarkActive = watermarkPreviewBitmap != null,
                         onRefreshWatermark = { refreshWatermarkPreview() },
                         onLutReselected = { showAdjustPanel = !showAdjustPanel },
+                        isProUser = isProUser,
+                        selectedBrandIndex = selectedBrandIndex,
+                        onBrandIndexChanged = { selectedBrandIndex = it },
+                        selectedCategoryIndex = selectedCategoryIndex,
+                        onCategoryIndexChanged = { selectedCategoryIndex = it },
                         squareTop = showAdjustPanel && editState.hasSelectedLut,
                         modifier = Modifier
                             .fillMaxWidth()

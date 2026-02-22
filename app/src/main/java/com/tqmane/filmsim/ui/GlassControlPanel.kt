@@ -2,6 +2,7 @@ package com.tqmane.filmsim.ui
 
 import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -31,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -80,6 +81,11 @@ fun GlassControlPanel(
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
     onLutReselected: () -> Unit,
+    isProUser: Boolean = false,
+    selectedBrandIndex: Int = 0,
+    onBrandIndexChanged: (Int) -> Unit = {},
+    selectedCategoryIndex: Int = 0,
+    onCategoryIndexChanged: (Int) -> Unit = {},
     squareTop: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -91,7 +97,12 @@ fun GlassControlPanel(
         LiquidBrandGenreLutSection(
             viewModel.brands, viewModel, viewState, editState, watermarkState,
             glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark,
-            onLutReselected = onLutReselected
+            onLutReselected = onLutReselected,
+            isProUser = isProUser,
+            selectedBrandIndex = selectedBrandIndex,
+            onBrandIndexChanged = onBrandIndexChanged,
+            selectedCategoryIndex = selectedCategoryIndex,
+            onCategoryIndexChanged = onCategoryIndexChanged
         )
     }
 }
@@ -111,13 +122,15 @@ private fun LiquidBrandGenreLutSection(
     renderer: FilmSimRenderer?,
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
-    onLutReselected: () -> Unit
+    onLutReselected: () -> Unit,
+    isProUser: Boolean = false,
+    selectedBrandIndex: Int = 0,
+    onBrandIndexChanged: (Int) -> Unit = {},
+    selectedCategoryIndex: Int = 0,
+    onCategoryIndexChanged: (Int) -> Unit = {}
 ) {
-    val initialBrandIndex = remember(brands, watermarkState.brandName) {
-        brands.indexOfFirst { it.name == watermarkState.brandName }.takeIf { it >= 0 } ?: 0
-    }
-    var selectedBrandIndex by rememberSaveable { mutableIntStateOf(initialBrandIndex) }
-    var selectedCategoryIndex by rememberSaveable { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val freeBrands = setOf("TECNO", "Nothing", "Nubia")
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
 
@@ -127,12 +140,17 @@ private fun LiquidBrandGenreLutSection(
         modifier = Modifier.padding(bottom = 10.dp)
     ) {
         itemsIndexed(brands) { index, brand ->
+            val isFree = brand.name in freeBrands
             LiquidChip(
-                text = brand.displayName,
+                text = if (!isFree && !isProUser) "${brand.displayName} 🔒" else brand.displayName,
                 selected = index == selectedBrandIndex,
                 onClick = {
-                    selectedBrandIndex = index
-                    selectedCategoryIndex = 0
+                    if (!isFree && !isProUser) {
+                        Toast.makeText(context, context.getString(R.string.pro_brand_locked), Toast.LENGTH_SHORT).show()
+                        return@LiquidChip
+                    }
+                    onBrandIndexChanged(index)
+                    onCategoryIndexChanged(0)
                     viewModel.updateWatermarkBrand(brand.name)
                 }
             )
@@ -151,7 +169,7 @@ private fun LiquidBrandGenreLutSection(
                 LiquidChip(
                     text = cat.displayName,
                     selected = index == selectedCategoryIndex,
-                    onClick = { selectedCategoryIndex = index }
+                    onClick = { onCategoryIndexChanged(index) }
                 )
             }
         }
@@ -218,8 +236,10 @@ fun LiquidAdjustPanel(
     renderer: FilmSimRenderer?,
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
+    isProUser: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var selectedTab by rememberSaveable {
         mutableStateOf(AdjustTab.INTENSITY.name)
     }
@@ -234,7 +254,14 @@ fun LiquidAdjustPanel(
         // ─── Tab Bar (Pill UI) ─────────────────────────────────────────────
         LiquidTabBar(
             selectedTab = currentTab,
-            onTabSelected = { selectedTab = it.name },
+            onTabSelected = {
+                if (it == AdjustTab.WATERMARK && !isProUser) {
+                    Toast.makeText(context, context.getString(R.string.pro_watermark_locked), Toast.LENGTH_SHORT).show()
+                    return@LiquidTabBar
+                }
+                selectedTab = it.name
+            },
+            isProUser = isProUser,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp)
@@ -286,6 +313,7 @@ fun LiquidAdjustPanel(
 private fun LiquidTabBar(
     selectedTab: AdjustTab,
     onTabSelected: (AdjustTab) -> Unit,
+    isProUser: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -331,8 +359,10 @@ private fun LiquidTabBar(
                     .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
+                val label = stringResource(labelRes)
+                val displayLabel = if (tab == AdjustTab.WATERMARK && !isProUser) "$label 🔒" else label
                 Text(
-                    stringResource(labelRes),
+                    displayLabel,
                     color = textColor,
                     fontSize = 12.sp,
                     fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,

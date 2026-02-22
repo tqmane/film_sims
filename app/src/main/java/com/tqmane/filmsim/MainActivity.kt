@@ -5,9 +5,11 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -18,11 +20,14 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
+import com.tqmane.filmsim.ui.AuthViewModel
 import com.tqmane.filmsim.ui.MainScreen
 import com.tqmane.filmsim.ui.MainViewModel
 import com.tqmane.filmsim.util.ReleaseInfo
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -33,6 +38,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     private val vm: MainViewModel by viewModels()
+    private val authVm: AuthViewModel by viewModels()
 
     @Inject
     lateinit var updateChecker: UpdateCheckerWrapper
@@ -51,6 +57,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainScreen(
                 viewModel = vm,
+                authViewModel = authVm,
                 onPickImage = { launchPicker() },
                 onShowSettings = { showSettingsDialog() },
                 onShowUpdateDialog = { showUpdateDialog(it) }
@@ -77,6 +84,11 @@ class MainActivity : ComponentActivity() {
             )
             window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
+        val isPro = authVm.isProUser.value
+        // Clamp quality for non-pro users on dialog open
+        if (!isPro && vm.settings.saveQuality > 60) {
+            vm.settings.saveQuality = 60
+        }
         val tvPath = dialog.findViewById<TextView>(R.id.tvSavePath).apply { text = vm.settings.savePath }
         val tvQuality = dialog.findViewById<TextView>(R.id.tvQualityValue).apply { text = "${vm.settings.saveQuality}%" }
         dialog.findViewById<TextView>(R.id.btnChangePath).setOnClickListener { showPathDialog(tvPath) }
@@ -84,14 +96,59 @@ class MainActivity : ComponentActivity() {
             progress = vm.settings.saveQuality
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
-                    val q = progress.coerceAtLeast(10)
+                    val isPro = authVm.isProUser.value
+                    val q = if (isPro) progress.coerceAtLeast(10) else progress.coerceIn(10, 60)
                     tvQuality.text = "${q}%"
                     vm.settings.saveQuality = q
+                    if (fromUser && !isPro && progress > 60) {
+                        sb?.progress = 60
+                        Toast.makeText(this@MainActivity, getString(R.string.pro_quality_limit), Toast.LENGTH_SHORT).show()
+                    }
                 }
                 override fun onStartTrackingTouch(sb: SeekBar?) {}
                 override fun onStopTrackingTouch(sb: SeekBar?) {}
             })
         }
+
+        // ─── Account Section ───────────────────────────────
+        val layoutSignedOut = dialog.findViewById<LinearLayout>(R.id.layoutSignedOut)
+        val layoutSignedIn = dialog.findViewById<LinearLayout>(R.id.layoutSignedIn)
+        val tvUserName = dialog.findViewById<TextView>(R.id.tvUserName)
+        val tvUserEmail = dialog.findViewById<TextView>(R.id.tvUserEmail)
+        val tvProBadge = dialog.findViewById<TextView>(R.id.tvProBadge)
+
+        fun updateAuthUi() {
+            val state = authVm.authState.value
+            val isPro = authVm.isProUser.value
+            if (state.isSignedIn) {
+                layoutSignedOut.visibility = View.GONE
+                layoutSignedIn.visibility = View.VISIBLE
+                tvUserName.text = state.userName ?: ""
+                tvUserEmail.text = state.userEmail ?: ""
+                tvProBadge.visibility = if (isPro) View.VISIBLE else View.GONE
+            } else {
+                layoutSignedOut.visibility = View.VISIBLE
+                layoutSignedIn.visibility = View.GONE
+            }
+        }
+
+        updateAuthUi()
+
+        dialog.findViewById<Button>(R.id.btnGoogleSignIn).setOnClickListener {
+            authVm.signInWithGoogle(this)
+        }
+        dialog.findViewById<Button>(R.id.btnSignOut).setOnClickListener {
+            authVm.signOut(this)
+        }
+
+        // Observe auth state changes while dialog is showing
+        val job = lifecycleScope.launch {
+            launch { authVm.authState.collect { updateAuthUi() } }
+            launch { authVm.isProUser.collect { updateAuthUi() } }
+        }
+
+        dialog.setOnDismissListener { job.cancel() }
+
         dialog.findViewById<Button>(R.id.btnCloseSettings).setOnClickListener { dialog.dismiss() }
         dialog.show()
     }

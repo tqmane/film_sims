@@ -282,4 +282,16 @@
     <string name="time">Time</string>
     <string name="location">Location</string>
     <string name="lens_info">Lens Info</string>
+
+    <!-- Account / Auth -->
+    <string name="label_account">Account</string>
+    <string name="sign_in_description">Sign in with Google to unlock Pro features</string>
+    <string name="btn_sign_in_google">Sign in with Google</string>
+    <string name="btn_sign_out">Sign Out</string>
+    <string name="label_pro">PRO</string>
+
+    <!-- Pro restrictions -->
+    <string name="pro_brand_locked">Pro feature: Sign in to unlock this brand</string>
+    <string name="pro_watermark_locked">Pro feature: Sign in to unlock watermarks</string>
+    <string name="pro_quality_limit">Pro feature: Quality above 60% requires Pro</string>
 </resources>
