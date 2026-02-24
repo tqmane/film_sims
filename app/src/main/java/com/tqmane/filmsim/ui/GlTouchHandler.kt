@@ -25,6 +25,7 @@ class GlTouchHandler(
     private var lastX = 0f
     private var lastY = 0f
     private var activePtr = MotionEvent.INVALID_POINTER_ID
+    private var initialOffsetY = 0f
 
     private val scaleDetector = ScaleGestureDetector(glSurfaceView.context,
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -72,12 +73,18 @@ class GlTouchHandler(
         }
     }
 
-    fun resetZoom() { matrix.reset(); applyTransform() }
+    fun resetZoom() {
+        matrix.reset()
+        if (initialOffsetY != 0f) {
+            matrix.postTranslate(0f, initialOffsetY)
+        }
+        applyTransform()
+    }
 
     /** Apply matrix offset so image centres between top bar and control panel. */
     fun applyVerticalOffset(topBarH: Float, panelH: Float) {
-        matrix.postTranslate(0f, (topBarH - panelH) / 2f)
-        applyTransform()
+        initialOffsetY = (topBarH - panelH) / 2f
+        resetZoom()
     }
 
     fun syncWatermarkPreview(view: ImageView) {
