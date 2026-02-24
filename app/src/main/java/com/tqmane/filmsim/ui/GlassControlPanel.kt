@@ -632,6 +632,18 @@ private fun LiquidWatermarkControls(
     val showLens   = showFields && selectedStyle !in noLensStyles
     val showTime   = showFields && selectedStyle !in noTimeStyles
 
+    // Debounce text inputs to avoid GPU rendering lag on every keystroke
+    LaunchedEffect(deviceName, timeText, locationText, lensInfo) {
+        kotlinx.coroutines.delay(300)
+        viewModel.updateWatermarkFields(
+            deviceName = deviceName,
+            timeText = timeText,
+            locationText = locationText,
+            lensInfo = lensInfo
+        )
+        onRefreshWatermark()
+    }
+
     Column {
         Text(
             stringResource(R.string.header_watermark).uppercase(),
@@ -712,11 +724,11 @@ private fun LiquidWatermarkControls(
             }
         }
         
-        if (showDevice) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_device), deviceName) { deviceName = it; viewModel.updateWatermarkFields(deviceName = it); onRefreshWatermark() }
-        if (showLens) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_lens), lensInfo) { lensInfo = it; viewModel.updateWatermarkFields(lensInfo = it); onRefreshWatermark() }
+        if (showDevice) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_device), deviceName) { deviceName = it }
+        if (showLens) LiquidWatermarkInputRow(stringResource(R.string.label_watermark_lens), lensInfo) { lensInfo = it }
         if (showTime) {
-            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_time), timeText) { timeText = it; viewModel.updateWatermarkFields(timeText = it); onRefreshWatermark() }
-            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_location), locationText) { locationText = it; viewModel.updateWatermarkFields(locationText = it); onRefreshWatermark() }
+            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_time), timeText) { timeText = it }
+            LiquidWatermarkInputRow(stringResource(R.string.label_watermark_location), locationText) { locationText = it }
         }
     }
 }
@@ -735,11 +747,13 @@ private fun LiquidWatermarkInputRow(
             label,
             color = LiquidColors.TextLowEmphasis,
             fontSize = 12.sp,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             fontFamily = FontFamily.SansSerif,
-            modifier = Modifier.width(56.dp).padding(end = 8.dp)
+            modifier = Modifier.weight(0.25f).padding(end = 8.dp)
         )
         Box(
-            modifier = Modifier.weight(1f).height(34.dp)
+            modifier = Modifier.weight(0.75f).height(34.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(LiquidColors.GlassSurfaceDark)
                 .border(1.dp, LiquidColors.GlassBorder, RoundedCornerShape(12.dp))
