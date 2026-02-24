@@ -296,4 +296,7 @@
     <string name="pro_brand_locked">Pro feature: Sign in to unlock this brand</string>
     <string name="pro_watermark_locked">Pro feature: Sign in to unlock watermarks</string>
     <string name="pro_quality_limit">Pro feature: Quality above 60% requires Pro</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">Permanent License</string>
+    <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>
 </resources>

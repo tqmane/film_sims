@@ -146,4 +146,7 @@
     <string name="btn_change">변경</string>
     <string name="label_quality">품질</string>
     <string name="btn_close">닫기</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">영구 라이선스</string>
+    <string name="label_license_version_mismatch">귀하의 라이선스는 %1$s 버전으로 제한됩니다!</string>
 </resources>

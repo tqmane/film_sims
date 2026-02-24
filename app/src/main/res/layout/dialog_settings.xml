@@ -226,6 +226,16 @@
                 android:paddingVertical="4dp"
                 android:visibility="gone" />
         </LinearLayout>
+        
+        <TextView
+            android:id="@+id/tvLicenseMismatch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/accent_primary"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnSignOut"

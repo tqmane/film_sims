@@ -87,4 +87,7 @@
     <string name="lut_fotos_mono_gregwilliams">Mono Greg Williams</string>
     <string name="lut_fotos_mono_selenium">Mono Sélénium</string>
     <string name="lut_fotos_mono_sepia">Mono Sépia</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">Licence Permanente</string>
+    <string name="label_license_version_mismatch">Votre licence est limitée à la version %1$s !</string>
 </resources>

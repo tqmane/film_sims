@@ -87,4 +87,7 @@
     <string name="lut_fotos_mono_gregwilliams">مونو غريغ ويليامز</string>
     <string name="lut_fotos_mono_selenium">مونو سيلينيوم</string>
     <string name="lut_fotos_mono_sepia">مونو بني داكن</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">ترخيص دائم</string>
+    <string name="label_license_version_mismatch">ترخيصك يقتصر على الإصدار %1$s!</string>
 </resources>

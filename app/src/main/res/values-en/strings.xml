@@ -143,4 +143,7 @@
     <string name="btn_change">Change</string>
     <string name="label_quality">Quality</string>
     <string name="btn_close">Close</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">Permanent License</string>
+    <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>
 </resources>

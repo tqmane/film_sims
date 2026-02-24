@@ -42,6 +42,8 @@ class AuthViewModel @Inject constructor(
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     val isProUser: StateFlow<Boolean> = proUserRepository.isProUser
+    val licenseMismatchVersion: StateFlow<String?> = proUserRepository.licenseMismatchVersion
+    val isPermanentLicense: StateFlow<Boolean> = proUserRepository.isPermanentLicense
 
     // Web client ID from google-services.json (client_type 3)
     companion object {

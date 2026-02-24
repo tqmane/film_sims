@@ -12,7 +12,7 @@
         <item name="colorOnSecondary">@color/black</item>
         
         <!-- Surface colors -->
-        <item name="android:windowBackground">@color/surface_dark</item>
+        <item name="android:windowBackground">@drawable/bg_app_window</item>
         <item name="android:colorBackground">@color/surface_dark</item>
         <item name="colorSurface">@color/surface_medium</item>
         <item name="colorOnSurface">@color/text_primary</item>

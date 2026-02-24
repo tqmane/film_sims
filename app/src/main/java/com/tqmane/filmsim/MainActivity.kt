@@ -128,19 +128,37 @@ class MainActivity : ComponentActivity() {
         val tvUserName = dialog.findViewById<TextView>(R.id.tvUserName)
         val tvUserEmail = dialog.findViewById<TextView>(R.id.tvUserEmail)
         val tvProBadge = dialog.findViewById<TextView>(R.id.tvProBadge)
+        val tvLicenseMismatch = dialog.findViewById<TextView>(R.id.tvLicenseMismatch)
 
         fun updateAuthUi() {
             val state = authVm.authState.value
             val isPro = authVm.isProUser.value
+            val mismatchVer = authVm.licenseMismatchVersion.value
+            val isPermanent = authVm.isPermanentLicense.value
+            
             if (state.isSignedIn) {
                 layoutSignedOut.visibility = View.GONE
                 layoutSignedIn.visibility = View.VISIBLE
                 tvUserName.text = state.userName ?: ""
                 tvUserEmail.text = state.userEmail ?: ""
-                tvProBadge.visibility = if (isPro) View.VISIBLE else View.GONE
+                
+                if (isPro) {
+                    tvProBadge.visibility = View.VISIBLE
+                    tvProBadge.text = if (isPermanent) getString(R.string.label_license_permanent) else getString(R.string.label_pro)
+                } else {
+                    tvProBadge.visibility = View.GONE
+                }
+                
+                if (mismatchVer != null) {
+                    tvLicenseMismatch.visibility = View.VISIBLE
+                    tvLicenseMismatch.text = getString(R.string.label_license_version_mismatch, mismatchVer)
+                } else {
+                    tvLicenseMismatch.visibility = View.GONE
+                }
             } else {
                 layoutSignedOut.visibility = View.VISIBLE
                 layoutSignedIn.visibility = View.GONE
+                tvLicenseMismatch.visibility = View.GONE
             }
         }
 
@@ -165,6 +183,8 @@ class MainActivity : ComponentActivity() {
         val job = lifecycleScope.launch {
             launch { authVm.authState.collect { updateAuthUi() } }
             launch { authVm.isProUser.collect { updateAuthUi() } }
+            launch { authVm.licenseMismatchVersion.collect { updateAuthUi() } }
+            launch { authVm.isPermanentLicense.collect { updateAuthUi() } }
         }
 
         dialog.setOnDismissListener { job.cancel() }

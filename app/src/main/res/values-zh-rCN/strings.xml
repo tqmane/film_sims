@@ -146,4 +146,7 @@
     <string name="btn_change">更改</string>
     <string name="label_quality">质量</string>
     <string name="btn_close">关闭</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">永久许可证</string>
+    <string name="label_license_version_mismatch">您的许可证仅限于版本 %1$s！</string>
 </resources>

@@ -173,4 +173,7 @@
     <string name="btn_change">変更</string>
     <string name="label_quality">保存品質</string>
     <string name="btn_close">閉じる</string>
+    <!-- Pro Licenses -->
+    <string name="label_license_permanent">永続ライセンス</string>
+    <string name="label_license_version_mismatch">あなたのライセンスは%1$s限定です！</string>
 </resources>
