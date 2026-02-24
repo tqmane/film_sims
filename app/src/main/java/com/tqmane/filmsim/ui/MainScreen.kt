@@ -124,7 +124,7 @@ fun MainScreen(
             // We'll apply the vertical offset once height measurements are valid.
             val bmp = content.previewBitmap
             val lut = editState.currentLut
-            val intensity = editState.intensity
+            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -146,7 +146,7 @@ fun MainScreen(
             val wmBmp = watermarkPreviewBitmap
             val content = viewState as? ViewState.Content
             val lut = editState.currentLut
-            val intensity = editState.intensity
+            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -177,7 +177,7 @@ fun MainScreen(
             if (viewState !is ViewState.Content) return@LaunchedEffect
             val wmActive = watermarkPreviewBitmap != null
             val lut = editState.currentLut
-            val intensity = editState.intensity
+            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -210,8 +210,14 @@ fun MainScreen(
         // 6. 初期表示用のプレビューオフセット調整
         var initialOffsetApplied by remember(viewState) { mutableStateOf(false) }
         LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState) {
-            if (viewState is ViewState.Content && !initialOffsetApplied && topBarHeightPx > 0f && bottomPanelHeightPx > 0f) {
-                touchHandler?.applyVerticalOffset(topBarHeightPx, bottomPanelHeightPx)
+            val content = viewState as? ViewState.Content
+            if (content != null && !initialOffsetApplied && topBarHeightPx > 0f && bottomPanelHeightPx > 0f) {
+                touchHandler?.updateInitialBounds(
+                    content.previewBitmap.width, 
+                    content.previewBitmap.height, 
+                    topBarHeightPx, 
+                    bottomPanelHeightPx
+                )
                 initialOffsetApplied = true
             }
         }
@@ -239,8 +245,6 @@ fun MainScreen(
                         GLSurfaceView(ctx).apply {
                             setEGLContextClientVersion(3)
                             setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-                            holder.setFormat(android.graphics.PixelFormat.TRANSLUCENT)
-                            setZOrderMediaOverlay(true)
                             preserveEGLContextOnPause = true
                             val r = FilmSimRenderer(ctx)
                             setRenderer(r)
@@ -264,7 +268,7 @@ fun MainScreen(
                                 onLongPressEnd = {
                                     if (watermarkPreviewBitmap == null) {
                                         queueEvent {
-                                            r.setIntensity(editState.intensity)
+                                            r.setIntensity(if (editState.hasSelectedLut) editState.intensity else 0f)
                                             r.setGrainEnabled(editState.grainEnabled)
                                             if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
                                             requestRender()

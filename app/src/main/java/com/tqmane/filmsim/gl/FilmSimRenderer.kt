@@ -15,10 +15,14 @@ import javax.microedition.khronos.opengles.GL10
 class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.Renderer {
 
     private var programId: Int = 0
+    private var bgProgramId: Int = 0
     private var inputTextureId: Int = 0
     private var lutTextureId: Int = 0
     private var grainTextureId: Int = 0
     
+    // Time variable for shaders
+    private var startTimeMillis: Long = System.currentTimeMillis()
+
     private var vertexBuffer: FloatBuffer
     private var texCoordBuffer: FloatBuffer
 
@@ -61,6 +65,12 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var uInputTextureHandle: Int = -1
     private var uLutTextureHandle: Int = -1
     private var uGrainTextureHandle: Int = -1
+
+    // Background shader attribute/uniform locations
+    private var bgPositionHandle: Int = -1
+    private var bgTexCoordHandle: Int = -1
+    private var bgTimeHandle: Int = -1
+    private var bgResolutionHandle: Int = -1
 
     init {
         val buffers = initQuadBuffers(flipY = false)
@@ -151,6 +161,28 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         GLES30.glDeleteShader(vertexShader)
         GLES30.glDeleteShader(fragmentShader)
 
+        // Compile background shader
+        val bgVertexSource = readRawTextFile(R.raw.bg_vertex_shader)
+        val bgFragmentSource = readRawTextFile(R.raw.bg_fragment_shader)
+        
+        val bgVertexShader = loadShader(GLES30.GL_VERTEX_SHADER, bgVertexSource)
+        val bgFragmentShader = loadShader(GLES30.GL_FRAGMENT_SHADER, bgFragmentSource)
+        
+        bgProgramId = GLES30.glCreateProgram()
+        GLES30.glAttachShader(bgProgramId, bgVertexShader)
+        GLES30.glAttachShader(bgProgramId, bgFragmentShader)
+        GLES30.glLinkProgram(bgProgramId)
+
+        val bgLinkStatus = IntArray(1)
+        GLES30.glGetProgramiv(bgProgramId, GLES30.GL_LINK_STATUS, bgLinkStatus, 0)
+        if (bgLinkStatus[0] == 0) {
+            val info = GLES30.glGetProgramInfoLog(bgProgramId)
+            android.util.Log.e("FilmSimRenderer", "BG Program link failed: $info")
+        }
+
+        GLES30.glDeleteShader(bgVertexShader)
+        GLES30.glDeleteShader(bgFragmentShader)
+
         // Cache locations
         aPositionHandle = GLES30.glGetAttribLocation(programId, "aPosition")
         aTexCoordHandle = GLES30.glGetAttribLocation(programId, "aTexCoord")
@@ -164,6 +196,11 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         uInputTextureHandle = GLES30.glGetUniformLocation(programId, "uInputTexture")
         uLutTextureHandle = GLES30.glGetUniformLocation(programId, "uLutTexture")
         uGrainTextureHandle = GLES30.glGetUniformLocation(programId, "uGrainTexture")
+        
+        bgPositionHandle = GLES30.glGetAttribLocation(bgProgramId, "aPosition")
+        bgTexCoordHandle = GLES30.glGetAttribLocation(bgProgramId, "aTexCoord")
+        bgTimeHandle = GLES30.glGetUniformLocation(bgProgramId, "uTime")
+        bgResolutionHandle = GLES30.glGetUniformLocation(bgProgramId, "uResolution")
 
         // Bind sampler uniforms once
         GLES30.glUseProgram(programId)
@@ -202,8 +239,27 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
+        GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
+        
+        val currentTime = (System.currentTimeMillis() - startTimeMillis) / 1000f
+
+        // Draw background pass
+        GLES30.glUseProgram(bgProgramId)
+        
+        GLES30.glEnableVertexAttribArray(bgPositionHandle)
+        GLES30.glVertexAttribPointer(bgPositionHandle, 2, GLES30.GL_FLOAT, false, 0, vertexBuffer)
+        
+        GLES30.glEnableVertexAttribArray(bgTexCoordHandle)
+        GLES30.glVertexAttribPointer(bgTexCoordHandle, 2, GLES30.GL_FLOAT, false, 0, texCoordBuffer)
+        
+        GLES30.glUniform1f(bgTimeHandle, currentTime * 1000f)
+        GLES30.glUniform2f(bgResolutionHandle, viewportWidth.toFloat(), viewportHeight.toFloat())
+
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
+        
+        GLES30.glDisableVertexAttribArray(bgPositionHandle)
+        GLES30.glDisableVertexAttribArray(bgTexCoordHandle)
         
         // Update input texture if needed
         pendingBitmap?.let { bmp ->
@@ -280,7 +336,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glUniform1f(uIntensityHandle, intensity)
             GLES30.glUniform1f(uGrainIntensityHandle, if (grainEnabled) grainIntensity else 0f)
             GLES30.glUniform1f(uGrainScaleHandle, grainScale)
-            GLES30.glUniform1f(uTimeHandle, 0f) // Static grain for now
+            GLES30.glUniform1f(uTimeHandle, currentTime)
 
             // Bind textures
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)

@@ -26,6 +26,7 @@ class GlTouchHandler(
     private var lastY = 0f
     private var activePtr = MotionEvent.INVALID_POINTER_ID
     private var initialOffsetY = 0f
+    private var initialZoom = 1f
 
     private val scaleDetector = ScaleGestureDetector(glSurfaceView.context,
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -37,7 +38,7 @@ class GlTouchHandler(
                 matrix.getValues(vals)
                 val cur = vals[Matrix.MSCALE_X]
                 val new = cur * d.scaleFactor
-                if (new in 0.5f..10f && kotlin.math.abs(d.scaleFactor - 1f) > 0.001f)
+                if (new in 0.1f..20f && kotlin.math.abs(d.scaleFactor - 1f) > 0.001f)
                     matrix.postScale(d.scaleFactor, d.scaleFactor, d.focusX, d.focusY)
                 matrix.postTranslate(d.focusX - prevFX, d.focusY - prevFY)
                 applyTransform()
@@ -75,14 +76,45 @@ class GlTouchHandler(
 
     fun resetZoom() {
         matrix.reset()
+        val w = glSurfaceView.width.toFloat()
+        val h = glSurfaceView.height.toFloat()
+        if (w > 0f && h > 0f) {
+            matrix.postScale(initialZoom, initialZoom, w / 2f, h / 2f)
+        } else {
+            matrix.postScale(initialZoom, initialZoom)
+        }
         if (initialOffsetY != 0f) {
             matrix.postTranslate(0f, initialOffsetY)
         }
         applyTransform()
     }
 
-    /** Apply matrix offset so image centres between top bar and control panel. */
-    fun applyVerticalOffset(topBarH: Float, panelH: Float) {
+    /** Apply matrix offset and scale so image fits between top bar and control panel beautifully. */
+    fun updateInitialBounds(imageWidth: Int, imageHeight: Int, topBarH: Float, panelH: Float) {
+        val viewW = glSurfaceView.width.toFloat()
+        val viewH = glSurfaceView.height.toFloat()
+        if (viewW <= 0f || viewH <= 0f || imageWidth <= 0 || imageHeight <= 0) return
+
+        val availableH = viewH - topBarH - panelH
+        
+        // Calculate the base scale that the shader applies automatically first
+        val imgRatio = imageWidth.toFloat() / imageHeight.toFloat()
+        val viewRatio = viewW / viewH
+        
+        var shaderScaleY = 1f
+        if (imgRatio > viewRatio) {
+            shaderScaleY = viewRatio / imgRatio
+        }
+        
+        val baseScreenHeightOccupied = viewH * shaderScaleY
+
+        // We want the occupied height to match availableH exactly
+        initialZoom = if (baseScreenHeightOccupied > availableH) {
+            availableH / baseScreenHeightOccupied
+        } else {
+            1f
+        }
+
         initialOffsetY = (topBarH - panelH) / 2f
         resetZoom()
     }
