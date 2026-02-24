@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(R.layout.dialog_settings)
             window?.setLayout(
-                (resources.displayMetrics.widthPixels * 0.90).toInt(),
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
             )
             window?.setBackgroundDrawableResource(android.R.color.transparent)
@@ -112,13 +112,15 @@ class MainActivity : ComponentActivity() {
                     val q = if (isPro) progress.coerceAtLeast(10) else progress.coerceIn(10, 60)
                     tvQuality.text = "${q}%"
                     vm.settings.saveQuality = q
-                    if (fromUser && !isPro && progress > 60) {
+                }
+                override fun onStartTrackingTouch(sb: SeekBar?) {}
+                override fun onStopTrackingTouch(sb: SeekBar?) {
+                    val isPro = authVm.isProUser.value
+                    if (!isPro && (sb?.progress ?: 0) > 60) {
                         sb?.progress = 60
                         Toast.makeText(this@MainActivity, getString(R.string.pro_quality_limit), Toast.LENGTH_SHORT).show()
                     }
                 }
-                override fun onStartTrackingTouch(sb: SeekBar?) {}
-                override fun onStopTrackingTouch(sb: SeekBar?) {}
             })
         }
 
@@ -199,7 +201,8 @@ class MainActivity : ComponentActivity() {
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
             hint = getString(R.string.save_path_hint)
-            setPadding(48, 32, 48, 32)
+            val d = resources.displayMetrics.density
+            setPadding((16 * d).toInt(), (10 * d).toInt(), (16 * d).toInt(), (10 * d).toInt())
         }
         AlertDialog.Builder(this, R.style.Theme_FilmSims)
             .setTitle(getString(R.string.enter_save_folder))
@@ -223,7 +226,7 @@ class MainActivity : ComponentActivity() {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(R.layout.dialog_update)
             window?.setLayout(
-                (resources.displayMetrics.widthPixels * 0.90).toInt(),
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT
             )
             window?.setBackgroundDrawableResource(android.R.color.transparent)

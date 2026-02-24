@@ -208,8 +208,9 @@ fun MainScreen(
         }
 
         // 6. 初期表示用のプレビューオフセット調整
-        var initialOffsetApplied by remember(viewState) { mutableStateOf(false) }
-        LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState) {
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        var initialOffsetApplied by remember(viewState, configuration.orientation) { mutableStateOf(false) }
+        LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, configuration.orientation) {
             val content = viewState as? ViewState.Content
             if (content != null && !initialOffsetApplied && topBarHeightPx > 0f && bottomPanelHeightPx > 0f) {
                 touchHandler?.updateInitialBounds(
@@ -286,8 +287,34 @@ fun MainScreen(
                     }
                 )
 
-                if (viewState is ViewState.Empty) {
-                    LiquidPlaceholderContent(onPickImage = onPickImage)
+                when (val state = viewState) {
+                    is ViewState.Empty -> {
+                        LiquidPlaceholderContent(onPickImage = onPickImage)
+                    }
+                    is ViewState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            androidx.compose.material3.CircularProgressIndicator(
+                                color = androidx.compose.ui.graphics.Color.White
+                            )
+                        }
+                    }
+                    is ViewState.Error -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = androidx.compose.ui.Alignment.Center
+                        ) {
+                            androidx.compose.material3.Text(
+                                text = state.message,
+                                color = androidx.compose.ui.graphics.Color.White,
+                                modifier = Modifier.padding(16.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
+                    else -> {}
                 }
             }
 

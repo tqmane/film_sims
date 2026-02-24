@@ -95,7 +95,7 @@ class GlTouchHandler(
         val viewH = glSurfaceView.height.toFloat()
         if (viewW <= 0f || viewH <= 0f || imageWidth <= 0 || imageHeight <= 0) return
 
-        val availableH = viewH - topBarH - panelH
+        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.1f) // Ensure minimum 10% height
         
         // Calculate the base scale that the shader applies automatically first
         val imgRatio = imageWidth.toFloat() / imageHeight.toFloat()
@@ -115,7 +115,10 @@ class GlTouchHandler(
             1f
         }
 
-        initialOffsetY = (topBarH - panelH) / 2f
+        // Adjust offsetY to center in available space
+        val availableCenterY = topBarH + availableH / 2f
+        val screenCenterY = viewH / 2f
+        initialOffsetY = availableCenterY - screenCenterY
         resetZoom()
     }
 
