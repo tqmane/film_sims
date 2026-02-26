@@ -29,6 +29,10 @@ class GlTouchHandler(
     private var initialOffsetY = 0f
     private var initialZoom = 1f
 
+    // Stored image dimensions for zoom recalculation on immersive change
+    private var storedImageWidth: Int = 0
+    private var storedImageHeight: Int = 0
+
     // Smooth animation for reset / initial positioning
     private var resetAnimator: ValueAnimator? = null
     private var isFirstAppearance: Boolean = true
@@ -177,35 +181,37 @@ class GlTouchHandler(
         applyTransform()
     }
 
+    /**
+     * Calculate the zoom level required to fit the stored image within the available area.
+     * Factors in the shader's automatic aspect-ratio scaling and applies a breathing margin.
+     */
+    private fun calculateZoom(topBarH: Float, panelH: Float): Float {
+        val viewW = glSurfaceView.width.toFloat()
+        val viewH = glSurfaceView.height.toFloat()
+        if (storedImageWidth <= 0 || storedImageHeight <= 0 || viewW <= 0f || viewH <= 0f) return 1f
+        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.15f)
+        val imgRatio = storedImageWidth.toFloat() / storedImageHeight.toFloat()
+        val viewRatio = viewW / viewH
+        var shaderScaleY = 1f
+        if (imgRatio > viewRatio) shaderScaleY = viewRatio / imgRatio
+        val baseScreenHeightOccupied = viewH * shaderScaleY
+        val breathingMargin = if (baseScreenHeightOccupied > availableH * 0.9f) 0.96f else 0.98f
+        return if (baseScreenHeightOccupied > availableH) {
+            (availableH / baseScreenHeightOccupied) * breathingMargin
+        } else 1f
+    }
+
     /** Apply matrix offset and scale so image fits between top bar and control panel beautifully. */
     fun updateInitialBounds(imageWidth: Int, imageHeight: Int, topBarH: Float, panelH: Float) {
         val viewW = glSurfaceView.width.toFloat()
         val viewH = glSurfaceView.height.toFloat()
         if (viewW <= 0f || viewH <= 0f || imageWidth <= 0 || imageHeight <= 0) return
 
-        // Ensure minimum 15% height to prevent overly crushed previews
-        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.15f)
-        
-        // Calculate the base scale that the shader applies automatically first
-        val imgRatio = imageWidth.toFloat() / imageHeight.toFloat()
-        val viewRatio = viewW / viewH
-        
-        var shaderScaleY = 1f
-        if (imgRatio > viewRatio) {
-            shaderScaleY = viewRatio / imgRatio
-        }
-        
-        val baseScreenHeightOccupied = viewH * shaderScaleY
+        storedImageWidth = imageWidth
+        storedImageHeight = imageHeight
 
-        // Scale to fit available area with adaptive breathing room:
-        //  - Tall images (occupy most of screen): 4% margin
-        //  - Wide/square images (smaller footprint): less margin needed
-        val breathingMargin = if (baseScreenHeightOccupied > availableH * 0.9f) 0.96f else 0.98f
-        initialZoom = if (baseScreenHeightOccupied > availableH) {
-            (availableH / baseScreenHeightOccupied) * breathingMargin
-        } else {
-            1f
-        }
+        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.15f)
+        initialZoom = calculateZoom(topBarH, panelH)
 
         // Center the image vertically in the available area between UI elements
         val availableCenterY = topBarH + availableH / 2f
@@ -223,7 +229,7 @@ class GlTouchHandler(
 
     /**
      * Re-center the preview when immersive mode changes.
-     * Smoothly adjusts offset to account for changed top/bottom UI heights.
+     * Smoothly adjusts both offset and zoom to account for changed top/bottom UI heights.
      * Uses a longer animation for a polished feel during mode transitions.
      */
     fun updateForImmersiveChange(topBarH: Float, panelH: Float) {
@@ -235,12 +241,16 @@ class GlTouchHandler(
         val availableCenterY = topBarH + availableH / 2f
         val screenCenterY = viewH / 2f
         val newOffsetY = availableCenterY - screenCenterY
+        val newZoom = calculateZoom(topBarH, panelH)
 
-        // Only animate if offset actually changed
-        if (kotlin.math.abs(newOffsetY - initialOffsetY) > 1f) {
+        val offsetChanged = kotlin.math.abs(newOffsetY - initialOffsetY) > 1f
+        val zoomChanged = kotlin.math.abs(newZoom - initialZoom) > 0.005f
+
+        if (offsetChanged || zoomChanged) {
             initialOffsetY = newOffsetY
-            // Slightly longer animation syncs with UI slide animations
-            animateToReset(durationMs = 450)
+            initialZoom = newZoom
+            // Animation duration slightly longer than UI slide to sync with panel transitions
+            animateToReset(durationMs = 420)
         }
     }
 

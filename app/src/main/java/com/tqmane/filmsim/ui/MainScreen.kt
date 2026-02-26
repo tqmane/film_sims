@@ -6,6 +6,8 @@ import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -340,8 +342,8 @@ fun MainScreen(
                 // ─── Top Bar ────────────────────────────────────────────────────
                 AnimatedVisibility(
                     visible = !isImmersive,
-                    enter = slideInVertically { -it } + fadeIn(),
-                    exit = slideOutVertically { -it } + fadeOut()
+                    enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { -it } + fadeIn(animationSpec = tween(300)),
+                    exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { -it } + fadeOut(animationSpec = tween(250))
                 ) {
                     LiquidTopBar(
                         onPickImage = onPickImage,
@@ -393,8 +395,8 @@ fun MainScreen(
                     // Bottom Control Panel (Glass Bottom Sheet)
                     AnimatedVisibility(
                         visible = !isImmersive && viewState is ViewState.Content,
-                        enter = slideInVertically { it } + fadeIn(),
-                        exit = slideOutVertically { it } + fadeOut()
+                        enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(animationSpec = tween(300)),
+                        exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { it } + fadeOut(animationSpec = tween(250))
                     ) {
                         GlassControlPanel(
                             viewModel = viewModel,
