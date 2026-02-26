@@ -68,6 +68,8 @@ object CubeLUTParser {
             strippedFileName.endsWith(".webp", ignoreCase = true) -> parsePngLut(context, assetPath)
             strippedFileName.endsWith(".jpg", ignoreCase = true) -> parsePngLut(context, assetPath)
             strippedFileName.endsWith(".jpeg", ignoreCase = true) -> parsePngLut(context, assetPath)
+            // Samsung .sel files are PNG-format 3D LUTs
+            strippedFileName.endsWith(".sel", ignoreCase = true) -> parsePngLut(context, assetPath)
             strippedFileName.endsWith(".cube", ignoreCase = true) -> parseCubeLut(context, assetPath)
             strippedFileName.endsWith(".bin", ignoreCase = true) -> parseBinLut(context, assetPath)
             // Some vendors ship binary LUTs without an extension (e.g. OnePlus/Uncategorized/default, ODT_Photo).

@@ -24,7 +24,7 @@ data class LutBrand(
 object LutRepository {
     
     // Supported LUT file extensions
-    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".enc")
+    private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".sel", ".enc")
 
     private fun isAssetDirectory(assetManager: AssetManager, assetPath: String): Boolean {
         return try {
@@ -140,6 +140,9 @@ object LutRepository {
             "Misc" -> context.getString(R.string.category_misc)
             "Night_mode" -> context.getString(R.string.category_night_mode)
             "Street_photo" -> context.getString(R.string.category_street_photo)
+            // Samsung categories
+            "myfilter" -> context.getString(R.string.category_samsung_myfilter)
+            "preload_effect" -> context.getString(R.string.category_samsung_preload_effect)
             // Fallback - keep original name for Fujifilm, Kodak Film, etc.
             else -> categoryName.replace("_", " ").replace("-", " - ")
         }
@@ -356,6 +359,22 @@ object LutRepository {
         }
     }
 
+    // Samsung filter filename to display name
+    private fun getSamsungFilterName(fileName: String, categoryName: String): String {
+        val name = when (categoryName) {
+            "preload_effect" ->
+                // Strip long package prefix: com.samsung.android.provider.filterprovider.
+                fileName.removePrefix("com.samsung.android.provider.filterprovider.")
+            "Log" ->
+                // Strip SamsungLog_to_ prefix
+                fileName.removePrefix("SamsungLog_to_")
+            else -> fileName
+        }
+        return name.replace("_", " ").split(" ").joinToString(" ") { word ->
+            word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
+    }
+
     // Nubia filter filename to localized display name
     private fun getNubiaFilterName(context: Context, fileName: String): String {
         return when {
@@ -391,6 +410,7 @@ object LutRepository {
                 val isHonor = brandName == "Honor"
                 val isMeizu = brandName == "Meizu"
                 val isTecno = brandName == "TECNO"
+                val isSamsung = brandName == "Samsung"
                 
                 // Check if brand has flat structure (LUT files directly in brand folder)
                 val directLutFiles = contents.filter { file -> isLutAssetFile(assetManager, brandPath, file) }
@@ -412,6 +432,7 @@ object LutRepository {
                             isHonor -> getHonorFilterName(context, baseName)
                             isMeizu -> getMeizuFilterName(context, baseName, "_all")
                             isTecno -> getTecnoFilterName(baseName, "_all")
+                            isSamsung -> getSamsungFilterName(baseName, "_all")
                             else -> baseName.replace("_", " ")
                         }
                         LutItem(
@@ -453,6 +474,7 @@ object LutRepository {
                             isHonor -> getHonorFilterName(context, baseName)
                             isMeizu -> getMeizuFilterName(context, baseName, categoryName)
                             isTecno -> getTecnoFilterName(baseName, categoryName)
+                            isSamsung -> getSamsungFilterName(baseName, categoryName)
                             else -> baseName.replace("_", " ")
                         }
                         LutItem(

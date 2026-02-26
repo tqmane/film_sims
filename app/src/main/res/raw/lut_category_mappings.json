@@ -39,6 +39,8 @@
     "classicFilter": "category_classic_filter",
     "filterManager": "category_filter_manager",
     "General": "category_general",
-    "_all": "category_all"
+    "_all": "category_all",
+    "myfilter": "category_samsung_myfilter",
+    "preload_effect": "category_samsung_preload_effect"
   }
 }

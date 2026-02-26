@@ -186,6 +186,10 @@
     <string name="category_misc">Misc</string>
     <string name="category_night_mode">Night Mode</string>
     <string name="category_street_photo">Street Photo</string>
+
+    <!-- Samsung categories -->
+    <string name="category_samsung_myfilter">My Filter</string>
+    <string name="category_samsung_preload_effect">Preloaded Effects</string>
     
     <!-- Meizu LUT names -->
     <string name="lut_meizu_warm">Warm</string>
