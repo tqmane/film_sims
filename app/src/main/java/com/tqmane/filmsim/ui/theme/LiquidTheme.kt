@@ -15,39 +15,39 @@ import androidx.compose.ui.unit.sp
 // ─── Liquid Color Palette ───────────────────────────────────────────
 
 object LiquidColors {
-    // Base Colors
-    val Background = Color(0xFF050508)
-    val SurfaceDark = Color(0xFF0A0A0E)
-    val SurfaceMedium = Color(0xFF121216)
-    val SurfaceElevated = Color(0xFF1A1A20)
+    // Base Colors — warmer undertone for premium feel
+    val Background = Color(0xFF060609)
+    val SurfaceDark = Color(0xFF0C0C11)
+    val SurfaceMedium = Color(0xFF141419)
+    val SurfaceElevated = Color(0xFF1C1C23)
     
-    // Glass Surface Colors
-    val GlassSurface = Color(0x20FFFFFF)
-    val GlassSurfaceDark = Color(0x15FFFFFF)
-    val GlassBorder = Color(0x18FFFFFF)
-    val GlassBorderHighlight = Color(0x25FFFFFF)
+    // Glass Surface Colors — subtler for modern depth
+    val GlassSurface = Color(0x1AFFFFFF)
+    val GlassSurfaceDark = Color(0x10FFFFFF)
+    val GlassBorder = Color(0x14FFFFFF)
+    val GlassBorderHighlight = Color(0x20FFFFFF)
     
-    // Accent Colors - "Liquid Film Noir" Palette
-    val AccentPrimary = Color(0xFFFFAB60)      // Amber - Primary accent
-    val AccentPrimaryDark = Color(0xFFE07830)  // Darker amber
-    val AccentSecondary = Color(0xFF40C4B0)    // Cyan - Secondary accent
-    val AccentTertiary = Color(0xFF6200EE)     // Deep Purple - Tertiary
+    // Accent Colors — kept identical per requirement
+    val AccentPrimary = Color(0xFFFFAB60)
+    val AccentPrimaryDark = Color(0xFFE07830)
+    val AccentSecondary = Color(0xFF40C4B0)
+    val AccentTertiary = Color(0xFF6200EE)
     
     // Ambient Light Colors (for background aurora)
     val AmbientAmber = Color(0xFFFFAB60)
     val AmbientCyan = Color(0xFF40C4B0)
     val AmbientPurple = Color(0xFF6200EE)
     
-    // Text Colors
-    val TextHighEmphasis = Color(0xFFF0F0F0)
-    val TextMediumEmphasis = Color(0xD8FFFFFF)
-    val TextLowEmphasis = Color(0x80FFFFFF)
-    val TextDisabled = Color(0x40FFFFFF)
+    // Text Colors — improved hierarchy
+    val TextHighEmphasis = Color(0xFFF2F2F5)
+    val TextMediumEmphasis = Color(0xBBFFFFFF)
+    val TextLowEmphasis = Color(0x70FFFFFF)
+    val TextDisabled = Color(0x38FFFFFF)
     
     // State Colors
     val ChipSelected = Color(0xFFFFAB60)
     val ChipSelectedText = Color(0xFF0C0C10)
-    val ChipUnselected = Color(0x28FFFFFF)
+    val ChipUnselected = Color(0x1CFFFFFF)
     
     // Gradient Colors
     val GradientAccentStart = Color(0xFFFF8A50)
@@ -178,26 +178,26 @@ object LiquidAnimation {
 // ─── Liquid Dimensions ───────────────────────────────────────────────
 
 object LiquidDimensions {
-    // Corner radii
-    val CornerSmall = 8.dp
-    val CornerMedium = 12.dp
-    val CornerLarge = 16.dp
-    val CornerXLarge = 20.dp
-    val CornerRound = 24.dp
+    // Corner radii — rounder for modern feel
+    val CornerSmall = 10.dp
+    val CornerMedium = 14.dp
+    val CornerLarge = 18.dp
+    val CornerXLarge = 22.dp
+    val CornerRound = 28.dp
     val CornerCircle = 50.dp
     
-    // Spacing
+    // Spacing — more breathing room
     val SpaceXS = 4.dp
     val SpaceS = 8.dp
-    val SpaceM = 12.dp
-    val SpaceL = 16.dp
-    val SpaceXL = 24.dp
-    val SpaceXXL = 32.dp
+    val SpaceM = 14.dp
+    val SpaceL = 20.dp
+    val SpaceXL = 28.dp
+    val SpaceXXL = 40.dp
     
-    // Component sizes
-    val ButtonHeight = 44.dp
+    // Component sizes — larger touch targets
+    val ButtonHeight = 48.dp
     val ButtonHeightLarge = 56.dp
-    val ChipHeight = 32.dp
+    val ChipHeight = 36.dp
     val IconSizeSmall = 16.dp
     val IconSizeMedium = 22.dp
     val IconSizeLarge = 28.dp

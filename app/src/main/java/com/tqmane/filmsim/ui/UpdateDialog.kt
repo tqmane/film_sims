@@ -81,19 +81,19 @@ fun UpdateDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp)
+                .padding(horizontal = 24.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(32.dp))
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF1E1E28), Color(0xFF0D0D13))
+                            listOf(Color(0xFF1A1A22), Color(0xFF0A0A10))
                         )
                     )
-                    .border(1.dp, Color(0x28FFFFFF), RoundedCornerShape(28.dp))
-                    .padding(28.dp),
+                    .border(1.dp, Color(0x1CFFFFFF), RoundedCornerShape(32.dp))
+                    .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -102,7 +102,7 @@ fun UpdateDialog(
                     // Outer glow ring (animated)
                     Box(
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(88.dp)
                             .scale(pulseScale)
                             .clip(CircleShape)
                             .background(LiquidColors.AccentPrimary.copy(alpha = pulseAlpha * 0.35f))
@@ -110,7 +110,7 @@ fun UpdateDialog(
                     // Inner icon circle
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(70.dp)
                             .clip(CircleShape)
                             .background(LiquidColors.AccentPrimary.copy(alpha = 0.14f))
                             .border(
@@ -124,18 +124,18 @@ fun UpdateDialog(
                             painter = painterResource(R.drawable.ic_update),
                             contentDescription = null,
                             tint = LiquidColors.AccentPrimary,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
 
                 // ─── Title ────────────────────────────────────────────────────
                 Text(
                     stringResource(R.string.update_available),
                     color = LiquidColors.TextHighEmphasis,
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = FontFamily.SansSerif
                 )
@@ -145,47 +145,47 @@ fun UpdateDialog(
                 // ─── Version badge ────────────────────────────────────────────
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(LiquidColors.AccentPrimary.copy(alpha = 0.14f))
                         .border(
                             1.dp,
                             LiquidColors.AccentPrimary.copy(alpha = 0.30f),
-                            RoundedCornerShape(20.dp)
+                            RoundedCornerShape(24.dp)
                         )
-                        .padding(horizontal = 16.dp, vertical = 5.dp)
+                        .padding(horizontal = 18.dp, vertical = 6.dp)
                 ) {
                     Text(
                         stringResource(R.string.new_version_available, release.version),
                         color = LiquidColors.AccentPrimary,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
 
                 // ─── Release notes ────────────────────────────────────────────
                 if (release.releaseNotes.isNotBlank()) {
-                    Spacer(Modifier.height(18.dp))
+                    Spacer(Modifier.height(20.dp))
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .background(Color(0x12FFFFFF))
-                            .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape(14.dp))
-                            .padding(horizontal = 16.dp, vertical = 14.dp)
+                            .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape(16.dp))
+                            .padding(horizontal = 18.dp, vertical = 16.dp)
                     ) {
                         Text(
                             "RELEASE NOTES",
                             color = LiquidColors.TextLowEmphasis,
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 0.12.sp,
+                            letterSpacing = 0.15.sp,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         Text(
                             release.releaseNotes,
                             color = LiquidColors.TextMediumEmphasis,
-                            fontSize = 13.sp,
-                            lineHeight = 20.sp,
+                            fontSize = 14.sp,
+                            lineHeight = 22.sp,
                             maxLines = 6,
                             overflow = TextOverflow.Ellipsis,
                             fontFamily = FontFamily.SansSerif
@@ -193,7 +193,7 @@ fun UpdateDialog(
                     }
                 }
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(28.dp))
 
                 // ─── Action buttons ───────────────────────────────────────────
                 Row(
@@ -203,29 +203,29 @@ fun UpdateDialog(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(Color(0x13FFFFFF))
-                            .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(14.dp))
+                            .height(54.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0x10FFFFFF))
+                            .border(1.dp, Color(0x14FFFFFF), RoundedCornerShape(16.dp))
                             .clickable { onDismiss() },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             stringResource(R.string.later),
                             color = LiquidColors.TextMediumEmphasis,
-                            fontSize = 15.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
 
-                    Spacer(Modifier.width(12.dp))
+                    Spacer(Modifier.width(14.dp))
 
                     // Update now (accent gradient)
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .height(54.dp)
+                            .clip(RoundedCornerShape(16.dp))
                             .background(
                                 Brush.linearGradient(
                                     listOf(
@@ -240,7 +240,7 @@ fun UpdateDialog(
                         Text(
                             stringResource(R.string.update_now),
                             color = Color.White,
-                            fontSize = 15.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }

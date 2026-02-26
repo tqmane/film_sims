@@ -2,16 +2,16 @@
 <resources>
     <!-- Base Dark Theme Colors - Deeper, more refined blacks -->
     <color name="surface_dark">#FF000000</color>
-    <color name="surface_medium">#FF0A0A0E</color>
-    <color name="surface_light">#FF121216</color>
-    <color name="surface_elevated">#FF1A1A20</color>
+    <color name="surface_medium">#FF0C0C11</color>
+    <color name="surface_light">#FF141419</color>
+    <color name="surface_elevated">#FF1C1C23</color>
     
     <!-- Glass Effect Colors - More subtle transparency -->
-    <color name="glass_bg">#F0101014</color>
-    <color name="glass_bg_light">#B8161620</color>
-    <color name="glass_border">#20FFFFFF</color>
-    <color name="glass_border_light">#14FFFFFF</color>
-    <color name="glass_highlight">#10FFFFFF</color>
+    <color name="glass_bg">#F0101015</color>
+    <color name="glass_bg_light">#B8161621</color>
+    <color name="glass_border">#1AFFFFFF</color>
+    <color name="glass_border_light">#10FFFFFF</color>
+    <color name="glass_highlight">#0CFFFFFF</color>
     
     <!-- Accent Colors - Refined warm amber/gold palette -->
     <color name="accent_start">#FFFF8A50</color>
@@ -28,9 +28,9 @@
     
     <!-- Text Colors - Improved hierarchy -->
     <color name="text_primary">#FFFFFFFF</color>
-    <color name="text_secondary">#D8FFFFFF</color>
-    <color name="text_tertiary">#80FFFFFF</color>
-    <color name="text_disabled">#40FFFFFF</color>
+    <color name="text_secondary">#BBFFFFFF</color>
+    <color name="text_tertiary">#70FFFFFF</color>
+    <color name="text_disabled">#38FFFFFF</color>
     
     <!-- Utility Colors -->
     <color name="black">#FF000000</color>
@@ -44,8 +44,8 @@
     <!-- Selection State Colors -->
     <color name="chip_selected_bg">#FFFFAB60</color>
     <color name="chip_selected_text">#FF0C0C10</color>
-    <color name="chip_unselected_bg">#28FFFFFF</color>
-    <color name="chip_unselected_text">#D0FAFAFA</color>
+    <color name="chip_unselected_bg">#1CFFFFFF</color>
+    <color name="chip_unselected_text">#BBFAFAFA</color>
     
     <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>

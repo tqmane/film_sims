@@ -93,20 +93,20 @@ fun SettingsDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp)
+                .padding(horizontal = 20.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(32.dp))
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF1E1E28), Color(0xFF0D0D13))
+                            listOf(Color(0xFF1A1A22), Color(0xFF0A0A10))
                         )
                     )
-                    .border(1.dp, Color(0x28FFFFFF), RoundedCornerShape(28.dp))
+                    .border(1.dp, Color(0x1CFFFFFF), RoundedCornerShape(32.dp))
                     .verticalScroll(rememberScrollState())
-                    .padding(24.dp)
+                    .padding(28.dp)
             ) {
 
                 // ─── Title row ───────────────────────────────────────────────
@@ -116,31 +116,31 @@ fun SettingsDialog(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(11.dp))
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(13.dp))
                             .background(LiquidColors.AccentPrimary.copy(alpha = 0.15f))
-                            .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.25f), RoundedCornerShape(11.dp)),
+                            .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.25f), RoundedCornerShape(13.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_settings),
                             contentDescription = null,
                             tint = LiquidColors.AccentPrimary,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(22.dp)
                         )
                     }
-                    Spacer(Modifier.width(14.dp))
+                    Spacer(Modifier.width(16.dp))
                     Text(
                         stringResource(R.string.title_settings),
                         color = LiquidColors.TextHighEmphasis,
-                        fontSize = 20.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = FontFamily.SansSerif,
                         modifier = Modifier.weight(1f)
                     )
                     Box(
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(Color(0x16FFFFFF))
                             .border(1.dp, Color(0x1AFFFFFF), CircleShape)
@@ -154,7 +154,7 @@ fun SettingsDialog(
                             painter = painterResource(R.drawable.ic_close),
                             contentDescription = stringResource(R.string.btn_close),
                             tint = LiquidColors.TextMediumEmphasis,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(17.dp)
                         )
                     }
                 }
@@ -167,23 +167,23 @@ fun SettingsDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Color(0x12FFFFFF))
-                        .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape(14.dp))
-                        .padding(horizontal = 16.dp, vertical = 13.dp),
+                        .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 16.dp, vertical = 15.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_save),
                         contentDescription = null,
                         tint = LiquidColors.TextLowEmphasis,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(10.dp))
                     Text(
                         savePath,
                         color = LiquidColors.TextMediumEmphasis,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -191,20 +191,20 @@ fun SettingsDialog(
                     Spacer(Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .background(LiquidColors.AccentPrimary.copy(alpha = 0.15f))
                             .border(
                                 1.dp,
                                 LiquidColors.AccentPrimary.copy(alpha = 0.35f),
-                                RoundedCornerShape(8.dp)
+                                RoundedCornerShape(10.dp)
                             )
                             .clickable { showPathEditDialog = true }
-                            .padding(horizontal = 14.dp, vertical = 7.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         Text(
                             stringResource(R.string.btn_change),
                             color = LiquidColors.AccentPrimary,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -224,7 +224,7 @@ fun SettingsDialog(
                     Text(
                         "${qualityProgress.toInt()}%",
                         color = LiquidColors.AccentPrimary,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -248,7 +248,7 @@ fun SettingsDialog(
                     Text(
                         stringResource(R.string.pro_quality_limit),
                         color = LiquidColors.TextLowEmphasis,
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         modifier = Modifier.padding(start = 4.dp, top = 2.dp, bottom = 4.dp)
                     )
                 }
@@ -281,11 +281,11 @@ fun SettingsDialog(
                                 // Avatar initial circle
                                 Box(
                                     modifier = Modifier
-                                        .size(42.dp)
+                                        .size(46.dp)
                                         .clip(CircleShape)
                                         .background(LiquidColors.AccentPrimary.copy(alpha = 0.18f))
                                         .border(
-                                            1.5.dp,
+                                            2.dp,
                                             LiquidColors.AccentPrimary.copy(alpha = 0.45f),
                                             CircleShape
                                         ),
@@ -294,7 +294,7 @@ fun SettingsDialog(
                                     Text(
                                         (authState.userName?.firstOrNull()?.uppercaseChar() ?: '?').toString(),
                                         color = LiquidColors.AccentPrimary,
-                                        fontSize = 17.sp,
+                                        fontSize = 18.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -303,7 +303,7 @@ fun SettingsDialog(
                                     Text(
                                         authState.userName ?: "",
                                         color = LiquidColors.TextHighEmphasis,
-                                        fontSize = 14.sp,
+                                        fontSize = 15.sp,
                                         fontWeight = FontWeight.Medium,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
@@ -312,7 +312,7 @@ fun SettingsDialog(
                                     Text(
                                         authState.userEmail ?: "",
                                         color = LiquidColors.TextLowEmphasis,
-                                        fontSize = 12.sp,
+                                        fontSize = 13.sp,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
@@ -324,7 +324,7 @@ fun SettingsDialog(
                                     else stringResource(R.string.label_pro)
                                     Box(
                                         modifier = Modifier
-                                            .clip(RoundedCornerShape(20.dp))
+                                            .clip(RoundedCornerShape(22.dp))
                                             .background(
                                                 Brush.linearGradient(
                                                     listOf(
@@ -333,12 +333,12 @@ fun SettingsDialog(
                                                     )
                                                 )
                                             )
-                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                            .padding(horizontal = 12.dp, vertical = 4.dp)
                                     ) {
                                         Text(
                                             badgeText,
                                             color = Color(0xFF0C0C10),
-                                            fontSize = 10.sp,
+                                            fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -351,14 +351,14 @@ fun SettingsDialog(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clip(RoundedCornerShape(10.dp))
+                                        .clip(RoundedCornerShape(12.dp))
                                         .background(LiquidColors.AccentPrimary.copy(alpha = 0.10f))
                                         .border(
                                             1.dp,
                                             LiquidColors.AccentPrimary.copy(alpha = 0.25f),
-                                            RoundedCornerShape(10.dp)
+                                            RoundedCornerShape(12.dp)
                                         )
-                                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text("⚠", color = LiquidColors.AccentPrimary, fontSize = 13.sp)
@@ -366,7 +366,7 @@ fun SettingsDialog(
                                     Text(
                                         stringResource(R.string.label_license_version_mismatch, mismatchVer),
                                         color = LiquidColors.AccentPrimary,
-                                        fontSize = 12.sp,
+                                        fontSize = 13.sp,
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -378,10 +378,10 @@ fun SettingsDialog(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(46.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .height(48.dp)
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(Color(0x14FFFFFF))
-                                    .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(12.dp))
+                                    .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(14.dp))
                                     .clickable { onSignOut() },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -398,7 +398,7 @@ fun SettingsDialog(
                             Text(
                                 stringResource(R.string.sign_in_description),
                                 color = LiquidColors.TextLowEmphasis,
-                                fontSize = 13.sp,
+                                fontSize = 14.sp,
                                 lineHeight = 19.sp,
                                 modifier = Modifier.padding(bottom = 14.dp)
                             )
@@ -406,8 +406,8 @@ fun SettingsDialog(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(50.dp)
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .height(52.dp)
+                                    .clip(RoundedCornerShape(16.dp))
                                     .background(
                                         Brush.linearGradient(
                                             listOf(
@@ -422,7 +422,7 @@ fun SettingsDialog(
                                 Text(
                                     stringResource(R.string.btn_sign_in_google),
                                     color = Color.White,
-                                    fontSize = 14.sp,
+                                    fontSize = 15.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     fontFamily = FontFamily.SansSerif
                                 )
@@ -437,17 +437,17 @@ fun SettingsDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
-                        .clip(RoundedCornerShape(14.dp))
+                        .height(52.dp)
+                        .clip(RoundedCornerShape(16.dp))
                         .background(Color(0x14FFFFFF))
-                        .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(14.dp))
+                        .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(16.dp))
                         .clickable { onDismiss() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         stringResource(R.string.btn_close),
                         color = LiquidColors.TextHighEmphasis,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -481,9 +481,9 @@ private fun SettingsSectionLabel(
     Text(
         text.uppercase(),
         color = LiquidColors.TextLowEmphasis,
-        fontSize = 10.sp,
+        fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.14.sp,
+        letterSpacing = 0.18.sp,
         modifier = modifier.padding(start = 2.dp)
     )
 }
@@ -542,8 +542,8 @@ private fun PathEditDialog(
                 Text(stringResource(R.string.cancel), color = LiquidColors.TextMediumEmphasis)
             }
         },
-        containerColor = Color(0xFF1A1A22),
+        containerColor = Color(0xFF181820),
         titleContentColor = LiquidColors.TextHighEmphasis,
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(24.dp)
     )
 }
