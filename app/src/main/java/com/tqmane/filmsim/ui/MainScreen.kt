@@ -76,7 +76,6 @@ fun MainScreen(
         
         // UI toggles
         var isImmersive by rememberSaveable { mutableStateOf(false) }
-        var panelExpanded by rememberSaveable { mutableStateOf(true) }
         var showAdjustPanel by rememberSaveable { mutableStateOf(false) }
 
         val selectedBrandIndex by viewModel.selectedBrandIndex.collectAsState()
@@ -85,6 +84,10 @@ fun MainScreen(
         // Track UI heights for preview offset
         var topBarHeightPx by remember { mutableFloatStateOf(0f) }
         var bottomPanelHeightPx by remember { mutableFloatStateOf(0f) }
+
+        // Track if initial offset was applied to the preview
+        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+        var initialOffsetApplied by remember(viewState, configuration.orientation) { mutableStateOf(false) }
 
         // Handle UI events
         LaunchedEffect(Unit) {
@@ -121,7 +124,8 @@ fun MainScreen(
             val r = renderer ?: return@LaunchedEffect
             val gl = glSurfaceView ?: return@LaunchedEffect
             touchHandler?.resetZoom()
-            // We'll apply the vertical offset once height measurements are valid.
+            // Reset the initial offset flag so updateInitialBounds applies a smooth entrance
+            initialOffsetApplied = false
             val bmp = content.previewBitmap
             val lut = editState.currentLut
             val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
@@ -208,8 +212,6 @@ fun MainScreen(
         }
 
         // 6. 初期表示用のプレビューオフセット調整
-        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-        var initialOffsetApplied by remember(viewState, configuration.orientation) { mutableStateOf(false) }
         LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, configuration.orientation) {
             val content = viewState as? ViewState.Content
             if (content != null && !initialOffsetApplied && topBarHeightPx > 0f && bottomPanelHeightPx > 0f) {
@@ -394,8 +396,6 @@ fun MainScreen(
                             editState = editState,
                             watermarkState = watermarkState,
                             viewState = viewState,
-                            panelExpanded = panelExpanded,
-                            onTogglePanel = { panelExpanded = !panelExpanded },
                             glSurfaceView = glSurfaceView,
                             renderer = renderer,
                             isWatermarkActive = watermarkPreviewBitmap != null,
@@ -425,4 +425,3 @@ fun MainScreen(
         }
     }
 }
-

@@ -78,8 +78,6 @@ fun GlassControlPanel(
     editState: EditState,
     watermarkState: WatermarkState,
     viewState: ViewState,
-    panelExpanded: Boolean,
-    onTogglePanel: () -> Unit,
     glSurfaceView: GLSurfaceView?,
     renderer: FilmSimRenderer?,
     isWatermarkActive: Boolean,
@@ -182,10 +180,9 @@ private fun LiquidBrandGenreLutSection(
         snapshotFlow { categoryListState.firstVisibleItemIndex }.collect { viewModel.setCategoryScrollIndex(it) }
     }
 
-    val brandListState2 = brandListState // alias for clarity
     // Brand chips
     LazyRow(
-        state = brandListState2,
+        state = brandListState,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.padding(bottom = 10.dp)
     ) {

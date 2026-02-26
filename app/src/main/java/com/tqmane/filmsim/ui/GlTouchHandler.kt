@@ -29,8 +29,9 @@ class GlTouchHandler(
     private var initialOffsetY = 0f
     private var initialZoom = 1f
 
-    // Smooth animation for reset
+    // Smooth animation for reset / initial positioning
     private var resetAnimator: ValueAnimator? = null
+    private var isFirstAppearance: Boolean = true
 
     private val scaleDetector = ScaleGestureDetector(glSurfaceView.context,
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -80,9 +81,9 @@ class GlTouchHandler(
 
     /**
      * Animate smoothly to the reset position (initial zoom + offset).
-     * Uses a 400ms decelerate animation for a polished feel.
+     * Uses a polished decelerate animation.
      */
-    private fun animateToReset() {
+    private fun animateToReset(durationMs: Long = 400) {
         resetAnimator?.cancel()
 
         // Capture current state
@@ -99,8 +100,52 @@ class GlTouchHandler(
         val targetTy = if (h > 0f) h / 2f * (1f - targetScale) + initialOffsetY else initialOffsetY
 
         resetAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 400
+            duration = durationMs
             interpolator = DecelerateInterpolator(2f)
+            addUpdateListener { animator ->
+                val t = animator.animatedValue as Float
+
+                val curScale = fromScale + (targetScale - fromScale) * t
+                val curTx = fromTx + (targetTx - fromTx) * t
+                val curTy = fromTy + (targetTy - fromTy) * t
+
+                matrix.setScale(curScale, curScale)
+                matrix.postTranslate(curTx, curTy)
+                applyTransform()
+            }
+            start()
+        }
+    }
+
+    /**
+     * Smooth entrance animation for the first image appearance.
+     * Starts from a slightly zoomed-out + lower position and animates to the correct bounds.
+     */
+    private fun animateToInitialPosition() {
+        resetAnimator?.cancel()
+
+        val w = glSurfaceView.width.toFloat()
+        val h = glSurfaceView.height.toFloat()
+        if (w <= 0f || h <= 0f) { resetZoom(); return }
+
+        // Start state: slightly smaller and shifted down for a gentle entrance
+        val fromScale = initialZoom * 0.92f
+        val fromTx = w / 2f * (1f - fromScale)
+        val fromTy = h / 2f * (1f - fromScale) + initialOffsetY + h * 0.02f
+
+        // Target state
+        val targetScale = initialZoom
+        val targetTx = w / 2f * (1f - targetScale)
+        val targetTy = h / 2f * (1f - targetScale) + initialOffsetY
+
+        // Set starting position immediately
+        matrix.setScale(fromScale, fromScale)
+        matrix.postTranslate(fromTx, fromTy)
+        applyTransform()
+
+        resetAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 500
+            interpolator = DecelerateInterpolator(1.8f)
             addUpdateListener { animator ->
                 val t = animator.animatedValue as Float
 
@@ -138,7 +183,8 @@ class GlTouchHandler(
         val viewH = glSurfaceView.height.toFloat()
         if (viewW <= 0f || viewH <= 0f || imageWidth <= 0 || imageHeight <= 0) return
 
-        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.1f) // Ensure minimum 10% height
+        // Ensure minimum 15% height to prevent overly crushed previews
+        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.15f)
         
         // Calculate the base scale that the shader applies automatically first
         val imgRatio = imageWidth.toFloat() / imageHeight.toFloat()
@@ -151,31 +197,41 @@ class GlTouchHandler(
         
         val baseScreenHeightOccupied = viewH * shaderScaleY
 
-        // We want the occupied height to match availableH exactly
-        // Cap at 0.95 to leave visual breathing room around the image
+        // Scale to fit available area with adaptive breathing room:
+        //  - Tall images (occupy most of screen): 4% margin
+        //  - Wide/square images (smaller footprint): less margin needed
+        val breathingMargin = if (baseScreenHeightOccupied > availableH * 0.9f) 0.96f else 0.98f
         initialZoom = if (baseScreenHeightOccupied > availableH) {
-            (availableH / baseScreenHeightOccupied).coerceAtMost(0.95f)
+            (availableH / baseScreenHeightOccupied) * breathingMargin
         } else {
             1f
         }
 
-        // Adjust offsetY to center in available space
+        // Center the image vertically in the available area between UI elements
         val availableCenterY = topBarH + availableH / 2f
         val screenCenterY = viewH / 2f
         initialOffsetY = availableCenterY - screenCenterY
-        resetZoom()
+
+        // Use smooth entrance animation on first load; snap on subsequent updates
+        if (isFirstAppearance) {
+            isFirstAppearance = false
+            animateToInitialPosition()
+        } else {
+            resetZoom()
+        }
     }
 
     /**
      * Re-center the preview when immersive mode changes.
      * Smoothly adjusts offset to account for changed top/bottom UI heights.
+     * Uses a longer animation for a polished feel during mode transitions.
      */
     fun updateForImmersiveChange(topBarH: Float, panelH: Float) {
         val viewW = glSurfaceView.width.toFloat()
         val viewH = glSurfaceView.height.toFloat()
         if (viewW <= 0f || viewH <= 0f) return
 
-        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.1f)
+        val availableH = kotlin.math.max(viewH - topBarH - panelH, viewH * 0.15f)
         val availableCenterY = topBarH + availableH / 2f
         val screenCenterY = viewH / 2f
         val newOffsetY = availableCenterY - screenCenterY
@@ -183,7 +239,8 @@ class GlTouchHandler(
         // Only animate if offset actually changed
         if (kotlin.math.abs(newOffsetY - initialOffsetY) > 1f) {
             initialOffsetY = newOffsetY
-            animateToReset()
+            // Slightly longer animation syncs with UI slide animations
+            animateToReset(durationMs = 450)
         }
     }
 

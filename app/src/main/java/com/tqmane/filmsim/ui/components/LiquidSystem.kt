@@ -2,7 +2,6 @@ package com.tqmane.filmsim.ui.components
 
 import android.graphics.Bitmap
 import android.graphics.Shader
-import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -405,18 +404,9 @@ fun LiquidButton(
         label = "button_scale"
     )
     
-    val bounceScale by animateFloatAsState(
-        targetValue = if (!isPressed && scale < 0.95f) 1.05f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "button_bounce"
-    )
-    
     Box(
         modifier = modifier
-            .scale(scale * bounceScale)
+            .scale(scale)
             .height(LiquidDimensions.ButtonHeight)
             .clip(RoundedCornerShape(22.dp))
             .background(
@@ -752,7 +742,7 @@ fun LiquidLutCard(
                         }
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "調整",
+                            text = stringResource(R.string.adjustments),
                             color = Color.White,
                             fontSize = 8.sp,
                             fontFamily = FontFamily.SansSerif,
