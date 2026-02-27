@@ -70,17 +70,29 @@ class ProUserRepository @Inject constructor(
         val normalizedEmail = email.trim().lowercase()
         Log.d(TAG, "Querying pro_users and android where email == '$normalizedEmail'")
         try {
-            val proUsersSnap = firestore.collection("pro_users")
-                .whereArrayContains("emails", normalizedEmail)
-                .get()
-                .await()
+            val proUsersDocs = try {
+                firestore.collection("pro_users")
+                    .whereArrayContains("emails", normalizedEmail)
+                    .get()
+                    .await()
+                    .documents
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to query pro_users: ${e.message}")
+                emptyList()
+            }
 
-            val androidSnap = firestore.collection("android")
-                .whereArrayContains("emails", normalizedEmail)
-                .get()
-                .await()
+            val androidDocs = try {
+                firestore.collection("android")
+                    .whereArrayContains("emails", normalizedEmail)
+                    .get()
+                    .await()
+                    .documents
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to query android: ${e.message}")
+                emptyList()
+            }
 
-            val allDocs = proUsersSnap.documents + androidSnap.documents
+            val allDocs = proUsersDocs + androidDocs
             
             var found = false
             var mismatchVersion: String? = null
