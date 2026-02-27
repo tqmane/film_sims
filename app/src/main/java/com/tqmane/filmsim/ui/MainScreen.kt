@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -92,9 +93,15 @@ fun MainScreen(
         var topBarHeightPx by remember { mutableFloatStateOf(0f) }
         var bottomPanelHeightPx by remember { mutableFloatStateOf(0f) }
 
+        // Track GLSurfaceView actual measured size.
+        // updateInitialBounds must only run AFTER the view has the correct size for the
+        // current orientation — using these as keys ensures the LaunchedEffect re-fires only
+        // when the view has been laid out with the new dimensions (not stale portrait values).
+        var glViewWidthPx by remember { mutableIntStateOf(0) }
+        var glViewHeightPx by remember { mutableIntStateOf(0) }
+
         // Track if initial offset was applied to the preview
-        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-        var initialOffsetApplied by remember(viewState, configuration.orientation) { mutableStateOf(false) }
+        var initialOffsetApplied by remember(viewState, glViewWidthPx, glViewHeightPx) { mutableStateOf(false) }
 
         // Handle UI events
         LaunchedEffect(Unit) {
@@ -219,9 +226,14 @@ fun MainScreen(
         }
 
         // 6. 初期表示用のプレビューオフセット調整
-        LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, configuration.orientation) {
+        // glViewWidthPx/Height をキーに含めることで、画面回転後に GLSurfaceView が
+        // 新しい向きの正しいサイズになってから updateInitialBounds を呼び出す。
+        LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, glViewWidthPx, glViewHeightPx) {
             val content = viewState as? ViewState.Content
-            if (content != null && !initialOffsetApplied && topBarHeightPx > 0f && bottomPanelHeightPx > 0f) {
+            if (content != null && !initialOffsetApplied
+                && topBarHeightPx > 0f && bottomPanelHeightPx > 0f
+                && glViewWidthPx > 0 && glViewHeightPx > 0
+            ) {
                 touchHandler?.updateInitialBounds(
                     content.previewBitmap.width, 
                     content.previewBitmap.height, 
@@ -299,7 +311,12 @@ fun MainScreen(
                             touchHandler = th
                         }
                     },
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned { coords ->
+                            glViewWidthPx = coords.size.width
+                            glViewHeightPx = coords.size.height
+                        },
                     update = { view ->
                          view.visibility = if (viewState is ViewState.Content) android.view.View.VISIBLE else android.view.View.GONE
                     }
