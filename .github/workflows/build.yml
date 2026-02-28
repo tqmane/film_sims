@@ -15,9 +15,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Build Debug APK
         run: |
           chmod +x gradlew
