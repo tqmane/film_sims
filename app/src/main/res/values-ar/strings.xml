@@ -90,6 +90,7 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">ترخيص دائم</string>
     <string name="label_license_version_mismatch">ترخيصك يقتصر على الإصدار %1$s!</string>
+    <string name="label_purchase_license">شراء ترخيص ← tqmane.booth.pm</string>
 
     <!-- Translated UI additions -->
     <string name="adjustments">تعديلات</string>

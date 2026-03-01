@@ -13,6 +13,7 @@ import com.tqmane.filmsim.di.IoDispatcher
 import com.tqmane.filmsim.domain.ImageLoadUseCase
 import com.tqmane.filmsim.domain.LutApplyUseCase
 import com.tqmane.filmsim.domain.WatermarkUseCase
+import com.tqmane.filmsim.domain.SecurityCheckUseCase
 import com.tqmane.filmsim.gl.GlCommandExecutor
 import com.tqmane.filmsim.gl.GpuExportRenderer
 import com.tqmane.filmsim.util.SettingsManager
@@ -44,6 +45,7 @@ class MainViewModel @Inject constructor(
     val settings: SettingsManager,
     val brands: List<LutBrand>,
     private val updateChecker: UpdateCheckerWrapper,
+    private val securityCheck: SecurityCheckUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -102,10 +104,6 @@ class MainViewModel @Inject constructor(
 
     private var watermarkPreviewJob: Job? = null
 
-    // ─── Cached GPU export renderer (set from UI layer) ─
-
-    var gpuExportRenderer: GpuExportRenderer? = null
-
     // ─── Image loading ──────────────────────────────────
 
     fun loadImage(uri: Uri) {
@@ -147,7 +145,7 @@ class MainViewModel @Inject constructor(
     // ─── LUT application ────────────────────────────────
 
     fun applyLut(lutItem: LutItem) {
-        if (!com.tqmane.filmsim.util.SecurityManager.isEnvironmentTrusted(context)) return
+        if (!securityCheck.isTrusted()) return
 
         val path = lutItem.assetPath
         _editState.value = _editState.value.copy(currentLutPath = path, hasSelectedLut = true)
@@ -259,13 +257,14 @@ class MainViewModel @Inject constructor(
      */
     fun saveHighResImage(
         glExecutor: GlCommandExecutor,
+        gpuExportRenderer: GpuExportRenderer?,
         onCpuFallback: () -> Unit
     ) {
         val state = _viewState.value as? ViewState.Content ?: return
         val edit = _editState.value
         val wm = _watermarkState.value
 
-        if (!com.tqmane.filmsim.util.SecurityManager.isEnvironmentTrusted(context)) {
+        if (!securityCheck.isTrusted()) {
             viewModelScope.launch {
                 _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
             }
@@ -287,12 +286,10 @@ class MainViewModel @Inject constructor(
                     var outputBitmap: Bitmap? = runCatching {
                         glExecutor.execute {
                             if (gpuExportRenderer == null) {
-                                // GpuExportRenderer needs a Context; created on GL thread
-                                // The UI layer must set gpuExportRenderer before calling save
                                 throw IllegalStateException("GpuExportRenderer not initialized")
                             }
-                            gpuExportRenderer!!.setGrainStyle(edit.grainStyle)
-                            gpuExportRenderer!!.renderHighRes(
+                            gpuExportRenderer.setGrainStyle(edit.grainStyle)
+                            gpuExportRenderer.renderHighRes(
                                 sourceBitmap, lut, effectiveIntensity,
                                 edit.grainEnabled, edit.grainIntensity, 4.0f
                             )
@@ -365,7 +362,5 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        gpuExportRenderer?.release()
-        gpuExportRenderer = null
     }
 }

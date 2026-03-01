@@ -103,6 +103,8 @@ object LutRepository {
             "effect" -> context.getString(R.string.category_xiaomi_effect)
             "film" -> context.getString(R.string.category_xiaomi_film)
             "leica" -> context.getString(R.string.category_xiaomi_leica)
+            "leica_m9" -> context.getString(R.string.category_xiaomi_leica_m9)
+            "leica_m3" -> context.getString(R.string.category_xiaomi_leica_m3)
             "normal" -> context.getString(R.string.category_xiaomi_normal)
             "portrait" -> context.getString(R.string.category_xiaomi_portrait)
             "video" -> context.getString(R.string.category_xiaomi_video)
@@ -238,6 +240,33 @@ object LutRepository {
             "Leica_lux" -> context.getString(R.string.brand_leica_lux)
             "Leica_FOTOS" -> context.getString(R.string.brand_leica_fotos)
             else -> brandName
+        }
+    }
+
+    // Xiaomi Leica M9 LUT filename to display name
+    private fun getXiaomiM9LutName(fileName: String): String {
+        return when {
+            fileName.equals("m9_warm_low_light", ignoreCase = true) -> "Warm Low Light"
+            fileName.equals("m9_tungsten_a", ignoreCase = true) -> "Tungsten A"
+            fileName.equals("m9_tungsten_b", ignoreCase = true) -> "Tungsten B"
+            fileName.equals("m9_studio_mixed", ignoreCase = true) -> "Studio Mixed"
+            fileName.equals("m9_fluorescent", ignoreCase = true) -> "Fluorescent"
+            fileName.equals("m9_warm_neutral", ignoreCase = true) -> "Warm Neutral"
+            fileName.equals("m9_cool_daylight", ignoreCase = true) -> "Cool Daylight"
+            else -> fileName.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.titlecase() } }
+        }
+    }
+
+    // Xiaomi Leica M3 LUT filename to display name
+    private fun getXiaomiM3LutName(fileName: String): String {
+        return when {
+            fileName.equals("leica_monopan", ignoreCase = true) -> "Monopan"
+            fileName.equals("m9_mono_cool_daylight", ignoreCase = true) -> "M9 Cool Daylight"
+            fileName.equals("m9_mono_daylight_outdoor", ignoreCase = true) -> "M9 Daylight Outdoor"
+            fileName.equals("m9_mono_mixed_light", ignoreCase = true) -> "M9 Mixed Light"
+            fileName.equals("m9_mono_tungsten_indoor", ignoreCase = true) -> "M9 Tungsten Indoor"
+            fileName.equals("m9_mono_warm_tungsten_classic", ignoreCase = true) -> "M9 Warm Tungsten"
+            else -> fileName.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.titlecase() } }
         }
     }
     
@@ -466,10 +495,14 @@ object LutRepository {
                         val selectedFile = selectBestVariant(variants)
 
                         val isFilmCategory = categoryName == "Film"
+                        val isXiaomiM9Category = categoryName == "leica_m9"
+                        val isXiaomiMonoCategory = categoryName == "leica_m3"
                         val displayName = when {
                             isLeicaLux -> getLeicaLuxFilterName(context, baseName)
                             isLeicaFotos -> getLeicaFotosFilterName(context, baseName)
                             isFilmCategory -> getFilmLutName(context, baseName)
+                            isXiaomiM9Category -> getXiaomiM9LutName(baseName)
+                            isXiaomiMonoCategory -> getXiaomiM3LutName(baseName)
                             isVivo -> getVivoFilterName(baseName)
                             isHonor -> getHonorFilterName(context, baseName)
                             isMeizu -> getMeizuFilterName(context, baseName, categoryName)

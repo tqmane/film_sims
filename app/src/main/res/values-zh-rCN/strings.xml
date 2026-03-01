@@ -149,6 +149,7 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">永久许可证</string>
     <string name="label_license_version_mismatch">您的许可证仅限于版本 %1$s！</string>
+    <string name="label_purchase_license">购买许可证 → tqmane.booth.pm</string>
 
     <!-- Translated UI additions -->
     <string name="adjustments">调整</string>

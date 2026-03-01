@@ -55,6 +55,10 @@ class ProUserRepository @Inject constructor(
     private val _isPermanentLicense = MutableStateFlow(false)
     val isPermanentLicense: StateFlow<Boolean> = _isPermanentLicense.asStateFlow()
 
+    /** True when the last pro check failed due to a network/Firestore error (not "non-Pro"). */
+    private val _proCheckNetworkError = MutableStateFlow(false)
+    val proCheckNetworkError: StateFlow<Boolean> = _proCheckNetworkError.asStateFlow()
+
     /**
      * Firestore の pro_users および android コレクションを email フィールドで検索する。
      * ドキュメントが見つかれば Pro ユーザーと判定。
@@ -69,18 +73,34 @@ class ProUserRepository @Inject constructor(
         }
         val normalizedEmail = email.trim().lowercase()
         Log.d(TAG, "Querying pro_users and android where email == '$normalizedEmail'")
+
+        var hadNetworkError = false
         try {
-            val proUsersSnap = firestore.collection("pro_users")
-                .whereArrayContains("emails", normalizedEmail)
-                .get()
-                .await()
+            val proUsersDocs = try {
+                firestore.collection("pro_users")
+                    .whereArrayContains("emails", normalizedEmail)
+                    .get()
+                    .await()
+                    .documents
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to query pro_users: ${e.message}")
+                hadNetworkError = true
+                emptyList()
+            }
 
-            val androidSnap = firestore.collection("android")
-                .whereArrayContains("emails", normalizedEmail)
-                .get()
-                .await()
+            val androidDocs = try {
+                firestore.collection("android")
+                    .whereArrayContains("emails", normalizedEmail)
+                    .get()
+                    .await()
+                    .documents
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to query android: ${e.message}")
+                hadNetworkError = true
+                emptyList()
+            }
 
-            val allDocs = proUsersSnap.documents + androidSnap.documents
+            val allDocs = proUsersDocs + androidDocs
             
             var found = false
             var mismatchVersion: String? = null
@@ -119,12 +139,15 @@ class ProUserRepository @Inject constructor(
             _isProUser.value = found
             _licenseMismatchVersion.value = if (!found) mismatchVersion else null
             _isPermanentLicense.value = isPermanent
+            // Only report network error if we got no docs at all (both queries failed)
+            _proCheckNetworkError.value = hadNetworkError && allDocs.isEmpty()
             
         } catch (e: Exception) {
             Log.e(TAG, "Firestore query FAILED: ${e.javaClass.simpleName}: ${e.message}")
             _isProUser.value = false
             _licenseMismatchVersion.value = null
             _isPermanentLicense.value = false
+            _proCheckNetworkError.value = true
         } finally {
             Log.d(TAG, "Final isProUser=${_isProUser.value}, mismatchVersion=${_licenseMismatchVersion.value}")
         }
@@ -134,5 +157,6 @@ class ProUserRepository @Inject constructor(
         _isProUser.value = false
         _licenseMismatchVersion.value = null
         _isPermanentLicense.value = false
+        _proCheckNetworkError.value = false
     }
 }

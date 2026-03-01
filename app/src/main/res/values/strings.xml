@@ -52,6 +52,8 @@
     <string name="category_xiaomi_effect">Effects</string>
     <string name="category_xiaomi_film">Film</string>
     <string name="category_xiaomi_leica">Leica Style</string>
+    <string name="category_xiaomi_leica_m9">Leica M9</string>
+    <string name="category_xiaomi_leica_m3">Leica M3</string>
     <string name="category_xiaomi_normal">Normal</string>
     <string name="category_xiaomi_portrait">Portrait</string>
     <string name="category_xiaomi_video">Video</string>
@@ -303,4 +305,5 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">Permanent License</string>
     <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>
+    <string name="label_purchase_license">Purchase a License → tqmane.booth.pm</string>
 </resources>

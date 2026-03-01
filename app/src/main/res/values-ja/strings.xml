@@ -176,6 +176,7 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">永続ライセンス</string>
     <string name="label_license_version_mismatch">あなたのライセンスは%1$s限定です！</string>
+    <string name="label_purchase_license">ライセンス購入はこちら → tqmane.booth.pm</string>
 
     <!-- Translated UI additions -->
     <string name="adjustments">調整</string>

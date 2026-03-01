@@ -90,6 +90,7 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">Licenza Permanente</string>
     <string name="label_license_version_mismatch">La tua licenza è limitata alla versione %1$s!</string>
+    <string name="label_purchase_license">Acquista una licenza → tqmane.booth.pm</string>
 
     <!-- Translated UI additions -->
     <string name="adjustments">Regolazioni</string>
