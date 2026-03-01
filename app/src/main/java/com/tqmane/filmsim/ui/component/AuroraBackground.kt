@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui.components
+package com.tqmane.filmsim.ui.component
 
 import android.graphics.Bitmap
 import android.graphics.Shader
@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -27,14 +28,13 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.foundation.background
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
 /**
  * Animated background with aurora mesh gradient and film grain noise overlay.
  */
 @Composable
-fun LivingBackground(
+fun AuroraBackground(
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "aurora")

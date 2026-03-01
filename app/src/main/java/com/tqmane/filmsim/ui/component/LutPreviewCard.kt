@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui.components
+package com.tqmane.filmsim.ui.component
 
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,9 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -59,16 +58,11 @@ import com.tqmane.filmsim.util.LutBitmapProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// LIQUID CARD - For LUT items with selection glow
-// ═══════════════════════════════════════════════════════════════════════════════
-
 /**
- * Liquid-style card for LUT preview items.
- * Features animated selection state with glow effect.
+ * Liquid-style card for LUT preview items with async thumbnail generation.
  */
 @Composable
-fun LiquidLutCard(
+fun LutPreviewCard(
     item: LutItem,
     thumbnailBitmap: Bitmap?,
     selected: Boolean,
@@ -78,7 +72,6 @@ fun LiquidLutCard(
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
 
-    // Async LUT preview — avoids blocking the Compose render thread
     var previewBitmap by remember(item.assetPath, thumbnailBitmap) {
         mutableStateOf<Bitmap?>(null)
     }
@@ -100,13 +93,13 @@ fun LiquidLutCard(
             isLoadingPreview = false
         }
     }
-    
+
     val borderColor by animateColorAsState(
         targetValue = if (selected) LiquidColors.AccentPrimary else Color.Transparent,
         animationSpec = tween(300),
         label = "card_border"
     )
-    
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -149,7 +142,6 @@ fun LiquidLutCard(
                 )
             }
 
-            // Shimmer overlay while LUT preview is being generated
             if (isLoadingPreview) {
                 val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
                 val shimmerAlpha by shimmerTransition.animateFloat(
@@ -167,8 +159,7 @@ fun LiquidLutCard(
                         .background(LiquidColors.GlassSurface.copy(alpha = shimmerAlpha))
                 )
             }
-            
-            // Selection glow overlay
+
             if (selected) {
                 Box(
                     modifier = Modifier
@@ -182,7 +173,6 @@ fun LiquidLutCard(
                             )
                         )
                 )
-                // Adjust hint overlay — bottom scrim with sliders icon + label
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -202,52 +192,29 @@ fun LiquidLutCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        // Sliders icon drawn with Canvas (matching sketch)
                         androidx.compose.foundation.Canvas(modifier = Modifier.size(13.dp)) {
                             val w = size.width
                             val h = size.height
                             val stroke = 1.6.dp.toPx()
                             val knobR = 2.4.dp.toPx()
-                            // Top slider line
                             drawLine(
                                 color = Color.White,
                                 start = Offset(0f, h * 0.28f),
                                 end = Offset(w, h * 0.28f),
                                 strokeWidth = stroke,
-                                cap = androidx.compose.ui.graphics.StrokeCap.Round
+                                cap = StrokeCap.Round
                             )
-                            // Top slider knob (filled circle)
-                            drawCircle(
-                                color = Color.White,
-                                radius = knobR,
-                                center = Offset(w * 0.68f, h * 0.28f)
-                            )
-                            // Top knob inner (dark fill to make it a ring)
-                            drawCircle(
-                                color = Color.Black.copy(alpha = 0.6f),
-                                radius = knobR * 0.45f,
-                                center = Offset(w * 0.68f, h * 0.28f)
-                            )
-                            // Bottom slider line
+                            drawCircle(color = Color.White, radius = knobR, center = Offset(w * 0.68f, h * 0.28f))
+                            drawCircle(color = Color.Black.copy(alpha = 0.6f), radius = knobR * 0.45f, center = Offset(w * 0.68f, h * 0.28f))
                             drawLine(
                                 color = Color.White,
                                 start = Offset(0f, h * 0.72f),
                                 end = Offset(w, h * 0.72f),
                                 strokeWidth = stroke,
-                                cap = androidx.compose.ui.graphics.StrokeCap.Round
+                                cap = StrokeCap.Round
                             )
-                            // Bottom slider knob (filled circle)
-                            drawCircle(
-                                color = Color.White,
-                                radius = knobR,
-                                center = Offset(w * 0.32f, h * 0.72f)
-                            )
-                            // Bottom knob inner
-                            drawCircle(
-                                color = Color.Black.copy(alpha = 0.6f),
-                                radius = knobR * 0.45f,
-                                center = Offset(w * 0.32f, h * 0.72f)
-                            )
+                            drawCircle(color = Color.White, radius = knobR, center = Offset(w * 0.32f, h * 0.72f))
+                            drawCircle(color = Color.Black.copy(alpha = 0.6f), radius = knobR * 0.45f, center = Offset(w * 0.32f, h * 0.72f))
                         }
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
@@ -262,7 +229,7 @@ fun LiquidLutCard(
                 }
             }
         }
-        
+
         Text(
             item.name,
             color = if (selected) LiquidColors.TextHighEmphasis else LiquidColors.TextMediumEmphasis,

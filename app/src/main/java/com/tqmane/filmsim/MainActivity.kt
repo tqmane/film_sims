@@ -19,7 +19,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.ui.AuthViewModel
-import com.tqmane.filmsim.ui.MainScreen
+import com.tqmane.filmsim.ui.editor.EditorScreen
 import com.tqmane.filmsim.ui.EditorViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 /**
  * Single Activity – acts only as the Compose host and DI entry-point.
- * All UI logic lives in [MainScreen] composable and [EditorViewModel].
+ * All UI logic lives in [EditorScreen] composable and [EditorViewModel].
  *
  * CredentialManager is intentionally kept here because it requires an Activity
  * context (per the Jetpack Credential Manager API spec). The ViewModel only
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen(
+            EditorScreen(
                 viewModel = vm,
                 authViewModel = authVm,
                 onPickImage = { launchPicker() },

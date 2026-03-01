@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui
+package com.tqmane.filmsim.ui.editor.panel
 
 import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
@@ -23,17 +23,17 @@ import com.tqmane.filmsim.R
 import com.tqmane.filmsim.data.LutBrand
 import com.tqmane.filmsim.data.LutItem
 import com.tqmane.filmsim.gl.FilmSimRenderer
-import com.tqmane.filmsim.ui.components.GlassBottomSheet
-import com.tqmane.filmsim.ui.components.LiquidChip
-import com.tqmane.filmsim.ui.components.LiquidLutCard
-import com.tqmane.filmsim.ui.components.LiquidSectionHeader
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// GLASS CONTROL PANEL - Bottom sheet with controls
-// ═══════════════════════════════════════════════════════════════════════════════
+import com.tqmane.filmsim.ui.EditState
+import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.ViewState
+import com.tqmane.filmsim.ui.WatermarkState
+import com.tqmane.filmsim.ui.component.GlassBottomSheet
+import com.tqmane.filmsim.ui.component.LiquidChip
+import com.tqmane.filmsim.ui.component.LiquidSectionHeader
+import com.tqmane.filmsim.ui.component.LutPreviewCard
 
 @Composable
-fun GlassControlPanel(
+fun LutSelectorPanel(
     viewModel: EditorViewModel,
     editState: EditState,
     watermarkState: WatermarkState,
@@ -56,7 +56,7 @@ fun GlassControlPanel(
         squareTop = squareTop
     ) {
         LiquidSectionHeader(stringResource(R.string.header_camera))
-        LiquidBrandGenreLutSection(
+        BrandGenreLutSection(
             viewModel.brands, viewModel, viewState, editState, watermarkState,
             glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark,
             onLutReselected = onLutReselected,
@@ -69,12 +69,8 @@ fun GlassControlPanel(
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// BRAND/GENRE/LUT SECTION
-// ═══════════════════════════════════════════════════════════════════════════════
-
 @Composable
-private fun LiquidBrandGenreLutSection(
+private fun BrandGenreLutSection(
     brands: List<LutBrand>,
     viewModel: EditorViewModel,
     viewState: ViewState,
@@ -94,8 +90,6 @@ private fun LiquidBrandGenreLutSection(
     val context = LocalContext.current
     val freeBrands = setOf("TECNO", "Nothing", "Nubia")
 
-    // 非Proユーザーがlockedブランド（Honor等）を初期選択していた場合、
-    // 最初のfreeブランドへ強制リセットする
     LaunchedEffect(isProUser, brands.size) {
         if (!isProUser && brands.isNotEmpty()) {
             val currentBrand = brands.getOrNull(selectedBrandIndex)
@@ -112,7 +106,6 @@ private fun LiquidBrandGenreLutSection(
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
 
-    // Scroll states backed by ViewModel for persistence across recomposition
     val brandScrollIndex by viewModel.brandScrollIndex.collectAsState()
     val categoryScrollIndex by viewModel.categoryScrollIndex.collectAsState()
     val lutScrollIndex by viewModel.lutScrollIndex.collectAsState()
@@ -120,7 +113,6 @@ private fun LiquidBrandGenreLutSection(
     val brandListState = rememberLazyListState()
     val categoryListState = rememberLazyListState()
 
-    // Restore scroll positions on recomposition
     LaunchedEffect(brandScrollIndex) {
         if (brandListState.firstVisibleItemIndex != brandScrollIndex) {
             brandListState.scrollToItem(brandScrollIndex.coerceAtMost((brands.size - 1).coerceAtLeast(0)))
@@ -132,7 +124,6 @@ private fun LiquidBrandGenreLutSection(
         }
     }
 
-    // Save scroll positions on scroll
     LaunchedEffect(brandListState) {
         snapshotFlow { brandListState.firstVisibleItemIndex }.collect { viewModel.setBrandScrollIndex(it) }
     }
@@ -183,25 +174,19 @@ private fun LiquidBrandGenreLutSection(
         }
     }
 
-    // Intensity slider removed — now in LiquidAdjustPanel
-
     LiquidSectionHeader(stringResource(R.string.header_presets))
 
-    // LUT cards - re-tap selected card to open adjust panel
-    // クラック耐性: LUTカード選択時にもProチェックを二重実施
     val currentBrand = brands.getOrNull(selectedBrandIndex)
     val isCurrentBrandLocked = currentBrand != null && currentBrand.name !in freeBrands && !isProUser
-    LiquidLutRow(
+    LutRow(
         items = lutItems,
         thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap,
         onLutSelected = { item ->
-            // Proが必要なブランドのフィルターはサーバー確認が完了するまで適用しない
             if (isCurrentBrandLocked) {
                 Toast.makeText(context, context.getString(R.string.pro_brand_locked), Toast.LENGTH_SHORT).show()
-                return@LiquidLutRow
+                return@LutRow
             }
             if (item.assetPath == editState.currentLutPath) {
-                // Already selected → toggle adjust panel
                 onLutReselected()
             } else {
                 viewModel.applyLut(item)
@@ -213,12 +198,8 @@ private fun LiquidBrandGenreLutSection(
     )
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// LUT ROW
-// ═══════════════════════════════════════════════════════════════════════════════
-
 @Composable
-private fun LiquidLutRow(
+private fun LutRow(
     items: List<LutItem>,
     thumbnailBitmap: Bitmap?,
     onLutSelected: (LutItem) -> Unit,
@@ -227,25 +208,21 @@ private fun LiquidLutRow(
     onScrollIndexChanged: (Int) -> Unit = {}
 ) {
     val lutListState = rememberLazyListState()
-
-    // Restore scroll position
     LaunchedEffect(savedScrollIndex) {
         if (lutListState.firstVisibleItemIndex != savedScrollIndex) {
             lutListState.scrollToItem(savedScrollIndex.coerceAtMost((items.size - 1).coerceAtLeast(0)))
         }
     }
-    // Save scroll position
     LaunchedEffect(lutListState) {
         snapshotFlow { lutListState.firstVisibleItemIndex }.collect { onScrollIndexChanged(it) }
     }
-
     LazyRow(
         state = lutListState,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.height(130.dp)
     ) {
         itemsIndexed(items) { index, item ->
-            LiquidLutCard(
+            LutPreviewCard(
                 item = item,
                 thumbnailBitmap = thumbnailBitmap,
                 selected = item.assetPath == currentLutPath,

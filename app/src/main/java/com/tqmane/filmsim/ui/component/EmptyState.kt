@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui.components
+package com.tqmane.filmsim.ui.component
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -42,21 +42,16 @@ import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PLACEHOLDER CONTENT - Empty state display
-// ═══════════════════════════════════════════════════════════════════════════════
-
 /**
- * Placeholder content shown when no image is loaded
+ * Placeholder content shown when no image is loaded.
  */
 @Composable
-fun LiquidPlaceholderContent(
+fun EmptyState(
     onPickImage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
 
-    // Breathing animation for placeholder icon
     val infiniteTransition = rememberInfiniteTransition(label = "placeholder_breath")
     val breathScale by infiniteTransition.animateFloat(
         initialValue = 0.92f,
@@ -85,9 +80,7 @@ fun LiquidPlaceholderContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Pulsing icon with glow ring
         Box(contentAlignment = Alignment.Center) {
-            // Outer glow ring
             Box(
                 modifier = Modifier
                     .size(130.dp)
@@ -96,7 +89,6 @@ fun LiquidPlaceholderContent(
                     .clip(RoundedCornerShape(28.dp))
                     .background(LiquidColors.AccentPrimary.copy(alpha = 0.12f))
             )
-            // Icon container
             Box(
                 modifier = Modifier
                     .size(96.dp)
@@ -127,7 +119,7 @@ fun LiquidPlaceholderContent(
                 )
             }
         }
-        
+
         Text(
             stringResource(R.string.label_pick_image),
             color = LiquidColors.TextHighEmphasis,
@@ -137,7 +129,7 @@ fun LiquidPlaceholderContent(
             letterSpacing = 0.005.sp,
             modifier = Modifier.padding(top = 32.dp)
         )
-        
+
         Text(
             stringResource(R.string.desc_pick_image),
             color = LiquidColors.TextLowEmphasis,
@@ -146,7 +138,7 @@ fun LiquidPlaceholderContent(
             lineHeight = 24.sp,
             modifier = Modifier.padding(top = 12.dp)
         )
-        
+
         LiquidButton(
             onClick = {
                 haptic.performHapticFeedback(

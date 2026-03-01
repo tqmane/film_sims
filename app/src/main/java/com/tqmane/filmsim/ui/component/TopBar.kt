@@ -1,7 +1,6 @@
-package com.tqmane.filmsim.ui.components
+package com.tqmane.filmsim.ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -25,35 +25,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.theme.LiquidColors
-import androidx.compose.ui.Alignment
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// TOP BAR- Application header
-// ═══════════════════════════════════════════════════════════════════════════════
 
 /**
- * Application top bar with title and action buttons
+ * Application top bar with title and action buttons.
  */
 @Composable
-fun LiquidTopBar(
+fun TopBar(
     onPickImage: () -> Unit,
     onSettings: () -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
-    
-    Box(modifier = modifier
-        .background(
-            Brush.verticalGradient(
-                colors = listOf(
-                    LiquidColors.SurfaceDark.copy(alpha = 0.75f),
-                    Color(0xFF0C0C11).copy(alpha = 0.5f),
-                    Color.Transparent
+
+    Box(
+        modifier = modifier
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        LiquidColors.SurfaceDark.copy(alpha = 0.75f),
+                        Color(0xFF0C0C11).copy(alpha = 0.5f),
+                        Color.Transparent
+                    )
                 )
             )
-        )
-        .padding(horizontal = 24.dp, vertical = 16.dp)){
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -77,21 +74,21 @@ fun LiquidTopBar(
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
-            
+
             LiquidRoundButton(
                 iconRes = R.drawable.ic_add,
                 contentDesc = stringResource(R.string.btn_open_gallery),
                 onClick = onPickImage,
                 modifier = Modifier.padding(end = 8.dp)
             )
-            
+
             LiquidRoundButton(
                 iconRes = R.drawable.ic_settings,
                 contentDesc = stringResource(R.string.title_settings),
                 onClick = onSettings,
                 modifier = Modifier.padding(end = 12.dp)
             )
-            
+
             LiquidButton(
                 onClick = {
                     haptic.performHapticFeedback(

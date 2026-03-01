@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui
+package com.tqmane.filmsim.ui.editor
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,8 +8,10 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
@@ -31,9 +33,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -50,18 +52,28 @@ import com.tqmane.filmsim.gl.FilmSimRenderer
 import com.tqmane.filmsim.gl.GlCommandExecutor
 import com.tqmane.filmsim.gl.GlSurfaceViewExecutor
 import com.tqmane.filmsim.gl.GpuExportRenderer
-import com.tqmane.filmsim.ui.components.LiquidPlaceholderContent
-import com.tqmane.filmsim.ui.components.LiquidTopBar
-import com.tqmane.filmsim.ui.components.LivingBackground
+import com.tqmane.filmsim.ui.AuthViewModel
+import com.tqmane.filmsim.ui.EditState
+import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.editor.panel.AdjustPanel
+import com.tqmane.filmsim.ui.editor.panel.LutSelectorPanel
+import com.tqmane.filmsim.ui.editor.dialog.SettingsDialog
+import com.tqmane.filmsim.ui.UiEvent
+import com.tqmane.filmsim.ui.editor.dialog.UpdateDialog
+import com.tqmane.filmsim.ui.ViewState
+import com.tqmane.filmsim.ui.WatermarkState
+import com.tqmane.filmsim.ui.component.AuroraBackground
+import com.tqmane.filmsim.ui.component.EmptyState
+import com.tqmane.filmsim.ui.component.TopBar
 import com.tqmane.filmsim.ui.theme.LiquidTheme
 import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN SCREEN - Entry Point with Liquid Theme
-// ═══════════════════════════════════════════════════════════════════════════════
-
+/**
+ * Root editor screen — replaces MainScreen.
+ * Uses [EditorPanelState] sealed interface instead of scattered boolean flags.
+ */
 @Composable
-fun MainScreen(
+fun EditorScreen(
     viewModel: EditorViewModel,
     authViewModel: AuthViewModel,
     onPickImage: () -> Unit,
@@ -79,21 +91,20 @@ fun MainScreen(
         var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
         var renderer by remember { mutableStateOf<FilmSimRenderer?>(null) }
         var glExecutor by remember { mutableStateOf<GlCommandExecutor?>(null) }
-        var touchHandler by remember { mutableStateOf<GlTouchHandler?>(null) }
-
-        // GpuExportRenderer is owned entirely by the UI layer so it is released
-        // together with the GLSurfaceView, not leaked into the ViewModel.
+        var gestureHandler by remember { mutableStateOf<ImageGestureHandler?>(null) }
         val gpuExportRendererRef = remember { arrayOfNulls<GpuExportRenderer>(1) }
 
         // Watermark preview bitmap
         var watermarkPreviewBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-        // UI toggles
-        var isImmersive by rememberSaveable { mutableStateOf(false) }
-        var showAdjustPanel by rememberSaveable { mutableStateOf(false) }
-        // Dialog state
+        // ─── Panel state (replaces scattered booleans) ────────────────────────
+        var panelState by rememberSaveable { mutableStateOf<String>("LutSelector") }
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
+
+        // Derived state helpers
+        val isImmersive = panelState == "Immersive"
+        val showAdjustPanel = panelState == "Adjustments"
 
         val selectedBrandIndex by viewModel.selectedBrandIndex.collectAsState()
         val selectedCategoryIndex by viewModel.selectedCategoryIndex.collectAsState()
@@ -101,12 +112,8 @@ fun MainScreen(
         // Track UI heights for preview offset
         var topBarHeightPx by remember { mutableFloatStateOf(0f) }
         var bottomPanelHeightPx by remember { mutableFloatStateOf(0f) }
-
-        // Track GLSurfaceView actual measured size.
         var glViewWidthPx by remember { mutableIntStateOf(0) }
         var glViewHeightPx by remember { mutableIntStateOf(0) }
-
-        // Track if initial offset was applied to the preview
         var initialOffsetApplied by remember(viewState, glViewWidthPx, glViewHeightPx) { mutableStateOf(false) }
 
         // ─── UI Event Handler ─────────────────────────────────────────────────
@@ -133,19 +140,17 @@ fun MainScreen(
             }
         }
 
-        // Watermark preview refresh helper
         fun refreshWatermarkPreview() {
             viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
         }
 
         // ─── GL Sync Effects ──────────────────────────────────────────────────
 
-        // 1. 画像読み込み時: プレビュービットマップをGLにセット
         LaunchedEffect(viewState) {
             val content = viewState as? ViewState.Content ?: return@LaunchedEffect
             val r = renderer ?: return@LaunchedEffect
             val gl = glSurfaceView ?: return@LaunchedEffect
-            touchHandler?.resetZoom()
+            gestureHandler?.resetZoom()
             initialOffsetApplied = false
             val bmp = content.previewBitmap
             val lut = editState.currentLut
@@ -164,7 +169,6 @@ fun MainScreen(
             }
         }
 
-        // 2. 透かしプレビュー変更時
         LaunchedEffect(watermarkPreviewBitmap) {
             val r = renderer ?: return@LaunchedEffect
             val gl = glSurfaceView ?: return@LaunchedEffect
@@ -192,7 +196,6 @@ fun MainScreen(
             }
         }
 
-        // 3. LUT/エフェクト変更時: GL更新 + 透かしプレビュー再生成（統合）
         LaunchedEffect(
             editState.lutVersion, editState.intensity,
             editState.grainEnabled, editState.grainIntensity, editState.grainStyle
@@ -216,11 +219,9 @@ fun MainScreen(
                 }
                 gl.requestRender()
             }
-            // Refresh watermark preview if one is active
             viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
         }
 
-        // 4. 透かしスタイル変更時
         LaunchedEffect(watermarkState.style) {
             if (watermarkState.style != WatermarkStyle.NONE) {
                 viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
@@ -229,14 +230,13 @@ fun MainScreen(
             }
         }
 
-        // 5. 初期表示用のプレビューオフセット調整
         LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, glViewWidthPx, glViewHeightPx) {
             val content = viewState as? ViewState.Content
             if (content != null && !initialOffsetApplied
                 && topBarHeightPx > 0f && bottomPanelHeightPx > 0f
                 && glViewWidthPx > 0 && glViewHeightPx > 0
             ) {
-                touchHandler?.updateInitialBounds(
+                gestureHandler?.updateInitialBounds(
                     content.previewBitmap.width,
                     content.previewBitmap.height,
                     topBarHeightPx,
@@ -246,20 +246,19 @@ fun MainScreen(
             }
         }
 
-        // 6. Immersive切替時のプレビュー位置再調整
         LaunchedEffect(isImmersive) {
             if (viewState is ViewState.Content && initialOffsetApplied) {
                 val effectiveTopBar = if (isImmersive) 0f else topBarHeightPx
                 val effectiveBottomPanel = if (isImmersive) 0f else bottomPanelHeightPx
-                touchHandler?.updateForImmersiveChange(effectiveTopBar, effectiveBottomPanel)
+                gestureHandler?.updateForImmersiveChange(effectiveTopBar, effectiveBottomPanel)
             }
         }
 
-        // ─── Root Frame with Living Background ───────────────────────────────
+        // ─── Root Frame ───────────────────────────────────────────────────────
         Box(modifier = Modifier.fillMaxSize()) {
-            LivingBackground(modifier = Modifier.fillMaxSize())
+            AuroraBackground(modifier = Modifier.fillMaxSize())
 
-            // ─── GL Surface + State Overlays ─────────────────────────────────
+            // GL Surface + State Overlays
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -268,7 +267,7 @@ fun MainScreen(
                             Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
-                            ) { showAdjustPanel = false }
+                            ) { panelState = "LutSelector" }
                         } else Modifier
                     )
             ) {
@@ -284,12 +283,13 @@ fun MainScreen(
                             renderer = r
                             glSurfaceView = this
                             glExecutor = GlSurfaceViewExecutor(this)
-                            // GpuExportRenderer is owned here (UI layer), not in the ViewModel
                             queueEvent { gpuExportRendererRef[0] = GpuExportRenderer(ctx) }
 
-                            val th = GlTouchHandler(
+                            val gh = ImageGestureHandler(
                                 this, r,
-                                onSingleTap = { isImmersive = !isImmersive },
+                                onSingleTap = {
+                                    panelState = if (panelState == "Immersive") "LutSelector" else "Immersive"
+                                },
                                 onLongPressStart = {
                                     if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
                                         queueEvent {
@@ -309,8 +309,8 @@ fun MainScreen(
                                     }
                                 }
                             )
-                            th.install()
-                            touchHandler = th
+                            gh.install()
+                            gestureHandler = gh
                         }
                     },
                     modifier = Modifier
@@ -324,23 +324,21 @@ fun MainScreen(
                     }
                 )
 
-                // State overlays (Loading / Error / Empty)
                 ImageStateContent(
                     viewState = viewState,
                     onPickImage = onPickImage
                 )
             }
 
-            // ─── Main vertical Layout ─────────────────────────────────────────
+            // Main vertical layout
             Column(modifier = Modifier.fillMaxSize()) {
-
-                // ─── Top Bar ──────────────────────────────────────────────────
+                // Top Bar
                 AnimatedVisibility(
                     visible = !isImmersive,
                     enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { -it } + fadeIn(animationSpec = tween(300)),
                     exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { -it } + fadeOut(animationSpec = tween(250))
                 ) {
-                    LiquidTopBar(
+                    TopBar(
                         onPickImage = onPickImage,
                         onSettings = { showSettings = true },
                         onSave = {
@@ -363,7 +361,7 @@ fun MainScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // ─── Bottom Area ───────────────────────────────────────────────
+                // Bottom Area
                 BottomControlArea(
                     viewModel = viewModel,
                     editState = editState,
@@ -373,7 +371,9 @@ fun MainScreen(
                     renderer = renderer,
                     isImmersive = isImmersive,
                     showAdjustPanel = showAdjustPanel,
-                    onShowAdjustPanelChange = { showAdjustPanel = it },
+                    onShowAdjustPanelChange = { show ->
+                        panelState = if (show) "Adjustments" else "LutSelector"
+                    },
                     isWatermarkActive = watermarkPreviewBitmap != null,
                     onRefreshWatermark = { refreshWatermarkPreview() },
                     isProUser = isProUser,
@@ -386,7 +386,7 @@ fun MainScreen(
             }
         }
 
-        // ─── Compose Dialogs ──────────────────────────────────────────────────
+        // Dialogs
         if (showSettings) {
             SettingsDialog(
                 viewModel = viewModel,
@@ -410,7 +410,6 @@ fun MainScreen(
             )
         }
 
-        // Release GpuExportRenderer when the composable leaves composition
         DisposableEffect(Unit) {
             onDispose {
                 gpuExportRendererRef[0]?.release()
@@ -420,7 +419,7 @@ fun MainScreen(
     }
 }
 
-// ─── Image State Content (Loading / Error / Empty overlays) ──────────────────
+// ─── Image State Content ─────────────────────────────────────────────────────
 
 @Composable
 private fun ImageStateContent(
@@ -428,7 +427,7 @@ private fun ImageStateContent(
     onPickImage: () -> Unit
 ) {
     when (val state = viewState) {
-        is ViewState.Empty -> LiquidPlaceholderContent(onPickImage = onPickImage)
+        is ViewState.Empty -> EmptyState(onPickImage = onPickImage)
         is ViewState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -454,7 +453,7 @@ private fun ImageStateContent(
     }
 }
 
-// ─── Bottom Control Area (Adjust Panel + Control Panel) ──────────────────────
+// ─── Bottom Control Area ─────────────────────────────────────────────────────
 
 @Composable
 private fun BottomControlArea(
@@ -462,8 +461,8 @@ private fun BottomControlArea(
     editState: EditState,
     watermarkState: WatermarkState,
     viewState: ViewState,
-    glSurfaceView: android.opengl.GLSurfaceView?,
-    renderer: com.tqmane.filmsim.gl.FilmSimRenderer?,
+    glSurfaceView: GLSurfaceView?,
+    renderer: FilmSimRenderer?,
     isImmersive: Boolean,
     showAdjustPanel: Boolean,
     onShowAdjustPanelChange: (Boolean) -> Unit,
@@ -475,13 +474,12 @@ private fun BottomControlArea(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        // Adjust Panel
-        androidx.compose.animation.AnimatedVisibility(
+        AnimatedVisibility(
             visible = !isImmersive && showAdjustPanel && editState.hasSelectedLut,
-            enter = androidx.compose.animation.expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-            exit = androidx.compose.animation.shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+            enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
         ) {
-            LiquidAdjustPanel(
+            AdjustPanel(
                 editState = editState,
                 watermarkState = watermarkState,
                 viewModel = viewModel,
@@ -494,13 +492,12 @@ private fun BottomControlArea(
             )
         }
 
-        // Bottom Control Panel
         AnimatedVisibility(
             visible = !isImmersive && viewState is ViewState.Content,
             enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(animationSpec = tween(300)),
             exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { it } + fadeOut(animationSpec = tween(250))
         ) {
-            GlassControlPanel(
+            LutSelectorPanel(
                 viewModel = viewModel,
                 editState = editState,
                 watermarkState = watermarkState,
@@ -523,4 +520,3 @@ private fun BottomControlArea(
         }
     }
 }
-

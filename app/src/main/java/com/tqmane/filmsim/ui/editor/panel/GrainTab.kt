@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui
+package com.tqmane.filmsim.ui.editor.panel
 
 import android.opengl.GLSurfaceView
 import androidx.compose.foundation.layout.Arrangement
@@ -34,15 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.gl.FilmSimRenderer
-import com.tqmane.filmsim.ui.components.LiquidChip
+import com.tqmane.filmsim.ui.EditState
+import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.component.LiquidChip
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// GRAIN CONTROLS
-// ═══════════════════════════════════════════════════════════════════════════════
-
 @Composable
-internal fun LiquidGrainControls(
+internal fun GrainTab(
     editState: EditState,
     viewModel: EditorViewModel,
     glSurfaceView: GLSurfaceView?,
@@ -113,7 +111,6 @@ internal fun LiquidGrainControls(
         onValueChange = { value ->
             grainIntensity = value
             viewModel.setGrainIntensity(value)
-            // Remove haptic on every tiny change, optional. But keep it simple.
             if (grainEnabled) {
                 if (!isWatermarkActive) {
                     glSurfaceView?.queueEvent {

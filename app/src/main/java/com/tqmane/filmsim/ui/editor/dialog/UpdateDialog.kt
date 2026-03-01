@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.ui
+package com.tqmane.filmsim.ui.editor.dialog
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -43,17 +43,12 @@ import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.util.ReleaseInfo
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// UPDATE DIALOG — Modern glassmorphic Compose redesign
-// ═══════════════════════════════════════════════════════════════════════════════
-
 @Composable
 fun UpdateDialog(
     release: ReleaseInfo,
     onDismiss: () -> Unit,
     onUpdate: () -> Unit
 ) {
-    // Pulsing amber ring around the update icon
     val infiniteTransition = rememberInfiniteTransition(label = "update_pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -96,10 +91,8 @@ fun UpdateDialog(
                     .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // ─── Pulsing Icon ─────────────────────────────────────────────
+                // Pulsing Icon
                 Box(contentAlignment = Alignment.Center) {
-                    // Outer glow ring (animated)
                     Box(
                         modifier = Modifier
                             .size(88.dp)
@@ -107,17 +100,12 @@ fun UpdateDialog(
                             .clip(CircleShape)
                             .background(LiquidColors.AccentPrimary.copy(alpha = pulseAlpha * 0.35f))
                     )
-                    // Inner icon circle
                     Box(
                         modifier = Modifier
                             .size(70.dp)
                             .clip(CircleShape)
                             .background(LiquidColors.AccentPrimary.copy(alpha = 0.14f))
-                            .border(
-                                1.5.dp,
-                                LiquidColors.AccentPrimary.copy(alpha = pulseAlpha),
-                                CircleShape
-                            ),
+                            .border(1.5.dp, LiquidColors.AccentPrimary.copy(alpha = pulseAlpha), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -131,7 +119,6 @@ fun UpdateDialog(
 
                 Spacer(Modifier.height(24.dp))
 
-                // ─── Title ────────────────────────────────────────────────────
                 Text(
                     stringResource(R.string.update_available),
                     color = LiquidColors.TextHighEmphasis,
@@ -142,16 +129,12 @@ fun UpdateDialog(
 
                 Spacer(Modifier.height(8.dp))
 
-                // ─── Version badge ────────────────────────────────────────────
+                // Version badge
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(24.dp))
                         .background(LiquidColors.AccentPrimary.copy(alpha = 0.14f))
-                        .border(
-                            1.dp,
-                            LiquidColors.AccentPrimary.copy(alpha = 0.30f),
-                            RoundedCornerShape(24.dp)
-                        )
+                        .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.30f), RoundedCornerShape(24.dp))
                         .padding(horizontal = 18.dp, vertical = 6.dp)
                 ) {
                     Text(
@@ -162,7 +145,7 @@ fun UpdateDialog(
                     )
                 }
 
-                // ─── Release notes ────────────────────────────────────────────
+                // Release notes
                 if (release.releaseNotes.isNotBlank()) {
                     Spacer(Modifier.height(20.dp))
                     Column(
@@ -195,11 +178,8 @@ fun UpdateDialog(
 
                 Spacer(Modifier.height(28.dp))
 
-                // ─── Action buttons ───────────────────────────────────────────
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Later (ghost)
+                // Action buttons
+                Row(modifier = Modifier.fillMaxWidth()) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -217,10 +197,7 @@ fun UpdateDialog(
                             fontWeight = FontWeight.Medium
                         )
                     }
-
                     Spacer(Modifier.width(14.dp))
-
-                    // Update now (accent gradient)
                     Box(
                         modifier = Modifier
                             .weight(1f)
