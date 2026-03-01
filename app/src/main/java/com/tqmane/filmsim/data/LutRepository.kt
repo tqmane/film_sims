@@ -261,6 +261,11 @@ object LutRepository {
     private fun getXiaomiM3LutName(fileName: String): String {
         return when {
             fileName.equals("leica_monopan", ignoreCase = true) -> "Steel Blue"
+            fileName.equals("m9_mono_cool_daylight", ignoreCase = true) -> "M9 Cool Daylight"
+            fileName.equals("m9_mono_daylight_outdoor", ignoreCase = true) -> "M9 Daylight Outdoor"
+            fileName.equals("m9_mono_mixed_light", ignoreCase = true) -> "M9 Mixed Light"
+            fileName.equals("m9_mono_tungsten_indoor", ignoreCase = true) -> "M9 Tungsten Indoor"
+            fileName.equals("m9_mono_warm_tungsten_classic", ignoreCase = true) -> "M9 Warm Tungsten"
             else -> fileName.replace("_", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.titlecase() } }
         }
     }
