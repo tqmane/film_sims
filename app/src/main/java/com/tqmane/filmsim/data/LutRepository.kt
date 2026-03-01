@@ -260,7 +260,7 @@ object LutRepository {
     // Xiaomi Leica M3 LUT filename to display name
     private fun getXiaomiM3LutName(fileName: String): String {
         return when {
-            fileName.equals("leica_monopan", ignoreCase = true) -> "Steel Blue"
+            fileName.equals("leica_monopan", ignoreCase = true) -> "Monopan"
             fileName.equals("m9_mono_cool_daylight", ignoreCase = true) -> "M9 Cool Daylight"
             fileName.equals("m9_mono_daylight_outdoor", ignoreCase = true) -> "M9 Daylight Outdoor"
             fileName.equals("m9_mono_mixed_light", ignoreCase = true) -> "M9 Mixed Light"
