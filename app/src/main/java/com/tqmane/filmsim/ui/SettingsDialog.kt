@@ -61,7 +61,7 @@ import com.tqmane.filmsim.ui.theme.LiquidColors
 
 @Composable
 fun SettingsDialog(
-    viewModel: MainViewModel,
+    viewModel: EditorViewModel,
     authViewModel: AuthViewModel,
     onSignIn: () -> Unit,
     onSignOut: () -> Unit,

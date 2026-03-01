@@ -62,7 +62,7 @@ import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
 
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel,
+    viewModel: EditorViewModel,
     authViewModel: AuthViewModel,
     onPickImage: () -> Unit,
     onSignIn: () -> Unit = {},
@@ -458,7 +458,7 @@ private fun ImageStateContent(
 
 @Composable
 private fun BottomControlArea(
-    viewModel: MainViewModel,
+    viewModel: EditorViewModel,
     editState: EditState,
     watermarkState: WatermarkState,
     viewState: ViewState,
