@@ -2,6 +2,8 @@ package com.tqmane.filmsim.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tqmane.filmsim.core.di.LoginFirestore
+import com.tqmane.filmsim.core.security.SecurityChecker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +13,6 @@ import javax.inject.Singleton
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import com.tqmane.filmsim.util.SecurityManager
 
 /**
  * Checks whether the currently signed-in user's email exists in the
@@ -37,14 +38,14 @@ import com.tqmane.filmsim.util.SecurityManager
  */
 @Singleton
 class ProUserRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @LoginFirestore private val firestore: FirebaseFirestore,
+    private val securityChecker: SecurityChecker
 ) {
 
     companion object {
         private const val TAG = "ProUserRepository"
     }
-
-    private val firestore = FirebaseFirestore.getInstance(com.google.firebase.FirebaseApp.getInstance(), "login")
 
     private val _isProUser = MutableStateFlow(false)
     val isProUser: StateFlow<Boolean> = _isProUser.asStateFlow()
@@ -131,7 +132,7 @@ class ProUserRepository @Inject constructor(
             Log.d(TAG, "Query result: found=$found, mismatchVersion=$mismatchVersion, docCount=${allDocs.size}")
             
             // SECURITY CHECK: Verify app environment integrity before enabling Pro features
-            if (found && !SecurityManager.isEnvironmentTrusted(context)) {
+            if (found && !securityChecker.isEnvironmentTrusted(context)) {
                 Log.e(TAG, "Environment trust check failed! Denying Pro access.")
                 found = false
             }

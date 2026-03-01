@@ -3,6 +3,9 @@ package com.tqmane.filmsim.data
 import android.content.Context
 import android.content.res.AssetManager
 import com.tqmane.filmsim.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 data class LutItem(
     val name: String,
@@ -21,7 +24,10 @@ data class LutBrand(
     val categories: List<LutCategory>
 )
 
-object LutRepository {
+@Singleton
+class LutRepository @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     
     // Supported LUT file extensions
     private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".sel", ".enc")
@@ -419,7 +425,7 @@ object LutRepository {
         }
     }
     
-    fun getLutBrands(context: Context): List<LutBrand> {
+    fun getLutBrands(): List<LutBrand> {
         val assetManager = context.assets
         val brands = mutableListOf<LutBrand>()
         

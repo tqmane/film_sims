@@ -32,10 +32,9 @@ data class AuthState(
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val proUserRepository: ProUserRepository
+    private val proUserRepository: ProUserRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
-
-    private val auth = FirebaseAuth.getInstance()
 
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
