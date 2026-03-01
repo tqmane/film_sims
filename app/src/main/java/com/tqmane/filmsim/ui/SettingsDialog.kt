@@ -372,6 +372,31 @@ fun SettingsDialog(
                                 }
                             }
 
+                            // License purchase link
+                            val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+                            Spacer(Modifier.height(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(LiquidColors.AccentPrimary.copy(alpha = 0.08f))
+                                    .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.20f), RoundedCornerShape(12.dp))
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { uriHandler.openUri("https://tqmane.booth.pm/") }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                            ) {
+                                Text(
+                                    stringResource(R.string.label_purchase_license),
+                                    color = LiquidColors.AccentPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+
                             Spacer(Modifier.height(12.dp))
 
                             // Sign Out button

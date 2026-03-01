@@ -4,17 +4,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.tqmane.filmsim.data.ProUserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +31,7 @@ data class AuthState(
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val proUserRepository: ProUserRepository
 ) : ViewModel() {
 
@@ -44,6 +43,7 @@ class AuthViewModel @Inject constructor(
     val isProUser: StateFlow<Boolean> = proUserRepository.isProUser
     val licenseMismatchVersion: StateFlow<String?> = proUserRepository.licenseMismatchVersion
     val isPermanentLicense: StateFlow<Boolean> = proUserRepository.isPermanentLicense
+    val proCheckNetworkError: StateFlow<Boolean> = proUserRepository.proCheckNetworkError
 
     // Web client ID from google-services.json (client_type 3)
     companion object {
@@ -66,37 +66,18 @@ class AuthViewModel @Inject constructor(
     }
 
     /**
-     * Launch Google Sign-In via Credential Manager.
-     * Must be called from an Activity context.
-     * Provides a fallback for devices where CredentialManager fails (like some Chinese ROMs).
+     * Process a Google ID token (obtained by the Activity via CredentialManager).
+     * Handles Firebase authentication and pro status check.
+     * Separates ViewModel logic from Activity-scoped CredentialManager API.
      */
-    fun signInWithGoogle(activityContext: Context, onFallback: () -> Unit = {}) {
+    fun processGoogleIdToken(idToken: String) {
         viewModelScope.launch {
             _authState.value = _authState.value.copy(isLoading = true, error = null)
             try {
-                val credentialManager = CredentialManager.create(activityContext)
-
-                val googleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(WEB_CLIENT_ID)
-                    .build()
-
-                val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .build()
-
-                val result = credentialManager.getCredential(activityContext, request)
-                val googleIdTokenCredential =
-                    GoogleIdTokenCredential.createFrom(result.credential.data)
-                val idToken = googleIdTokenCredential.idToken
-
-                // Authenticate with Firebase
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 val authResult = auth.signInWithCredential(credential).await()
                 val user = authResult.user
-
                 if (user != null) {
-                    // checkProStatus が完了するまで isLoading=true のまま維持
                     proUserRepository.checkProStatus(user.email)
                     _authState.value = AuthState(
                         isSignedIn = true,
@@ -112,13 +93,12 @@ class AuthViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                // If CredentialManager fails (e.g. strict Chinese ROMs), invoke fallback
-                onFallback()
+                _authState.value = _authState.value.copy(isLoading = false, error = e.localizedMessage)
             }
         }
     }
 
-    /** Legacy Google Sign In fallback handler */
+    /** Legacy Google Sign In fallback handler (called from Activity result callback). */
     fun handleLegacySignInResult(data: Intent?) {
         viewModelScope.launch {
             try {
@@ -156,12 +136,12 @@ class AuthViewModel @Inject constructor(
         _authState.value = _authState.value.copy(isLoading = false)
     }
 
-    /** Sign out from Firebase and Google. */
-    fun signOut(activityContext: Context) {
+    /** Sign out from Firebase and Google. Uses ApplicationContext for CredentialManager. */
+    fun signOut() {
         viewModelScope.launch {
             try {
                 auth.signOut()
-                val credentialManager = CredentialManager.create(activityContext)
+                val credentialManager = CredentialManager.create(context)
                 credentialManager.clearCredentialState(ClearCredentialStateRequest())
             } catch (_: Exception) { /* ignore */ }
             proUserRepository.clearProStatus()

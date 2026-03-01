@@ -149,6 +149,7 @@
     <!-- Pro Licenses -->
     <string name="label_license_permanent">영구 라이선스</string>
     <string name="label_license_version_mismatch">귀하의 라이선스는 %1$s 버전으로 제한됩니다!</string>
+    <string name="label_purchase_license">라이선스 구매하기 → tqmane.booth.pm</string>
 
     <!-- Translated UI additions -->
     <string name="adjustments">조정</string>
