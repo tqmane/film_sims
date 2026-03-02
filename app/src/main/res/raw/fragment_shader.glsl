@@ -12,14 +12,42 @@ uniform float uGrainIntensity; // 0.0 = no grain, 1.0 = full grain
 uniform float uGrainScale; // Grain texture tiling scale
 uniform float uTime; // For grain animation (optional)
 
+// Basic adjustments (applied before LUT)
+uniform float uExposure;    // -2.0 to +2.0 (0.0 = no change)
+uniform float uContrast;    // -1.0 to +1.0 (0.0 = no change)
+uniform float uHighlights;  // -1.0 to +1.0 (0.0 = no change)
+uniform float uShadows;     // -1.0 to +1.0 (0.0 = no change)
+uniform float uColorTemp;   // -1.0 to +1.0 (0.0 = neutral, + = warm, - = cool)
+
 void main() {
     vec4 originalColor = texture(uInputTexture, vTexCoord);
+    vec3 adjusted = originalColor.rgb;
+
+    // Exposure (stops)
+    adjusted *= pow(2.0, uExposure);
+
+    // Contrast (pivot at mid-gray)
+    adjusted = mix(vec3(0.5), adjusted, 1.0 + uContrast);
+
+    // Highlights & Shadows (luminance-based)
+    float lum = dot(adjusted, vec3(0.299, 0.587, 0.114));
+    float shadowMask = 1.0 - smoothstep(0.0, 0.5, lum);
+    float highlightMask = smoothstep(0.5, 1.0, lum);
+    adjusted += uShadows * shadowMask * 0.4;
+    adjusted += uHighlights * highlightMask * 0.4;
+
+    // Color temperature (warm/cool shift)
+    adjusted.r *= 1.0 + uColorTemp * 0.15;
+    adjusted.g *= 1.0 + uColorTemp * 0.05;
+    adjusted.b *= 1.0 - uColorTemp * 0.15;
+
+    adjusted = clamp(adjusted, 0.0, 1.0);
+
+    // 3D LUT lookup (on adjusted color)
+    vec3 lutColor = texture(uLutTexture, adjusted).rgb;
     
-    // 3D LUT lookup
-    vec3 lutColor = texture(uLutTexture, originalColor.rgb).rgb;
-    
-    // Blend between original and LUT based on intensity
-    vec3 finalColor = mix(originalColor.rgb, lutColor, uIntensity);
+    // Blend between adjusted and LUT based on intensity
+    vec3 finalColor = mix(adjusted, lutColor, uIntensity);
     
     // Apply film grain if enabled
     if (uGrainIntensity > 0.001) {

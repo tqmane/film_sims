@@ -60,7 +60,12 @@ class EditorViewModel @Inject constructor(
             intensity = settings.lastIntensity,
             grainEnabled = settings.lastGrainEnabled,
             grainIntensity = settings.lastGrainIntensity,
-            grainStyle = settings.lastGrainStyle
+            grainStyle = settings.lastGrainStyle,
+            exposure = settings.lastExposure,
+            contrast = settings.lastContrast,
+            highlights = settings.lastHighlights,
+            shadows = settings.lastShadows,
+            colorTemp = settings.lastColorTemp
         )
     )
     val editState: StateFlow<EditState> = _editState.asStateFlow()
@@ -186,6 +191,147 @@ class EditorViewModel @Inject constructor(
         settings.lastGrainStyle = style
     }
 
+    // ─── Basic adjustments ──────────────────────────────
+
+    fun setExposure(value: Float) {
+        _editState.value = _editState.value.copy(exposure = value)
+        settings.lastExposure = value
+    }
+
+    fun setContrast(value: Float) {
+        _editState.value = _editState.value.copy(contrast = value)
+        settings.lastContrast = value
+    }
+
+    fun setHighlights(value: Float) {
+        _editState.value = _editState.value.copy(highlights = value)
+        settings.lastHighlights = value
+    }
+
+    fun setShadows(value: Float) {
+        _editState.value = _editState.value.copy(shadows = value)
+        settings.lastShadows = value
+    }
+
+    fun setColorTemp(value: Float) {
+        _editState.value = _editState.value.copy(colorTemp = value)
+        settings.lastColorTemp = value
+    }
+
+    fun resetAdjustments() {
+        _editState.value = _editState.value.copy(
+            exposure = 0f, contrast = 0f, highlights = 0f, shadows = 0f, colorTemp = 0f
+        )
+        settings.lastExposure = 0f
+        settings.lastContrast = 0f
+        settings.lastHighlights = 0f
+        settings.lastShadows = 0f
+        settings.lastColorTemp = 0f
+    }
+
+    // ─── Presets ────────────────────────────────────────
+
+    private val _presets = MutableStateFlow(settings.loadPresets())
+    val presets: StateFlow<List<Preset>> = _presets.asStateFlow()
+
+    fun savePreset(name: String) {
+        val edit = _editState.value
+        val wm = _watermarkState.value
+        val preset = Preset(
+            id = java.util.UUID.randomUUID().toString(),
+            name = name,
+            lutPath = edit.currentLutPath,
+            intensity = edit.intensity,
+            grainEnabled = edit.grainEnabled,
+            grainIntensity = edit.grainIntensity,
+            grainStyle = edit.grainStyle,
+            exposure = edit.exposure,
+            contrast = edit.contrast,
+            highlights = edit.highlights,
+            shadows = edit.shadows,
+            colorTemp = edit.colorTemp,
+            watermarkStyleName = wm.style.name,
+            watermarkDeviceName = wm.deviceName,
+            watermarkTimeText = wm.timeText,
+            watermarkLocationText = wm.locationText,
+            watermarkLensInfo = wm.lensInfo
+        )
+        val ok = settings.savePreset(preset)
+        _presets.value = settings.loadPresets()
+        viewModelScope.launch {
+            _uiEvent.emit(
+                if (ok) UiEvent.ShowToast(R.string.preset_saved)
+                else UiEvent.ShowToast(R.string.preset_limit_reached)
+            )
+        }
+    }
+
+    fun loadPreset(preset: Preset) {
+        // Restore edit state (LUT will be applied separately)
+        _editState.value = _editState.value.copy(
+            currentLutPath = preset.lutPath,
+            intensity = preset.intensity,
+            grainEnabled = preset.grainEnabled,
+            grainIntensity = preset.grainIntensity,
+            grainStyle = preset.grainStyle,
+            exposure = preset.exposure,
+            contrast = preset.contrast,
+            highlights = preset.highlights,
+            shadows = preset.shadows,
+            colorTemp = preset.colorTemp,
+            hasSelectedLut = preset.lutPath != null
+        )
+        // Restore watermark state
+        val wmStyle = try {
+            WatermarkProcessor.WatermarkStyle.valueOf(preset.watermarkStyleName)
+        } catch (_: Exception) {
+            WatermarkProcessor.WatermarkStyle.NONE
+        }
+        _watermarkState.value = _watermarkState.value.copy(
+            style = wmStyle,
+            deviceName = preset.watermarkDeviceName,
+            timeText = preset.watermarkTimeText,
+            locationText = preset.watermarkLocationText,
+            lensInfo = preset.watermarkLensInfo
+        )
+        // Persist the restored values
+        settings.lastIntensity = preset.intensity
+        settings.lastGrainEnabled = preset.grainEnabled
+        settings.lastGrainIntensity = preset.grainIntensity
+        settings.lastGrainStyle = preset.grainStyle
+        settings.lastExposure = preset.exposure
+        settings.lastContrast = preset.contrast
+        settings.lastHighlights = preset.highlights
+        settings.lastShadows = preset.shadows
+        settings.lastColorTemp = preset.colorTemp
+        // Apply the LUT if present
+        if (preset.lutPath != null) {
+            viewModelScope.launch(ioDispatcher) {
+                val lut = lutApplyUseCase.parseLut(preset.lutPath)
+                if (lut != null) {
+                    val cur = _editState.value
+                    _editState.value = cur.copy(
+                        currentLut = lut,
+                        lutVersion = cur.lutVersion + 1
+                    )
+                }
+                _uiEvent.emit(UiEvent.ShowToast(R.string.preset_loaded, arrayOf(preset.name)))
+            }
+        } else {
+            viewModelScope.launch {
+                _uiEvent.emit(UiEvent.ShowToast(R.string.preset_loaded, arrayOf(preset.name)))
+            }
+        }
+    }
+
+    fun deletePreset(id: String) {
+        settings.deletePreset(id)
+        _presets.value = settings.loadPresets()
+        viewModelScope.launch {
+            _uiEvent.emit(UiEvent.ShowToast(R.string.preset_deleted))
+        }
+    }
+
     // ─── Watermark ──────────────────────────────────────
 
     fun updateWatermarkStyle(style: WatermarkProcessor.WatermarkStyle) {
@@ -291,7 +437,9 @@ class EditorViewModel @Inject constructor(
                             gpuExportRenderer.setGrainStyle(edit.grainStyle)
                             gpuExportRenderer.renderHighRes(
                                 sourceBitmap, lut, effectiveIntensity,
-                                edit.grainEnabled, edit.grainIntensity, 4.0f
+                                edit.grainEnabled, edit.grainIntensity, 4.0f,
+                                edit.exposure, edit.contrast, edit.highlights,
+                                edit.shadows, edit.colorTemp
                             )
                         }
                     }.getOrNull()

@@ -277,6 +277,27 @@
     <string name="label_quality">Quality</string>
     <string name="btn_close">Close</string>
 
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">Adjust</string>
+    <string name="tab_presets">Presets</string>
+    <string name="label_exposure">Exposure</string>
+    <string name="label_contrast">Contrast</string>
+    <string name="label_highlights">Highlights</string>
+    <string name="label_shadows">Shadows</string>
+    <string name="label_color_temp">Color Temp</string>
+    <string name="btn_reset_adjustments">Reset</string>
+
+    <!-- Presets -->
+    <string name="preset_save">Save Preset</string>
+    <string name="preset_save_title">Save as Preset</string>
+    <string name="preset_name_hint">Preset name</string>
+    <string name="preset_saved">Preset saved</string>
+    <string name="preset_deleted">Preset deleted</string>
+    <string name="preset_loaded">Preset loaded: %1$s</string>
+    <string name="preset_limit_reached">Maximum number of presets reached (20)</string>
+    <string name="preset_empty">No presets saved yet</string>
+    <string name="preset_pro_locked">License feature: Sign in to use presets</string>
+
     <!-- Hardcoded configuration values -->
     <string name="github_api_url" translatable="false">https://api.github.com/repos/tqmane/film_sims/releases/latest</string>
     <string name="honor_font_path" translatable="false">watermark/Honor/fonts/HONORSansVFCN.ttf</string>
