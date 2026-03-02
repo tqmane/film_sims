@@ -17,8 +17,8 @@ object NetworkModule {
     @Singleton
     fun provideCertificatePinner(): CertificatePinner =
         CertificatePinner.Builder()
+            .add("api.github.com", "sha256/H8zmHRgw4cFDQn+MvcyfhImeWNY4kN9HXO/J9xX32gk=")
             .add("api.github.com", "sha256/i7WTqTvh0OioIruIfFR4kMPnBqrS2rdiVPl/s2uC/CY=")
-            .add("api.github.com", "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E=")
             .build()
 
     @Provides
