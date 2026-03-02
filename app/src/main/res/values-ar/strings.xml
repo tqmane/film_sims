@@ -109,4 +109,24 @@
     <string name="pro_brand_locked">ميزة الترخيص: قم بتسجيل الدخول لفتح هذه العلامة التجارية</string>
     <string name="pro_watermark_locked">ميزة الترخيص: قم بتسجيل الدخول لفتح العلامات المائية</string>
     <string name="pro_quality_limit">ميزة الترخيص: تتطلب الجودة أعلى من 60% ترخيصاً</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">تعديل</string>
+    <string name="tab_presets">إعدادات مسبقة</string>
+    <string name="label_exposure">التعريض</string>
+    <string name="label_contrast">التباين</string>
+    <string name="label_highlights">الإضاءة</string>
+    <string name="label_shadows">الظلال</string>
+    <string name="label_color_temp">درجة اللون</string>
+    <string name="btn_reset_adjustments">إعادة ضبط</string>
+
+    <!-- Presets -->
+    <string name="preset_save">حفظ الإعداد المسبق</string>
+    <string name="preset_save_title">حفظ كإعداد مسبق</string>
+    <string name="preset_name_hint">اسم الإعداد المسبق</string>
+    <string name="preset_saved">تم حفظ الإعداد المسبق</string>
+    <string name="preset_deleted">تم حذف الإعداد المسبق</string>
+    <string name="preset_loaded">تم تحميل الإعداد المسبق: %1$s</string>
+    <string name="preset_limit_reached">تم الوصول للحد الأقصى للإعدادات المسبقة (20)</string>
+    <string name="preset_empty">لم يتم حفظ أي إعدادات مسبقة بعد</string>
+    <string name="preset_pro_locked">ميزة الترخيص: قم بتسجيل الدخول لاستخدام الإعدادات المسبقة</string>
 </resources>

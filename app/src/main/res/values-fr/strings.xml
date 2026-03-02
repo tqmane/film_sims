@@ -109,4 +109,24 @@
     <string name="pro_brand_locked">Fonctionnalité sous licence : Connectez-vous pour débloquer cette marque</string>
     <string name="pro_watermark_locked">Fonctionnalité sous licence : Connectez-vous pour débloquer les filigranes</string>
     <string name="pro_quality_limit">Fonctionnalité sous licence : Une qualité supérieure à 60 % nécessite une Licence</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">Ajuster</string>
+    <string name="tab_presets">Préréglages</string>
+    <string name="label_exposure">Exposition</string>
+    <string name="label_contrast">Contraste</string>
+    <string name="label_highlights">Hautes lumières</string>
+    <string name="label_shadows">Ombres</string>
+    <string name="label_color_temp">Température de couleur</string>
+    <string name="btn_reset_adjustments">Réinitialiser</string>
+
+    <!-- Presets -->
+    <string name="preset_save">Enregistrer préréglage</string>
+    <string name="preset_save_title">Enregistrer comme préréglage</string>
+    <string name="preset_name_hint">Nom du préréglage</string>
+    <string name="preset_saved">Préréglage enregistré</string>
+    <string name="preset_deleted">Préréglage supprimé</string>
+    <string name="preset_loaded">Préréglage chargé : %1$s</string>
+    <string name="preset_limit_reached">Nombre maximal de préréglages atteint (20)</string>
+    <string name="preset_empty">Aucun préréglage enregistré</string>
+    <string name="preset_pro_locked">Fonction licence : Connectez-vous pour utiliser les préréglages</string>
 </resources>

@@ -158,6 +158,11 @@ fun EditorScreen(
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
+            val exp = editState.exposure
+            val con = editState.contrast
+            val hl = editState.highlights
+            val sh = editState.shadows
+            val ct = editState.colorTemp
             gl.queueEvent {
                 r.setImage(bmp)
                 if (lut != null) r.setLut(lut)
@@ -165,6 +170,11 @@ fun EditorScreen(
                 r.setGrainEnabled(grainOn)
                 if (grainOn) r.setGrainIntensity(grainVal)
                 r.setGrainStyle(grainSty)
+                r.setExposure(exp)
+                r.setContrast(con)
+                r.setHighlights(hl)
+                r.setShadows(sh)
+                r.setColorTemp(ct)
                 gl.requestRender()
             }
         }
@@ -179,11 +189,21 @@ fun EditorScreen(
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
+            val exp = editState.exposure
+            val con = editState.contrast
+            val hl = editState.highlights
+            val sh = editState.shadows
+            val ct = editState.colorTemp
             gl.queueEvent {
                 if (wmBmp != null) {
                     r.setImage(wmBmp)
                     r.setIntensity(0f)
                     r.setGrainEnabled(false)
+                    r.setExposure(0f)
+                    r.setContrast(0f)
+                    r.setHighlights(0f)
+                    r.setShadows(0f)
+                    r.setColorTemp(0f)
                 } else if (content != null) {
                     r.setImage(content.previewBitmap)
                     if (lut != null) r.setLut(lut)
@@ -191,6 +211,11 @@ fun EditorScreen(
                     r.setGrainEnabled(grainOn)
                     if (grainOn) r.setGrainIntensity(grainVal)
                     r.setGrainStyle(grainSty)
+                    r.setExposure(exp)
+                    r.setContrast(con)
+                    r.setHighlights(hl)
+                    r.setShadows(sh)
+                    r.setColorTemp(ct)
                 }
                 gl.requestRender()
             }
@@ -198,7 +223,9 @@ fun EditorScreen(
 
         LaunchedEffect(
             editState.lutVersion, editState.intensity,
-            editState.grainEnabled, editState.grainIntensity, editState.grainStyle
+            editState.grainEnabled, editState.grainIntensity, editState.grainStyle,
+            editState.exposure, editState.contrast, editState.highlights,
+            editState.shadows, editState.colorTemp
         ) {
             val r = renderer ?: return@LaunchedEffect
             val gl = glSurfaceView ?: return@LaunchedEffect
@@ -209,6 +236,11 @@ fun EditorScreen(
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
+            val exp = editState.exposure
+            val con = editState.contrast
+            val hl = editState.highlights
+            val sh = editState.shadows
+            val ct = editState.colorTemp
             gl.queueEvent {
                 if (lut != null) r.setLut(lut)
                 if (!wmActive) {
@@ -216,6 +248,11 @@ fun EditorScreen(
                     r.setGrainEnabled(grainOn)
                     if (grainOn) r.setGrainIntensity(grainVal)
                     r.setGrainStyle(grainSty)
+                    r.setExposure(exp)
+                    r.setContrast(con)
+                    r.setHighlights(hl)
+                    r.setShadows(sh)
+                    r.setColorTemp(ct)
                 }
                 gl.requestRender()
             }

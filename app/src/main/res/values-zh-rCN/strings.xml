@@ -168,4 +168,24 @@
     <string name="pro_brand_locked">许可功能: 登录以解锁此品牌</string>
     <string name="pro_watermark_locked">许可功能: 登录以解锁水印</string>
     <string name="pro_quality_limit">许可功能: 超过60%的质量需要许可</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">调整</string>
+    <string name="tab_presets">预设</string>
+    <string name="label_exposure">曝光</string>
+    <string name="label_contrast">对比度</string>
+    <string name="label_highlights">高光</string>
+    <string name="label_shadows">阴影</string>
+    <string name="label_color_temp">色温</string>
+    <string name="btn_reset_adjustments">重置</string>
+
+    <!-- Presets -->
+    <string name="preset_save">保存预设</string>
+    <string name="preset_save_title">另存为预设</string>
+    <string name="preset_name_hint">预设名称</string>
+    <string name="preset_saved">预设已保存</string>
+    <string name="preset_deleted">预设已删除</string>
+    <string name="preset_loaded">预设已加载：%1$s</string>
+    <string name="preset_limit_reached">已达到最大预设数量 (20)</string>
+    <string name="preset_empty">尚未保存预设</string>
+    <string name="preset_pro_locked">许可功能：登录以使用预设</string>
 </resources>

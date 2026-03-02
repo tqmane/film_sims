@@ -45,6 +45,13 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var grainEnabled: Boolean = false
     private var grainStylePath: String = "textures/Xiaomi/film_grain.png"
     
+    // Basic adjustments
+    private var exposure: Float = 0.0f
+    private var contrast: Float = 0.0f
+    private var highlights: Float = 0.0f
+    private var shadows: Float = 0.0f
+    private var colorTemp: Float = 0.0f
+    
     // Transform parameters
     private var userZoom: Float = 1.0f
     private var userOffsetX: Float = 0.0f
@@ -65,6 +72,13 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var uInputTextureHandle: Int = -1
     private var uLutTextureHandle: Int = -1
     private var uGrainTextureHandle: Int = -1
+
+    // Adjustment uniform handles
+    private var uExposureHandle: Int = -1
+    private var uContrastHandle: Int = -1
+    private var uHighlightsHandle: Int = -1
+    private var uShadowsHandle: Int = -1
+    private var uColorTempHandle: Int = -1
 
     // Background shader attribute/uniform locations
     private var bgPositionHandle: Int = -1
@@ -137,6 +151,13 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             }
         }
     }
+    
+    // Basic adjustment setters
+    fun setExposure(value: Float) { exposure = value.coerceIn(-2f, 2f) }
+    fun setContrast(value: Float) { contrast = value.coerceIn(-1f, 1f) }
+    fun setHighlights(value: Float) { highlights = value.coerceIn(-1f, 1f) }
+    fun setShadows(value: Float) { shadows = value.coerceIn(-1f, 1f) }
+    fun setColorTemp(value: Float) { colorTemp = value.coerceIn(-1f, 1f) }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         val vertexSource = readRawTextFile(R.raw.vertex_shader)
@@ -196,6 +217,11 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         uInputTextureHandle = GLES30.glGetUniformLocation(programId, "uInputTexture")
         uLutTextureHandle = GLES30.glGetUniformLocation(programId, "uLutTexture")
         uGrainTextureHandle = GLES30.glGetUniformLocation(programId, "uGrainTexture")
+        uExposureHandle = GLES30.glGetUniformLocation(programId, "uExposure")
+        uContrastHandle = GLES30.glGetUniformLocation(programId, "uContrast")
+        uHighlightsHandle = GLES30.glGetUniformLocation(programId, "uHighlights")
+        uShadowsHandle = GLES30.glGetUniformLocation(programId, "uShadows")
+        uColorTempHandle = GLES30.glGetUniformLocation(programId, "uColorTemp")
         
         bgPositionHandle = GLES30.glGetAttribLocation(bgProgramId, "aPosition")
         bgTexCoordHandle = GLES30.glGetAttribLocation(bgProgramId, "aTexCoord")
@@ -337,6 +363,11 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glUniform1f(uGrainIntensityHandle, if (grainEnabled) grainIntensity else 0f)
             GLES30.glUniform1f(uGrainScaleHandle, grainScale)
             GLES30.glUniform1f(uTimeHandle, currentTime)
+            GLES30.glUniform1f(uExposureHandle, exposure)
+            GLES30.glUniform1f(uContrastHandle, contrast)
+            GLES30.glUniform1f(uHighlightsHandle, highlights)
+            GLES30.glUniform1f(uShadowsHandle, shadows)
+            GLES30.glUniform1f(uColorTempHandle, colorTemp)
 
             // Bind textures
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)

@@ -44,6 +44,13 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     private var uLutTextureHandle: Int = -1
     private var uGrainTextureHandle: Int = -1
 
+    // Adjustment uniform handles
+    private var uExposureHandle: Int = -1
+    private var uContrastHandle: Int = -1
+    private var uHighlightsHandle: Int = -1
+    private var uShadowsHandle: Int = -1
+    private var uColorTempHandle: Int = -1
+
     // Skip re-uploading the same LUT when exporting repeatedly
     private var lastUploadedLut: CubeLUT? = null
     
@@ -96,8 +103,11 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         uInputTextureHandle = GLES30.glGetUniformLocation(programId, "uInputTexture")
         uLutTextureHandle = GLES30.glGetUniformLocation(programId, "uLutTexture")
         uGrainTextureHandle = GLES30.glGetUniformLocation(programId, "uGrainTexture")
-
-        // Bind sampler uniforms once
+        uExposureHandle = GLES30.glGetUniformLocation(programId, "uExposure")
+        uContrastHandle = GLES30.glGetUniformLocation(programId, "uContrast")
+        uHighlightsHandle = GLES30.glGetUniformLocation(programId, "uHighlights")
+        uShadowsHandle = GLES30.glGetUniformLocation(programId, "uShadows")
+        uColorTempHandle = GLES30.glGetUniformLocation(programId, "uColorTemp")
         GLES30.glUseProgram(programId)
         if (uInputTextureHandle >= 0) GLES30.glUniform1i(uInputTextureHandle, 0)
         if (uLutTextureHandle >= 0) GLES30.glUniform1i(uLutTextureHandle, 1)
@@ -166,7 +176,12 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         intensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
-        grainScale: Float
+        grainScale: Float,
+        exposure: Float = 0f,
+        contrast: Float = 0f,
+        highlights: Float = 0f,
+        shadows: Float = 0f,
+        colorTemp: Float = 0f
     ): Bitmap? {
         if (!isInitialized) initialize()
         
@@ -214,9 +229,9 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         
         return if (needsTiling) {
             android.util.Log.d("GpuExportRenderer", "Image exceeds GPU limit, using tiled rendering")
-            renderTiled(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale, maxTextureSize)
+            renderTiled(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale, maxTextureSize, exposure, contrast, highlights, shadows, colorTemp)
         } else {
-            renderSingle(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale)
+            renderSingle(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
         }
     }
     
@@ -229,7 +244,12 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         intensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
-        grainScale: Float
+        grainScale: Float,
+        exposure: Float,
+        contrast: Float,
+        highlights: Float,
+        shadows: Float,
+        colorTemp: Float
     ): Bitmap? {
         val width = inputBitmap.width
         val height = inputBitmap.height
@@ -266,7 +286,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
         
         // Render with default tex coords (full image)
-        renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale)
+        renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
         
         // Read pixels from FBO
         val buffer = ByteBuffer.allocateDirect(width * height * 4)
@@ -296,7 +316,12 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         grainEnabled: Boolean,
         grainIntensity: Float,
         grainScale: Float,
-        maxTextureSize: Int
+        maxTextureSize: Int,
+        exposure: Float,
+        contrast: Float,
+        highlights: Float,
+        shadows: Float,
+        colorTemp: Float
     ): Bitmap? {
         val width = inputBitmap.width
         val height = inputBitmap.height
@@ -358,7 +383,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
                 GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
                 
                 // Render the tile (full texture coords since tile is already cropped)
-                renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale)
+                renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
                 
                 // Read tile pixels
                 val tileBuffer = ByteBuffer.allocateDirect(tileW * tileH * 4)
@@ -398,7 +423,12 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         intensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
-        grainScale: Float
+        grainScale: Float,
+        exposure: Float = 0f,
+        contrast: Float = 0f,
+        highlights: Float = 0f,
+        shadows: Float = 0f,
+        colorTemp: Float = 0f
     ) {
         GLES30.glUseProgram(programId)
 
@@ -420,6 +450,11 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         GLES30.glUniform1f(uGrainIntensityHandle, if (grainEnabled) grainIntensity else 0f)
         GLES30.glUniform1f(uGrainScaleHandle, grainScale)
         GLES30.glUniform1f(uTimeHandle, 0f)
+        GLES30.glUniform1f(uExposureHandle, exposure)
+        GLES30.glUniform1f(uContrastHandle, contrast)
+        GLES30.glUniform1f(uHighlightsHandle, highlights)
+        GLES30.glUniform1f(uShadowsHandle, shadows)
+        GLES30.glUniform1f(uColorTempHandle, colorTemp)
         
         // Bind textures
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0)

@@ -173,6 +173,28 @@
     <string name="btn_change">変更</string>
     <string name="label_quality">保存品質</string>
     <string name="btn_close">閉じる</string>
+
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">色調整</string>
+    <string name="tab_presets">プリセット</string>
+    <string name="label_exposure">露出</string>
+    <string name="label_contrast">コントラスト</string>
+    <string name="label_highlights">ハイライト</string>
+    <string name="label_shadows">シャドウ</string>
+    <string name="label_color_temp">色温度</string>
+    <string name="btn_reset_adjustments">リセット</string>
+
+    <!-- Presets -->
+    <string name="preset_save">プリセットを保存</string>
+    <string name="preset_save_title">プリセットとして保存</string>
+    <string name="preset_name_hint">プリセット名</string>
+    <string name="preset_saved">プリセットを保存しました</string>
+    <string name="preset_deleted">プリセットを削除しました</string>
+    <string name="preset_loaded">プリセットを読み込みました: %1$s</string>
+    <string name="preset_limit_reached">プリセットの上限に達しました (20件)</string>
+    <string name="preset_empty">保存されたプリセットはありません</string>
+    <string name="preset_pro_locked">ライセンス機能: ログインしてプリセットを有効化</string>
+
     <!-- Pro Licenses -->
     <string name="label_license_permanent">永続ライセンス</string>
     <string name="label_license_version_mismatch">あなたのライセンスは%1$s限定です！</string>

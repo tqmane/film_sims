@@ -44,7 +44,13 @@ data class EditState(
     val grainEnabled: Boolean = false,
     val grainIntensity: Float = 0.5f,
     val grainStyle: String = "Xiaomi",
-    val hasSelectedLut: Boolean = false
+    val hasSelectedLut: Boolean = false,
+    // Basic adjustments
+    val exposure: Float = 0f,
+    val contrast: Float = 0f,
+    val highlights: Float = 0f,
+    val shadows: Float = 0f,
+    val colorTemp: Float = 0f
 )
 
 // ─── Watermark State ────────────────────────────────────
@@ -68,3 +74,26 @@ sealed interface UiEvent {
     data class ShowUpdateDialog(val release: ReleaseInfo) : UiEvent
     data class ImageSaved(val width: Int, val height: Int, val path: String, val filename: String) : UiEvent
 }
+
+// ─── Preset ─────────────────────────────────────────────
+
+/** Saved combination of LUT + grain + watermark + adjustment parameters. */
+data class Preset(
+    val id: String,
+    val name: String,
+    val lutPath: String?,
+    val intensity: Float = 1f,
+    val grainEnabled: Boolean = false,
+    val grainIntensity: Float = 0.5f,
+    val grainStyle: String = "Xiaomi",
+    val exposure: Float = 0f,
+    val contrast: Float = 0f,
+    val highlights: Float = 0f,
+    val shadows: Float = 0f,
+    val colorTemp: Float = 0f,
+    val watermarkStyleName: String = "NONE",
+    val watermarkDeviceName: String = "",
+    val watermarkTimeText: String = "",
+    val watermarkLocationText: String = "",
+    val watermarkLensInfo: String = ""
+)

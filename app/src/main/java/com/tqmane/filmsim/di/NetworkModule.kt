@@ -1,6 +1,5 @@
 package com.tqmane.filmsim.di
 
-import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import dagger.Module
 import dagger.Provides
@@ -15,19 +14,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCertificatePinner(): CertificatePinner =
-        CertificatePinner.Builder()
-            .add("api.github.com", "sha256/i7WTqTvh0OioIruIfFR4kMPnBqrS2rdiVPl/s2uC/CY=")
-            .add("api.github.com", "sha256/r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E=")
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(pinner: CertificatePinner): OkHttpClient =
+    fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
-            .certificatePinner(pinner)
             .build()
 }

@@ -109,4 +109,24 @@
     <string name="pro_brand_locked">Funzione con licenza: Accedi per sbloccare questa marca</string>
     <string name="pro_watermark_locked">Funzione con licenza: Accedi per sbloccare le filigrane</string>
     <string name="pro_quality_limit">Funzione con licenza: La qualità superiore al 60% richiede una Licenza</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">Regola</string>
+    <string name="tab_presets">Predefiniti</string>
+    <string name="label_exposure">Esposizione</string>
+    <string name="label_contrast">Contrasto</string>
+    <string name="label_highlights">Luci</string>
+    <string name="label_shadows">Ombre</string>
+    <string name="label_color_temp">Temperatura colore</string>
+    <string name="btn_reset_adjustments">Ripristina</string>
+
+    <!-- Presets -->
+    <string name="preset_save">Salva predefinito</string>
+    <string name="preset_save_title">Salva come predefinito</string>
+    <string name="preset_name_hint">Nome predefinito</string>
+    <string name="preset_saved">Predefinito salvato</string>
+    <string name="preset_deleted">Predefinito eliminato</string>
+    <string name="preset_loaded">Predefinito caricato: %1$s</string>
+    <string name="preset_limit_reached">Numero massimo di predefiniti raggiunto (20)</string>
+    <string name="preset_empty">Nessun predefinito salvato</string>
+    <string name="preset_pro_locked">Funzione licenza: Accedi per usare i predefiniti</string>
 </resources>
