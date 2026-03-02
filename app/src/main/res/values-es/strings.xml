@@ -109,4 +109,24 @@
     <string name="pro_brand_locked">Función de licencia: Inicie sesión para desbloquear esta marca</string>
     <string name="pro_watermark_locked">Función de licencia: Inicie sesión para desbloquear marcas de agua</string>
     <string name="pro_quality_limit">Función de licencia: Una calidad superior al 60% requiere una Licencia</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">Ajustar</string>
+    <string name="tab_presets">Ajustes preestablecidos</string>
+    <string name="label_exposure">Exposición</string>
+    <string name="label_contrast">Contraste</string>
+    <string name="label_highlights">Luces</string>
+    <string name="label_shadows">Sombras</string>
+    <string name="label_color_temp">Temperatura de color</string>
+    <string name="btn_reset_adjustments">Restablecer</string>
+
+    <!-- Presets -->
+    <string name="preset_save">Guardar preajuste</string>
+    <string name="preset_save_title">Guardar como preajuste</string>
+    <string name="preset_name_hint">Nombre del preajuste</string>
+    <string name="preset_saved">Preajuste guardado</string>
+    <string name="preset_deleted">Preajuste eliminado</string>
+    <string name="preset_loaded">Preajuste cargado: %1$s</string>
+    <string name="preset_limit_reached">Número máximo de preajustes alcanzado (20)</string>
+    <string name="preset_empty">No hay preajustes guardados aún</string>
+    <string name="preset_pro_locked">Función de licencia: Inicie sesión para usar preajustes</string>
 </resources>

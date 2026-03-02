@@ -109,4 +109,24 @@
     <string name="pro_brand_locked">Функция лицензии: Войдите, чтобы разблокировать этот бренд</string>
     <string name="pro_watermark_locked">Функция лицензии: Войдите, чтобы разблокировать водяные знаки</string>
     <string name="pro_quality_limit">Функция лицензии: Для качества выше 60% требуется Лицензия</string>
+    <!-- Basic adjustments -->
+    <string name="tab_adjust">Коррекция</string>
+    <string name="tab_presets">Пресеты</string>
+    <string name="label_exposure">Экспозиция</string>
+    <string name="label_contrast">Контрастность</string>
+    <string name="label_highlights">Светлые участки</string>
+    <string name="label_shadows">Тени</string>
+    <string name="label_color_temp">Цветовая температура</string>
+    <string name="btn_reset_adjustments">Сброс</string>
+
+    <!-- Presets -->
+    <string name="preset_save">Сохранить пресет</string>
+    <string name="preset_save_title">Сохранить как пресет</string>
+    <string name="preset_name_hint">Название пресета</string>
+    <string name="preset_saved">Пресет сохранен</string>
+    <string name="preset_deleted">Пресет удален</string>
+    <string name="preset_loaded">Пресет загружен: %1$s</string>
+    <string name="preset_limit_reached">Достигнуто максимальное количество пресетов (20)</string>
+    <string name="preset_empty">Еще нет сохраненных пресетов</string>
+    <string name="preset_pro_locked">Функция лицензии: Войдите, чтобы использовать пресеты</string>
 </resources>
