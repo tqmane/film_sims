@@ -24,18 +24,8 @@ data class ReleaseInfo(
 /**
  * Checks for application updates from GitHub Releases.
  *
- * Security:
- * - Certificate pinning is configured in [com.tqmane.filmsim.di.NetworkModule] and
- *   injected via [com.tqmane.filmsim.di.UpdateCheckerWrapper]. A single shared
- *   [OkHttpClient] is used throughout the app to avoid duplicate SSL/pinning state.
+ * - Uses a single shared [OkHttpClient] to avoid duplicate HTTP client instances.
  * - Retry with exponential back-off (max 3 attempts)
- *
- * HOW TO UPDATE CERTIFICATE PINS:
- * 1. openssl s_client -connect api.github.com:443 -servername api.github.com < /dev/null 2>/dev/null \
- *      | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der \
- *      | openssl dgst -sha256 -binary | openssl enc -base64
- * 2. Replace the sha256 values in NetworkModule.kt.
- * 3. Keep the previous pin as a backup during rotation.
  */
 object UpdateChecker {
 
