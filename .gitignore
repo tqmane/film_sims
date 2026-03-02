@@ -87,3 +87,4 @@ tools/
 tecno_watermark_extracted/
 app_bak/
 .github/
+.agent/

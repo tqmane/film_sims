@@ -1,4 +1,4 @@
-package com.tqmane.filmsim.domain
+package com.tqmane.filmsim.domain.export
 
 import android.content.ContentValues
 import android.content.Context
@@ -7,28 +7,15 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
-import com.tqmane.filmsim.di.DefaultDispatcher
 import com.tqmane.filmsim.di.IoDispatcher
-import com.tqmane.filmsim.util.CubeLUT
-import com.tqmane.filmsim.util.HighResLutProcessor
-import com.tqmane.filmsim.util.LutBitmapProcessor
-import com.tqmane.filmsim.util.WatermarkProcessor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-/** Contract for watermark rendering and image export/save. */
-interface WatermarkUseCase {
-    suspend fun renderPreview(
-        previewBitmap: Bitmap,
-        lut: CubeLUT?,
-        intensity: Float,
-        config: WatermarkProcessor.WatermarkConfig
-    ): Bitmap
+data class SaveResult(val width: Int, val height: Int, val path: String, val filename: String)
 
-    suspend fun applyWatermark(bitmap: Bitmap, config: WatermarkProcessor.WatermarkConfig): Bitmap
-    suspend fun applyCpuLut(source: Bitmap, lut: CubeLUT, intensity: Float): Bitmap
+interface ImageExportUseCase {
     suspend fun saveBitmapWithExif(
         bitmap: Bitmap,
         originalUri: Uri?,
@@ -37,43 +24,10 @@ interface WatermarkUseCase {
     ): SaveResult
 }
 
-data class SaveResult(val width: Int, val height: Int, val path: String, val filename: String)
-
-class WatermarkUseCaseImpl @Inject constructor(
+class ImageExportUseCaseImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val watermarkProcessor: WatermarkProcessor,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-) : WatermarkUseCase {
-
-    override suspend fun renderPreview(
-        previewBitmap: Bitmap,
-        lut: CubeLUT?,
-        intensity: Float,
-        config: WatermarkProcessor.WatermarkConfig
-    ): Bitmap = withContext(defaultDispatcher) {
-        val base = if (lut != null && intensity > 0f) {
-            LutBitmapProcessor.applyLutToBitmap(previewBitmap, lut, intensity)
-        } else {
-            previewBitmap
-        }
-        watermarkProcessor.applyWatermark(base, config)
-    }
-
-    override suspend fun applyWatermark(
-        bitmap: Bitmap,
-        config: WatermarkProcessor.WatermarkConfig
-    ): Bitmap = withContext(defaultDispatcher) {
-        watermarkProcessor.applyWatermark(bitmap, config)
-    }
-
-    override suspend fun applyCpuLut(
-        source: Bitmap,
-        lut: CubeLUT,
-        intensity: Float
-    ): Bitmap = withContext(defaultDispatcher) {
-        HighResLutProcessor.applyLut(source, lut, intensity)
-    }
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) : ImageExportUseCase {
 
     override suspend fun saveBitmapWithExif(
         bitmap: Bitmap,
@@ -110,8 +64,6 @@ class WatermarkUseCaseImpl @Inject constructor(
 
         SaveResult(bitmap.width, bitmap.height, savePath, filename)
     }
-
-    // ─── EXIF copy ──────────────────────────────────────
 
     private fun copyExif(
         sourceUri: Uri?,

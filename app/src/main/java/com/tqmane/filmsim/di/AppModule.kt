@@ -22,6 +22,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideLutBrands(@ApplicationContext context: Context): List<LutBrand> =
-        LutRepository.getLutBrands(context)
+    fun provideLutBrands(lutRepository: LutRepository): List<LutBrand> =
+        lutRepository.getLutBrands()
 }

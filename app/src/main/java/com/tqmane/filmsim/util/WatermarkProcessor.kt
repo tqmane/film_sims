@@ -13,21 +13,24 @@ import com.tqmane.filmsim.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * Applies Honor-style watermarks to exported images.
+ * Applies brand-specific watermarks to exported images.
  *
- * Faithfully reproduces the Honor watermark templates (FrameWatermark & TextWatermark)
- * using the exact font (HONORSansVFCN.ttf), dimensions, and layout from content.json.
- *
- * All dimensions are scaled proportionally based on a 6144px reference width
- * (matching the original Honor template `baseOnValue`).
+ * Supports Honor, Meizu, Vivo, TECNO watermark styles.
+ * All dimensions are scaled proportionally based on a 6144px reference width.
  */
-object WatermarkProcessor {
+@Singleton
+class WatermarkProcessor @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
-    private const val PHI = 1.61803398875f
+    private val PHI = 1.61803398875f
 
     private fun rint(v: Float): Int = v.roundToInt()
 
@@ -65,9 +68,9 @@ object WatermarkProcessor {
     )
 
     // Reference width from Honor template baseOnValue
-    private const val BASE_WIDTH = 6144f
+    private val BASE_WIDTH = 6144f
     // Frame border height at reference width (from backgroundElements)
-    private const val FRAME_BORDER_HEIGHT = 688f
+    private val FRAME_BORDER_HEIGHT = 688f
 
     // Cached typeface
     private var honorTypeface: Typeface? = null
@@ -107,7 +110,6 @@ object WatermarkProcessor {
      * The source bitmap is NOT modified or recycled.
      */
     fun applyWatermark(
-        context: Context,
         source: Bitmap,
         config: WatermarkConfig
     ): Bitmap {
@@ -146,12 +148,10 @@ object WatermarkProcessor {
             WatermarkStyle.VIVO_OS_CORNER -> applyVivoOSCorner(context, source, config)
             WatermarkStyle.VIVO_OS_SIMPLE -> applyVivoOSSimple(context, source, config)
             WatermarkStyle.VIVO_EVENT -> applyVivoEvent(context, source, config)
-            // TECNO watermarks
             WatermarkStyle.TECNO_1 -> applyTecnoConfigDrivenWatermark(context, source, config, 1)
             WatermarkStyle.TECNO_2 -> applyTecnoConfigDrivenWatermark(context, source, config, 2)
             WatermarkStyle.TECNO_3 -> applyTecnoConfigDrivenWatermark(context, source, config, 3)
             WatermarkStyle.TECNO_4 -> applyTecnoConfigDrivenWatermark(context, source, config, 4)
-            // Config-driven watermarks
             WatermarkStyle.VIVO_ZEISS_0 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss0.txt")
             WatermarkStyle.VIVO_ZEISS_1 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss1.txt")
             WatermarkStyle.VIVO_ZEISS_2 -> applyVivoConfigDriven(context, source, config, "vivo_watermark_full2/assets/zeiss_editors/zeiss2.txt")
@@ -534,44 +534,6 @@ object WatermarkProcessor {
     /**
      * Generates a default time string matching Honor format.
      */
-    fun getDefaultTimeString(): String {
-        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-        return sdf.format(Date())
-    }
-
-    /**
-     * Generates a time string from EXIF datetime.
-     */
-    fun formatExifDateTime(exifDateTime: String?): String? {
-        if (exifDateTime.isNullOrEmpty()) return null
-        return try {
-            val inputFormat = SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US)
-            val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
-            val date = inputFormat.parse(exifDateTime)
-            date?.let { outputFormat.format(it) }
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    /**
-     * Builds lens info string from EXIF data.
-     * Format: "27mm  f/1.9  1/100s  ISO1600"
-     */
-    fun buildLensInfoFromExif(
-        focalLength: String?,
-        fNumber: String?,
-        exposureTime: String?,
-        iso: String?
-    ): String {
-        val parts = mutableListOf<String>()
-        focalLength?.let { parts.add("${it}mm") }
-        fNumber?.let { parts.add("f/$it") }
-        exposureTime?.let { parts.add("${it}s") }
-        iso?.let { parts.add("ISO$it") }
-        return parts.joinToString("  ")
-    }
-
     /**
      * Frame watermark YG variant (Harcourt Touch Paris collaboration).
      * Based on FrameWatermarkYG/content.json:
@@ -1502,13 +1464,13 @@ object WatermarkProcessor {
     // Template defines 108dp bar on 360dp-wide canvas (= 0.3), but real vivo
     // camera renders at device-density pixels.  0.15 matches pixel-validated
     // references from actual vivo photos.
-    private const val VIVO_BAR_RATIO = 0.15f
+    private val VIVO_BAR_RATIO = 0.15f
     // Template bar height in dp (for dpScale calculation).
     // Text sizes in the template are designed for a 108dp-tall bar, but we
     // render smaller bars (0.15 ratio). To keep text readable we treat the
     // template as if its bar were only 78dp, which scales all dp-based font
     // sizes up by ~1.38× inside the same physical bar height.
-    private const val VIVO_BAR_DP = 78f
+    private val VIVO_BAR_DP = 78f
 
     // Colors from templates
     private val VIVO_3A_ZEISS = Color.argb(204, 0, 0, 0)    // #CC000000 (ZEISS style)
@@ -1516,10 +1478,10 @@ object WatermarkProcessor {
     private val VIVO_TIME_GRAY = Color.parseColor("#757575")  // #FF757575 (datetime/location)
 
     // Overlay style ratios (relative to short side / image height)
-    private const val VIVO_OV_MARGIN_BOT = 0.065f
-    private const val VIVO_OV_MARGIN_LR = 0.040f
-    private const val VIVO_OV_FS_DEVICE = 0.032f
-    private const val VIVO_OV_FS_SUB = 0.022f
+    private val VIVO_OV_MARGIN_BOT = 0.065f
+    private val VIVO_OV_MARGIN_LR = 0.040f
+    private val VIVO_OV_FS_DEVICE = 0.032f
+    private val VIVO_OV_FS_SUB = 0.022f
 
     // Cached vivo typefaces
     private var vivoHeavyTypeface: Typeface? = null
@@ -3341,9 +3303,9 @@ object WatermarkProcessor {
     // ─── TECNO Watermark ────────────────────────────────
 
     // Reference bar dimensions (from TranssionWM.json, portrait mode at 1080px width)
-    private const val TECNO_REF_WIDTH = 1080f
-    private const val TECNO_BAR_HEIGHT_PORTRAIT = 113f
-    private const val TECNO_BAR_HEIGHT_LANDSCAPE = 95f
+    private val TECNO_REF_WIDTH = 1080f
+    private val TECNO_BAR_HEIGHT_PORTRAIT = 113f
+    private val TECNO_BAR_HEIGHT_LANDSCAPE = 95f
 
     // Cached TECNO typefaces
     private var tecnoBrandTypeface: Typeface? = null
@@ -3714,6 +3676,39 @@ object WatermarkProcessor {
                 style = Paint.Style.FILL
             }
             canvas.drawCircle(x + size / 2f, y + size / 2f, size / 3f, paint)
+        }
+    }
+
+    companion object {
+        fun getDefaultTimeString(): String {
+            val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+            return sdf.format(Date())
+        }
+
+        fun formatExifDateTime(exifDateTime: String?): String? {
+            if (exifDateTime.isNullOrEmpty()) return null
+            return try {
+                val inputFormat = SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US)
+                val outputFormat = SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
+                val date = inputFormat.parse(exifDateTime)
+                date?.let { outputFormat.format(it) }
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        fun buildLensInfoFromExif(
+            focalLength: String?,
+            fNumber: String?,
+            exposureTime: String?,
+            iso: String?
+        ): String {
+            val parts = mutableListOf<String>()
+            focalLength?.let { parts.add("${it}mm") }
+            fNumber?.let { parts.add("f/$it") }
+            exposureTime?.let { parts.add("${it}s") }
+            iso?.let { parts.add("ISO$it") }
+            return parts.joinToString("  ")
         }
     }
 }

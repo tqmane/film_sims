@@ -13,7 +13,7 @@ import com.tqmane.filmsim.di.IoDispatcher
 import com.tqmane.filmsim.domain.ImageLoadUseCase
 import com.tqmane.filmsim.domain.LutApplyUseCase
 import com.tqmane.filmsim.domain.WatermarkUseCase
-import com.tqmane.filmsim.domain.SecurityCheckUseCase
+import com.tqmane.filmsim.core.security.SecurityCheckUseCase
 import com.tqmane.filmsim.gl.GlCommandExecutor
 import com.tqmane.filmsim.gl.GpuExportRenderer
 import com.tqmane.filmsim.util.SettingsManager
@@ -36,7 +36,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class EditorViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val contentResolver: ContentResolver,
     private val imageLoadUseCase: ImageLoadUseCase,
