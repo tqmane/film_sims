@@ -51,6 +51,12 @@
 
 ---
 
+## ライセンス
+
+このプロジェクトは GNU General Public License v3.0 の下でライセンスされています。詳細については [LICENSE](LICENSE) ファイルをご覧ください。
+
+---
+
 ## スクリーンショット
 
 ![FilmSims Store Banner](pictures/store_v5_gooddesign_combined.png)

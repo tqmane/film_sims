@@ -51,6 +51,12 @@ Extraction Method: https://github.com/tqmane/lut_extractor
 
 ---
 
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
 ## Screenshots
 
 ![FilmSims Store Banner](pictures/store_v5_gooddesign_combined.png)

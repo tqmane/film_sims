@@ -51,6 +51,12 @@
 
 ---
 
+## 许可证
+
+本项目基于 GNU General Public License v3.0 许可协议开源。详情请参阅 [LICENSE](LICENSE) 文件。
+
+---
+
 ## 屏幕截图
 
 ![FilmSims Store Banner](pictures/store_v5_gooddesign_combined.png)
