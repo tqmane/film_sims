@@ -2,6 +2,7 @@ package com.tqmane.filmsim.ui.editor.panel
 
 import android.opengl.GLSurfaceView
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,6 +55,7 @@ internal fun GrainTab(
     var selectedStyle by remember { mutableStateOf(editState.grainStyle) }
     val accent = if (grainEnabled) LiquidColors.AccentPrimary else LiquidColors.TextLowEmphasis
 
+    Column {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -178,4 +180,5 @@ internal fun GrainTab(
             }
         }
     }
+    } // Column
 }

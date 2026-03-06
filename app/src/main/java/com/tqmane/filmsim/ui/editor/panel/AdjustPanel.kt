@@ -6,16 +6,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -37,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -135,53 +140,59 @@ fun AdjustPanel(
                 .padding(bottom = 14.dp)
         )
 
-        when (currentTab) {
-            AdjustTab.INTENSITY -> {
-                IntensityTab(
-                    intensity = editState.intensity,
-                    onIntensityChange = { value ->
-                        viewModel.setIntensity(value)
-                        if (!isWatermarkActive) {
-                            glSurfaceView?.queueEvent {
-                                renderer?.setIntensity(value)
-                                glSurfaceView.requestRender()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 220.dp)
+        ) {
+            when (currentTab) {
+                AdjustTab.INTENSITY -> {
+                    IntensityTab(
+                        intensity = editState.intensity,
+                        onIntensityChange = { value ->
+                            viewModel.setIntensity(value)
+                            if (!isWatermarkActive) {
+                                glSurfaceView?.queueEvent {
+                                    renderer?.setIntensity(value)
+                                    glSurfaceView.requestRender()
+                                }
                             }
+                            onRefreshWatermark()
                         }
-                        onRefreshWatermark()
-                    }
-                )
-            }
-            AdjustTab.ADJUST -> {
-                BasicAdjustTab(
-                    editState = editState,
-                    viewModel = viewModel,
-                    glSurfaceView = glSurfaceView,
-                    renderer = renderer,
-                    isWatermarkActive = isWatermarkActive,
-                    onRefreshWatermark = onRefreshWatermark
-                )
-            }
-            AdjustTab.GRAIN -> {
-                GrainTab(
-                    editState = editState,
-                    viewModel = viewModel,
-                    glSurfaceView = glSurfaceView,
-                    renderer = renderer,
-                    isWatermarkActive = isWatermarkActive,
-                    onRefreshWatermark = onRefreshWatermark
-                )
-            }
-            AdjustTab.WATERMARK -> {
-                WatermarkTab(
-                    watermarkState = watermarkState,
-                    viewModel = viewModel,
-                    onRefreshWatermark = onRefreshWatermark
-                )
-            }
-            AdjustTab.PRESETS -> {
-                PresetsTab(
-                    viewModel = viewModel
-                )
+                    )
+                }
+                AdjustTab.ADJUST -> {
+                    BasicAdjustTab(
+                        editState = editState,
+                        viewModel = viewModel,
+                        glSurfaceView = glSurfaceView,
+                        renderer = renderer,
+                        isWatermarkActive = isWatermarkActive,
+                        onRefreshWatermark = onRefreshWatermark
+                    )
+                }
+                AdjustTab.GRAIN -> {
+                    GrainTab(
+                        editState = editState,
+                        viewModel = viewModel,
+                        glSurfaceView = glSurfaceView,
+                        renderer = renderer,
+                        isWatermarkActive = isWatermarkActive,
+                        onRefreshWatermark = onRefreshWatermark
+                    )
+                }
+                AdjustTab.WATERMARK -> {
+                    WatermarkTab(
+                        watermarkState = watermarkState,
+                        viewModel = viewModel,
+                        onRefreshWatermark = onRefreshWatermark
+                    )
+                }
+                AdjustTab.PRESETS -> {
+                    PresetsTab(
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }
@@ -215,7 +226,9 @@ internal fun BasicAdjustTab(
     onRefreshWatermark: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    val scrollState = rememberScrollState()
+    Box(modifier = modifier) {
+    Column(modifier = Modifier.fillMaxWidth().verticalScroll(scrollState)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -316,6 +329,20 @@ internal fun BasicAdjustTab(
             }
         )
     }
+    if (scrollState.canScrollForward) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, LiquidColors.SurfaceDark.copy(alpha = 0.92f))
+                    )
+                )
+        )
+    }
+    } // Box
 }
 
 @Composable
