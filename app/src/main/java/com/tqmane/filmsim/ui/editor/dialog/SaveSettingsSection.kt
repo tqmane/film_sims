@@ -19,10 +19,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +50,7 @@ internal fun SaveSettingsSection(
     viewModel: EditorViewModel,
     isProUser: Boolean
 ) {
+    val panelHintsEnabled by viewModel.showPanelHints.collectAsState()
     val initialQuality = if (!isProUser && viewModel.settings.saveQuality > 60) 60
                          else viewModel.settings.saveQuality
     var qualityProgress by remember { mutableFloatStateOf(initialQuality.toFloat()) }
@@ -145,6 +149,46 @@ internal fun SaveSettingsSection(
             color = LiquidColors.TextLowEmphasis,
             fontSize = 12.sp,
             modifier = Modifier.padding(start = 4.dp, top = 2.dp, bottom = 4.dp)
+        )
+    }
+
+    Spacer(Modifier.height(18.dp))
+
+    SettingsSectionLabel(stringResource(R.string.panel_hints_setting))
+    Spacer(Modifier.height(8.dp))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0x12FFFFFF))
+            .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.panel_hints_setting),
+                color = LiquidColors.TextHighEmphasis,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.panel_hints_setting_description),
+                color = LiquidColors.TextLowEmphasis,
+                fontSize = 12.sp
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Switch(
+            checked = panelHintsEnabled,
+            onCheckedChange = { viewModel.setPanelHintsEnabled(it) },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = LiquidColors.TextHighEmphasis,
+                checkedTrackColor = LiquidColors.AccentPrimary,
+                uncheckedThumbColor = LiquidColors.TextMediumEmphasis,
+                uncheckedTrackColor = Color(0x24FFFFFF)
+            )
         )
     }
 

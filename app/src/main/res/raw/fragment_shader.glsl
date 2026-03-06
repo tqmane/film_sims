@@ -6,8 +6,10 @@ out vec4 outColor;
 
 uniform sampler2D uInputTexture;
 uniform mediump sampler3D uLutTexture;
+uniform mediump sampler3D uOverlayLutTexture;
 uniform sampler2D uGrainTexture;
 uniform float uIntensity; // 0.0 = original, 1.0 = full LUT effect
+uniform float uOverlayIntensity; // 0.0 = no overlay, 1.0 = full overlay LUT
 uniform float uGrainIntensity; // 0.0 = no grain, 1.0 = full grain
 uniform float uGrainScale; // Grain texture tiling scale
 uniform float uTime; // For grain animation (optional)
@@ -47,7 +49,10 @@ void main() {
     vec3 lutColor = texture(uLutTexture, adjusted).rgb;
     
     // Blend between adjusted and LUT based on intensity
-    vec3 finalColor = mix(adjusted, lutColor, uIntensity);
+    vec3 baseColor = mix(adjusted, lutColor, uIntensity);
+
+    vec3 overlayColor = texture(uOverlayLutTexture, clamp(baseColor, 0.0, 1.0)).rgb;
+    vec3 finalColor = mix(baseColor, overlayColor, uOverlayIntensity);
     
     // Apply film grain if enabled
     if (uGrainIntensity > 0.001) {

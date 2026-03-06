@@ -151,4 +151,17 @@
     <string name="adjust_hint_grain">Ajoutez du grain une fois le LUT et la tonalité en place pour une texture plus naturelle.</string>
     <string name="adjust_hint_watermark">Terminez l image avec un filigrane de marque lorsque l édition est prête.</string>
     <string name="adjust_hint_presets">Enregistrez votre recette actuelle pour la réutiliser sur la prochaine photo.</string>
+    <string name="overlay_filter">Filtre superposé</string>
+    <string name="overlay_filter_none">Aucune superposition sélectionnée</string>
+    <string name="overlay_filter_hint_empty">Ajoutez un second rendu pour mélanger les styles sans remplacer votre LUT de base.</string>
+    <string name="overlay_filter_hint_active">Mélangez un second rendu au-dessus du LUT de base pour ajouter plus de caractère colorimétrique.</string>
+    <string name="overlay_pick">Choisir la superposition</string>
+    <string name="overlay_change">Changer la superposition</string>
+    <string name="overlay_remove">Retirer la superposition</string>
+    <string name="overlay_blend">Mélange de superposition</string>
+    <string name="overlay_selection_title">Choisir un rendu superposé</string>
+    <string name="overlay_selection_hint">Choisissez un second LUT à superposer au rendu actuel. Utilisez le mélange pour doser la force.</string>
+    <string name="overlay_done">Terminé</string>
+    <string name="panel_hints_setting">Afficher les aides du panneau</string>
+    <string name="panel_hints_setting_description">Affiche ou masque les cartes d aide dans les panneaux LUT et réglages.</string>
 </resources>

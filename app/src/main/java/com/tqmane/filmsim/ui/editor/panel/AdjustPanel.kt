@@ -58,8 +58,10 @@ import com.tqmane.filmsim.ui.EditState
 import com.tqmane.filmsim.ui.EditorViewModel
 import com.tqmane.filmsim.ui.Preset
 import com.tqmane.filmsim.ui.WatermarkState
+import com.tqmane.filmsim.ui.component.LiquidChip
 import com.tqmane.filmsim.ui.component.LiquidIntensitySlider
 import com.tqmane.filmsim.ui.component.LiquidNoticeCard
+import com.tqmane.filmsim.ui.component.LiquidSectionHeader
 import com.tqmane.filmsim.ui.component.LiquidTabBar
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
@@ -76,6 +78,8 @@ internal fun AdjustPanel(
     onRefreshWatermark: () -> Unit,
     selectedTab: AdjustTab,
     onTabSelected: (AdjustTab) -> Unit,
+    showPanelHints: Boolean,
+    onSelectOverlayFilter: () -> Unit,
     onClose: () -> Unit,
     isProUser: Boolean = false,
     modifier: Modifier = Modifier
@@ -165,14 +169,16 @@ internal fun AdjustPanel(
             )
         }
 
-        LiquidNoticeCard(
-            title = currentLutName,
-            message = currentHintMessage,
-            label = currentTabLabel,
-            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
-        )
+        if (showPanelHints) {
+            LiquidNoticeCard(
+                title = currentLutName,
+                message = currentHintMessage,
+                label = currentTabLabel,
+                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+            )
+        }
 
-        if (!isProUser) {
+        if (showPanelHints && !isProUser) {
             LiquidNoticeCard(
                 title = stringResource(R.string.more_tools_title),
                 message = stringResource(lockedFeatureMessageResState.intValue),
@@ -214,6 +220,10 @@ internal fun AdjustPanel(
                 AdjustTab.INTENSITY -> {
                     IntensityTab(
                         intensity = editState.intensity,
+                        overlayLutName = editState.overlayLutPath
+                            ?.substringAfterLast("/")
+                            ?.substringBeforeLast("."),
+                        overlayIntensity = editState.overlayIntensity,
                         onIntensityChange = { value ->
                             viewModel.setIntensity(value)
                             if (!isWatermarkActive) {
@@ -222,6 +232,23 @@ internal fun AdjustPanel(
                                     glSurfaceView.requestRender()
                                 }
                             }
+                            onRefreshWatermark()
+                        },
+                        onOverlayIntensityChange = { value ->
+                            viewModel.setOverlayIntensity(value)
+                            if (!isWatermarkActive) {
+                                glSurfaceView?.queueEvent {
+                                    renderer?.setOverlayIntensity(
+                                        if (editState.overlayLutPath != null) value else 0f
+                                    )
+                                    glSurfaceView.requestRender()
+                                }
+                            }
+                            onRefreshWatermark()
+                        },
+                        onSelectOverlayFilter = onSelectOverlayFilter,
+                        onClearOverlay = {
+                            viewModel.clearOverlayLut()
                             onRefreshWatermark()
                         }
                     )
@@ -269,14 +296,67 @@ internal fun AdjustPanel(
 @Composable
 internal fun IntensityTab(
     intensity: Float,
+    overlayLutName: String?,
+    overlayIntensity: Float,
     onIntensityChange: (Float) -> Unit,
+    onOverlayIntensityChange: (Float) -> Unit,
+    onSelectOverlayFilter: () -> Unit,
+    onClearOverlay: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LiquidIntensitySlider(
-        intensity = intensity,
-        onIntensityChange = onIntensityChange,
-        modifier = modifier
-    )
+    Column(modifier = modifier) {
+        LiquidIntensitySlider(
+            intensity = intensity,
+            onIntensityChange = onIntensityChange
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+        LiquidSectionHeader(text = stringResource(R.string.overlay_filter))
+        Text(
+            text = overlayLutName ?: stringResource(R.string.overlay_filter_none),
+            color = if (overlayLutName != null) LiquidColors.TextHighEmphasis else LiquidColors.TextMediumEmphasis,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.SansSerif
+        )
+        Text(
+            text = stringResource(
+                if (overlayLutName == null) R.string.overlay_filter_hint_empty else R.string.overlay_filter_hint_active
+            ),
+            color = LiquidColors.TextLowEmphasis,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(top = 12.dp, bottom = if (overlayLutName != null) 10.dp else 0.dp)
+        ) {
+            LiquidChip(
+                text = stringResource(if (overlayLutName == null) R.string.overlay_pick else R.string.overlay_change),
+                selected = false,
+                onClick = onSelectOverlayFilter
+            )
+            if (overlayLutName != null) {
+                LiquidChip(
+                    text = stringResource(R.string.overlay_remove),
+                    selected = false,
+                    onClick = onClearOverlay
+                )
+            }
+        }
+
+        if (overlayLutName != null) {
+            AdjustSlider(
+                label = stringResource(R.string.overlay_blend),
+                value = overlayIntensity,
+                range = 0f..1f,
+                onValueChange = onOverlayIntensityChange,
+                valueFormatter = { "${(it * 100).toInt()}%" }
+            )
+        }
+    }
 }
 
 // ─── Basic Adjust Tab ────────────────────────────────────────
@@ -416,11 +496,14 @@ private fun AdjustSlider(
     value: Float,
     range: ClosedFloatingPointRange<Float>,
     onValueChange: (Float) -> Unit,
+    valueFormatter: (Float) -> String = {
+        val displayValue = (it * 100).toInt()
+        "${if (displayValue > 0) "+" else ""}$displayValue"
+    },
     modifier: Modifier = Modifier
 ) {
     var sliderValue by remember(value) { mutableFloatStateOf(value) }
     val haptic = LocalHapticFeedback.current
-    val displayValue = (sliderValue * 100).toInt()
 
     Row(
         modifier = modifier
@@ -453,7 +536,7 @@ private fun AdjustSlider(
             )
         )
         Text(
-            "${if (displayValue > 0) "+" else ""}$displayValue",
+            valueFormatter(sliderValue),
             color = LiquidColors.AccentPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,

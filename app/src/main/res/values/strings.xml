@@ -348,4 +348,17 @@
     <string name="label_license_permanent">Permanent License</string>
     <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>
     <string name="label_purchase_license">Purchase a License → tqmane.booth.pm</string>
+    <string name="overlay_filter">Overlay filter</string>
+    <string name="overlay_filter_none">No overlay selected</string>
+    <string name="overlay_filter_hint_empty">Add a second look to blend styles without replacing your base LUT.</string>
+    <string name="overlay_filter_hint_active">Blend a second look on top of the base LUT for extra color character.</string>
+    <string name="overlay_pick">Pick overlay</string>
+    <string name="overlay_change">Change overlay</string>
+    <string name="overlay_remove">Remove overlay</string>
+    <string name="overlay_blend">Overlay blend</string>
+    <string name="overlay_selection_title">Choose an overlay look</string>
+    <string name="overlay_selection_hint">Pick a second LUT to layer over your current look. Use blend to control the mix.</string>
+    <string name="overlay_done">Done</string>
+    <string name="panel_hints_setting">Show panel hints</string>
+    <string name="panel_hints_setting_description">Toggle helper cards inside the LUT and adjustment panels.</string>
 </resources>

@@ -18,6 +18,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var bgProgramId: Int = 0
     private var inputTextureId: Int = 0
     private var lutTextureId: Int = 0
+    private var overlayLutTextureId: Int = 0
     private var grainTextureId: Int = 0
     
     // Time variable for shaders
@@ -28,6 +29,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
 
     private var pendingBitmap: Bitmap? = null
     private var pendingLut: CubeLUT? = null
+    private var pendingOverlayLut: CubeLUT? = null
     private var pendingGrainBitmap: Bitmap? = null
     
     private var viewportWidth = 0
@@ -38,6 +40,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     
     // LUT intensity (0.0 = original, 1.0 = full effect)
     private var intensity: Float = 1.0f
+    private var overlayIntensity: Float = 0.35f
     
     // Film grain settings
     private var grainIntensity: Float = 0.0f
@@ -66,11 +69,13 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var uZoomHandle: Int = -1
     private var uOffsetHandle: Int = -1
     private var uIntensityHandle: Int = -1
+    private var uOverlayIntensityHandle: Int = -1
     private var uGrainIntensityHandle: Int = -1
     private var uGrainScaleHandle: Int = -1
     private var uTimeHandle: Int = -1
     private var uInputTextureHandle: Int = -1
     private var uLutTextureHandle: Int = -1
+    private var uOverlayLutTextureHandle: Int = -1
     private var uGrainTextureHandle: Int = -1
 
     // Adjustment uniform handles
@@ -100,9 +105,17 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     fun setLut(lut: CubeLUT) {
         pendingLut = lut
     }
+
+    fun setOverlayLut(lut: CubeLUT) {
+        pendingOverlayLut = lut
+    }
     
     fun setIntensity(value: Float) {
         intensity = value.coerceIn(0f, 1f)
+    }
+
+    fun setOverlayIntensity(value: Float) {
+        overlayIntensity = value.coerceIn(0f, 1f)
     }
     
     fun getIntensity(): Float = intensity
@@ -211,11 +224,13 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         uZoomHandle = GLES30.glGetUniformLocation(programId, "uZoom")
         uOffsetHandle = GLES30.glGetUniformLocation(programId, "uOffset")
         uIntensityHandle = GLES30.glGetUniformLocation(programId, "uIntensity")
+        uOverlayIntensityHandle = GLES30.glGetUniformLocation(programId, "uOverlayIntensity")
         uGrainIntensityHandle = GLES30.glGetUniformLocation(programId, "uGrainIntensity")
         uGrainScaleHandle = GLES30.glGetUniformLocation(programId, "uGrainScale")
         uTimeHandle = GLES30.glGetUniformLocation(programId, "uTime")
         uInputTextureHandle = GLES30.glGetUniformLocation(programId, "uInputTexture")
         uLutTextureHandle = GLES30.glGetUniformLocation(programId, "uLutTexture")
+        uOverlayLutTextureHandle = GLES30.glGetUniformLocation(programId, "uOverlayLutTexture")
         uGrainTextureHandle = GLES30.glGetUniformLocation(programId, "uGrainTexture")
         uExposureHandle = GLES30.glGetUniformLocation(programId, "uExposure")
         uContrastHandle = GLES30.glGetUniformLocation(programId, "uContrast")
@@ -232,14 +247,15 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         GLES30.glUseProgram(programId)
         if (uInputTextureHandle >= 0) GLES30.glUniform1i(uInputTextureHandle, 0)
         if (uLutTextureHandle >= 0) GLES30.glUniform1i(uLutTextureHandle, 1)
-        if (uGrainTextureHandle >= 0) GLES30.glUniform1i(uGrainTextureHandle, 2)
+        if (uOverlayLutTextureHandle >= 0) GLES30.glUniform1i(uOverlayLutTextureHandle, 2)
+        if (uGrainTextureHandle >= 0) GLES30.glUniform1i(uGrainTextureHandle, 3)
         
-        // Generate textures (3 now: input, LUT, grain)
-        val textures = IntArray(3)
-        GLES30.glGenTextures(3, textures, 0)
+        val textures = IntArray(4)
+        GLES30.glGenTextures(4, textures, 0)
         inputTextureId = textures[0]
         lutTextureId = textures[1]
-        grainTextureId = textures[2]
+        overlayLutTextureId = textures[2]
+        grainTextureId = textures[3]
         
         // Try to load default grain texture from assets
         loadDefaultGrainTexture()
@@ -320,6 +336,31 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
                 
             pendingLut = null
         }
+
+        pendingOverlayLut?.let { overlayLut ->
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, overlayLutTextureId)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
+            GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_R, GLES30.GL_CLAMP_TO_EDGE)
+
+            overlayLut.data.position(0)
+            GLES30.glTexImage3D(
+                GLES30.GL_TEXTURE_3D,
+                0,
+                GLES30.GL_RGB16F,
+                overlayLut.size,
+                overlayLut.size,
+                overlayLut.size,
+                0,
+                GLES30.GL_RGB,
+                GLES30.GL_FLOAT,
+                overlayLut.data
+            )
+
+            pendingOverlayLut = null
+        }
         
         // Update grain texture if needed
         pendingGrainBitmap?.let { bmp ->
@@ -360,6 +401,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glUniform1f(uZoomHandle, userZoom)
             GLES30.glUniform2f(uOffsetHandle, userOffsetX, userOffsetY)
             GLES30.glUniform1f(uIntensityHandle, intensity)
+            GLES30.glUniform1f(uOverlayIntensityHandle, overlayIntensity)
             GLES30.glUniform1f(uGrainIntensityHandle, if (grainEnabled) grainIntensity else 0f)
             GLES30.glUniform1f(uGrainScaleHandle, grainScale)
             GLES30.glUniform1f(uTimeHandle, currentTime)
@@ -377,6 +419,9 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, lutTextureId)
             
             GLES30.glActiveTexture(GLES30.GL_TEXTURE2)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, overlayLutTextureId)
+
+            GLES30.glActiveTexture(GLES30.GL_TEXTURE3)
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, grainTextureId)
             
             GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)

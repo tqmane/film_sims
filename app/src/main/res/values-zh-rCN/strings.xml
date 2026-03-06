@@ -210,4 +210,17 @@
     <string name="adjust_hint_grain">当 LUT 和色调稳定后再添加颗粒，质感会更自然。</string>
     <string name="adjust_hint_watermark">编辑完成后，再用品牌水印作为收尾。</string>
     <string name="adjust_hint_presets">保存当前配方，方便在下一张照片中复用。</string>
+    <string name="overlay_filter">叠加滤镜</string>
+    <string name="overlay_filter_none">未选择叠加滤镜</string>
+    <string name="overlay_filter_hint_empty">在保留基础 LUT 的同时，再叠加一个风格来混合色彩效果。</string>
+    <string name="overlay_filter_hint_active">在基础 LUT 上再混合一个风格，为画面增加更多色彩层次。</string>
+    <string name="overlay_pick">选择叠加</string>
+    <string name="overlay_change">更换叠加</string>
+    <string name="overlay_remove">移除叠加</string>
+    <string name="overlay_blend">叠加强度</string>
+    <string name="overlay_selection_title">选择叠加风格</string>
+    <string name="overlay_selection_hint">选择要叠加在当前风格上的第二个 LUT，并用混合强度控制效果。</string>
+    <string name="overlay_done">完成</string>
+    <string name="panel_hints_setting">显示面板提示</string>
+    <string name="panel_hints_setting_description">切换是否显示 LUT 面板和调整面板中的提示卡片。</string>
 </resources>

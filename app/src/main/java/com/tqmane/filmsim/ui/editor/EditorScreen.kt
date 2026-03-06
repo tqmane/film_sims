@@ -86,6 +86,7 @@ fun EditorScreen(
         val viewState by viewModel.viewState.collectAsState()
         val editState by viewModel.editState.collectAsState()
         val watermarkState by viewModel.watermarkState.collectAsState()
+        val showPanelHints by viewModel.showPanelHints.collectAsState()
         val isProUser by authViewModel.isProUser.collectAsState()
 
         // GL references
@@ -101,6 +102,7 @@ fun EditorScreen(
         // ─── Panel state (replaces scattered booleans) ────────────────────────
         var panelState by rememberSaveable { mutableStateOf<String>("LutSelector") }
         var selectedAdjustTabName by rememberSaveable { mutableStateOf(AdjustTab.INTENSITY.name) }
+        var isSelectingOverlay by rememberSaveable { mutableStateOf(false) }
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
 
@@ -159,7 +161,9 @@ fun EditorScreen(
             initialOffsetApplied = false
             val bmp = content.previewBitmap
             val lut = editState.currentLut
+            val overlayLut = editState.overlayLut
             val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -171,7 +175,9 @@ fun EditorScreen(
             gl.queueEvent {
                 r.setImage(bmp)
                 if (lut != null) r.setLut(lut)
+                if (overlayLut != null) r.setOverlayLut(overlayLut)
                 r.setIntensity(intensity)
+                r.setOverlayIntensity(overlayIntensity)
                 r.setGrainEnabled(grainOn)
                 if (grainOn) r.setGrainIntensity(grainVal)
                 r.setGrainStyle(grainSty)
@@ -190,7 +196,9 @@ fun EditorScreen(
             val wmBmp = watermarkPreviewBitmap
             val content = viewState as? ViewState.Content
             val lut = editState.currentLut
+            val overlayLut = editState.overlayLut
             val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -203,6 +211,7 @@ fun EditorScreen(
                 if (wmBmp != null) {
                     r.setImage(wmBmp)
                     r.setIntensity(0f)
+                    r.setOverlayIntensity(0f)
                     r.setGrainEnabled(false)
                     r.setExposure(exp)
                     r.setContrast(con)
@@ -212,7 +221,9 @@ fun EditorScreen(
                 } else if (content != null) {
                     r.setImage(content.previewBitmap)
                     if (lut != null) r.setLut(lut)
+                    if (overlayLut != null) r.setOverlayLut(overlayLut)
                     r.setIntensity(intensity)
+                    r.setOverlayIntensity(overlayIntensity)
                     r.setGrainEnabled(grainOn)
                     if (grainOn) r.setGrainIntensity(grainVal)
                     r.setGrainStyle(grainSty)
@@ -228,6 +239,7 @@ fun EditorScreen(
 
         LaunchedEffect(
             editState.lutVersion, editState.intensity,
+            editState.overlayIntensity,
             editState.grainEnabled, editState.grainIntensity, editState.grainStyle,
             editState.exposure, editState.contrast, editState.highlights,
             editState.shadows, editState.colorTemp
@@ -237,7 +249,9 @@ fun EditorScreen(
             if (viewState !is ViewState.Content) return@LaunchedEffect
             val wmActive = watermarkPreviewBitmap != null
             val lut = editState.currentLut
+            val overlayLut = editState.overlayLut
             val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
             val grainOn = editState.grainEnabled
             val grainVal = editState.grainIntensity
             val grainSty = editState.grainStyle
@@ -248,8 +262,10 @@ fun EditorScreen(
             val ct = editState.colorTemp
             gl.queueEvent {
                 if (lut != null) r.setLut(lut)
+                if (overlayLut != null) r.setOverlayLut(overlayLut)
                 if (!wmActive) {
                     r.setIntensity(intensity)
+                    r.setOverlayIntensity(overlayIntensity)
                     r.setGrainEnabled(grainOn)
                     if (grainOn) r.setGrainIntensity(grainVal)
                     r.setGrainStyle(grainSty)
@@ -335,7 +351,9 @@ fun EditorScreen(
                                 onLongPressStart = {
                                     if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
                                         queueEvent {
-                                            r.setIntensity(0f); r.setGrainEnabled(false)
+                                            r.setIntensity(0f)
+                                            r.setOverlayIntensity(0f)
+                                            r.setGrainEnabled(false)
                                             requestRender()
                                         }
                                     }
@@ -344,6 +362,9 @@ fun EditorScreen(
                                     if (watermarkPreviewBitmap == null) {
                                         queueEvent {
                                             r.setIntensity(if (editState.hasSelectedLut) editState.intensity else 0f)
+                                            r.setOverlayIntensity(
+                                                if (editState.overlayLut != null) editState.overlayIntensity else 0f
+                                            )
                                             r.setGrainEnabled(editState.grainEnabled)
                                             if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
                                             requestRender()
@@ -424,6 +445,13 @@ fun EditorScreen(
                     selectedCategoryIndex = selectedCategoryIndex,
                     selectedAdjustTab = selectedAdjustTab,
                     onAdjustTabSelected = { selectedAdjustTabName = it.name },
+                    showPanelHints = showPanelHints,
+                    isSelectingOverlay = isSelectingOverlay,
+                    onStartOverlaySelection = {
+                        selectedAdjustTabName = AdjustTab.INTENSITY.name
+                        isSelectingOverlay = true
+                    },
+                    onFinishOverlaySelection = { isSelectingOverlay = false },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onGloballyPositioned { bottomPanelHeightPx = it.size.height.toFloat() }
@@ -518,6 +546,10 @@ private fun BottomControlArea(
     selectedCategoryIndex: Int,
     selectedAdjustTab: AdjustTab,
     onAdjustTabSelected: (AdjustTab) -> Unit,
+    showPanelHints: Boolean,
+    isSelectingOverlay: Boolean,
+    onStartOverlaySelection: () -> Unit,
+    onFinishOverlaySelection: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val navPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -546,6 +578,11 @@ private fun BottomControlArea(
                     onRefreshWatermark = onRefreshWatermark,
                     selectedTab = selectedAdjustTab,
                     onTabSelected = onAdjustTabSelected,
+                    showPanelHints = showPanelHints,
+                    onSelectOverlayFilter = {
+                        onStartOverlaySelection()
+                        onShowAdjustPanelChange(false)
+                    },
                     isProUser = isProUser,
                     onClose = { onShowAdjustPanelChange(false) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
@@ -561,6 +598,16 @@ private fun BottomControlArea(
                     isWatermarkActive = isWatermarkActive,
                     onRefreshWatermark = onRefreshWatermark,
                     onLutReselected = { onShowAdjustPanelChange(true) },
+                    showPanelHints = showPanelHints,
+                    isSelectingOverlay = isSelectingOverlay,
+                    onCancelOverlaySelection = {
+                        onFinishOverlaySelection()
+                        onShowAdjustPanelChange(true)
+                    },
+                    onOverlaySelectionComplete = {
+                        onFinishOverlaySelection()
+                        onShowAdjustPanelChange(true)
+                    },
                     isProUser = isProUser,
                     selectedBrandIndex = selectedBrandIndex,
                     onBrandIndexChanged = { viewModel.setSelectedBrandIndex(it) },

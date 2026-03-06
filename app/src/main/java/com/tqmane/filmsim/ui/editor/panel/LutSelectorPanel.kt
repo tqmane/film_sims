@@ -52,6 +52,10 @@ fun LutSelectorPanel(
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
     onLutReselected: () -> Unit,
+    showPanelHints: Boolean = true,
+    isSelectingOverlay: Boolean = false,
+    onCancelOverlaySelection: () -> Unit = {},
+    onOverlaySelectionComplete: () -> Unit = {},
     isProUser: Boolean = false,
     selectedBrandIndex: Int = 0,
     onBrandIndexChanged: (Int) -> Unit = {},
@@ -68,6 +72,10 @@ fun LutSelectorPanel(
             viewModel.brands, viewModel, viewState, editState, watermarkState,
             glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark,
             onLutReselected = onLutReselected,
+            showPanelHints = showPanelHints,
+            isSelectingOverlay = isSelectingOverlay,
+            onCancelOverlaySelection = onCancelOverlaySelection,
+            onOverlaySelectionComplete = onOverlaySelectionComplete,
             isProUser = isProUser,
             selectedBrandIndex = selectedBrandIndex,
             onBrandIndexChanged = onBrandIndexChanged,
@@ -89,6 +97,10 @@ private fun BrandGenreLutSection(
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
     onLutReselected: () -> Unit,
+    showPanelHints: Boolean = true,
+    isSelectingOverlay: Boolean = false,
+    onCancelOverlaySelection: () -> Unit = {},
+    onOverlaySelectionComplete: () -> Unit = {},
     isProUser: Boolean = false,
     selectedBrandIndex: Int = 0,
     onBrandIndexChanged: (Int) -> Unit = {},
@@ -117,7 +129,7 @@ private fun BrandGenreLutSection(
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
     val currentBrand = brands.getOrNull(selectedBrandIndex)
     val currentCategory = categories.getOrNull(selectedCategoryIndex)
-    val selectedLutName = editState.currentLutPath
+    val selectedLutName = (if (isSelectingOverlay) editState.overlayLutPath else editState.currentLutPath)
         ?.substringAfterLast("/")
         ?.substringBeforeLast(".")
     val collectionLabel = if (categories.size > 1) {
@@ -152,18 +164,20 @@ private fun BrandGenreLutSection(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        LiquidNoticeCard(
-            title = selectedLutName ?: (currentBrand?.displayName ?: stringResource(R.string.section_brands)),
-            message = if (selectedLutName != null) {
-                stringResource(R.string.look_ready_hint)
-            } else {
-                stringResource(R.string.look_preview_hint, lutItems.size)
-            },
-            label = collectionLabel,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        if (showPanelHints && !isSelectingOverlay) {
+            LiquidNoticeCard(
+                title = selectedLutName ?: (currentBrand?.displayName ?: stringResource(R.string.section_brands)),
+                message = if (selectedLutName != null) {
+                    stringResource(R.string.look_ready_hint)
+                } else {
+                    stringResource(R.string.look_preview_hint, lutItems.size)
+                },
+                label = collectionLabel,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
 
-        if (!isProUser) {
+        if (showPanelHints && !isProUser && !isSelectingOverlay) {
             LiquidNoticeCard(
                 title = stringResource(R.string.more_brands_title),
                 message = stringResource(licenseMessageResState.intValue),
@@ -171,6 +185,55 @@ private fun BrandGenreLutSection(
                 accentColor = LiquidColors.AccentSecondary,
                 modifier = Modifier.padding(bottom = 14.dp)
             )
+        }
+
+        if (showPanelHints && isSelectingOverlay) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.overlay_selection_title),
+                message = stringResource(R.string.overlay_selection_hint),
+                label = selectedLutName ?: stringResource(R.string.overlay_filter_none),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
+
+        if (isSelectingOverlay) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                item {
+                    if (editState.overlayLutPath != null) {
+                        LiquidChip(
+                            text = stringResource(R.string.overlay_remove),
+                            selected = false,
+                            onClick = {
+                                viewModel.clearOverlayLut()
+                                if (!isWatermarkActive) {
+                                    glSurfaceView?.queueEvent {
+                                        renderer?.setOverlayIntensity(0f)
+                                        glSurfaceView.requestRender()
+                                    }
+                                }
+                                onRefreshWatermark()
+                            }
+                        )
+                    }
+                }
+                item {
+                    LiquidChip(
+                        text = stringResource(R.string.overlay_done),
+                        selected = false,
+                        onClick = onOverlaySelectionComplete
+                    )
+                }
+                item {
+                    LiquidChip(
+                        text = stringResource(R.string.cancel),
+                        selected = false,
+                        onClick = onCancelOverlaySelection
+                    )
+                }
+            }
         }
 
         LiquidSectionHeader(text = stringResource(R.string.section_brands))
@@ -234,13 +297,22 @@ private fun BrandGenreLutSection(
                 licenseMessageResState.intValue = R.string.pro_brand_locked
                 return@LutRow
             }
-            if (item.assetPath == editState.currentLutPath) {
+            if (isSelectingOverlay) {
+                viewModel.applyOverlayLut(item)
+                if (!isWatermarkActive) {
+                    glSurfaceView?.queueEvent {
+                        renderer?.setOverlayIntensity(editState.overlayIntensity)
+                        glSurfaceView.requestRender()
+                    }
+                }
+                onRefreshWatermark()
+            } else if (item.assetPath == editState.currentLutPath) {
                 onLutReselected()
             } else {
                 viewModel.applyLut(item)
             }
         },
-        currentLutPath = editState.currentLutPath,
+        currentLutPath = if (isSelectingOverlay) editState.overlayLutPath else editState.currentLutPath,
         savedScrollIndex = lutScrollIndex,
         onScrollIndexChanged = { viewModel.setLutScrollIndex(it) }
     )

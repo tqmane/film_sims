@@ -169,4 +169,17 @@
     <string name="adjust_hint_grain">Use grain to add texture after the LUT and tone feel settled.</string>
     <string name="adjust_hint_watermark">Finish the frame with a branded watermark once the edit is ready.</string>
     <string name="adjust_hint_presets">Save your current recipe so you can reuse it on the next photo.</string>
+    <string name="overlay_filter">Overlay filter</string>
+    <string name="overlay_filter_none">No overlay selected</string>
+    <string name="overlay_filter_hint_empty">Add a second look to blend styles without replacing your base LUT.</string>
+    <string name="overlay_filter_hint_active">Blend a second look on top of the base LUT for extra color character.</string>
+    <string name="overlay_pick">Pick overlay</string>
+    <string name="overlay_change">Change overlay</string>
+    <string name="overlay_remove">Remove overlay</string>
+    <string name="overlay_blend">Overlay blend</string>
+    <string name="overlay_selection_title">Choose an overlay look</string>
+    <string name="overlay_selection_hint">Pick a second LUT to layer over your current look. Use blend to control the mix.</string>
+    <string name="overlay_done">Done</string>
+    <string name="panel_hints_setting">Show panel hints</string>
+    <string name="panel_hints_setting_description">Toggle helper cards inside the LUT and adjustment panels.</string>
 </resources>

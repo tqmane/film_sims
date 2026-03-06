@@ -27,6 +27,7 @@ class SettingsManager(context: Context) {
         private const val ENCRYPTED_PREFS = "filmsim_settings_enc"
         private const val KEY_MIGRATED = "_migrated"
         private const val KEY_PRESETS = "presets_json"
+        private const val KEY_PANEL_HINTS = "panel_hints_enabled"
         private const val MAX_PRESETS = 20
     }
 
@@ -45,6 +46,10 @@ class SettingsManager(context: Context) {
     var lastIntensity: Float
         get() = prefs.getFloat("last_intensity", 1f).coerceIn(0f, 1f)
         set(value) = prefs.edit().putFloat("last_intensity", value).apply()
+
+    var lastOverlayIntensity: Float
+        get() = prefs.getFloat("last_overlay_intensity", 0.35f).coerceIn(0f, 1f)
+        set(value) = prefs.edit().putFloat("last_overlay_intensity", value).apply()
 
     var lastGrainEnabled: Boolean
         get() = prefs.getBoolean("last_grain_enabled", false)
@@ -78,6 +83,10 @@ class SettingsManager(context: Context) {
     var lastColorTemp: Float
         get() = prefs.getFloat("last_color_temp", 0f).coerceIn(-1f, 1f)
         set(value) = prefs.edit().putFloat("last_color_temp", value).apply()
+
+    var panelHintsEnabled: Boolean
+        get() = prefs.getBoolean(KEY_PANEL_HINTS, true)
+        set(value) = prefs.edit().putBoolean(KEY_PANEL_HINTS, value).apply()
 
     // ─── Preset CRUD ────────────────────────────────────
 
@@ -115,7 +124,9 @@ class SettingsManager(context: Context) {
         put("id", id)
         put("name", name)
         put("lutPath", lutPath ?: "")
+        put("overlayLutPath", overlayLutPath ?: "")
         put("intensity", intensity.toDouble())
+        put("overlayIntensity", overlayIntensity.toDouble())
         put("grainEnabled", grainEnabled)
         put("grainIntensity", grainIntensity.toDouble())
         put("grainStyle", grainStyle)
@@ -135,7 +146,9 @@ class SettingsManager(context: Context) {
         id = getString("id"),
         name = getString("name"),
         lutPath = getString("lutPath").ifEmpty { null },
+        overlayLutPath = optString("overlayLutPath", "").ifEmpty { null },
         intensity = optDouble("intensity", 1.0).toFloat(),
+        overlayIntensity = optDouble("overlayIntensity", 0.35).toFloat(),
         grainEnabled = optBoolean("grainEnabled", false),
         grainIntensity = optDouble("grainIntensity", 0.5).toFloat(),
         grainStyle = optString("grainStyle", "Xiaomi"),

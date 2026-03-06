@@ -151,4 +151,17 @@
     <string name="adjust_hint_grain">Use o grão depois que o LUT e o tom estiverem definidos para uma textura mais natural.</string>
     <string name="adjust_hint_watermark">Finalize a imagem com uma marca de água da marca quando a edição estiver pronta.</string>
     <string name="adjust_hint_presets">Guarde a receita atual para reutilizá-la na próxima foto.</string>
+    <string name="overlay_filter">Filtro sobreposto</string>
+    <string name="overlay_filter_none">Nenhuma sobreposição selecionada</string>
+    <string name="overlay_filter_hint_empty">Adicione um segundo look para misturar estilos sem substituir o LUT base.</string>
+    <string name="overlay_filter_hint_active">Misture um segundo look sobre o LUT base para dar mais personalidade às cores.</string>
+    <string name="overlay_pick">Escolher sobreposição</string>
+    <string name="overlay_change">Trocar sobreposição</string>
+    <string name="overlay_remove">Remover sobreposição</string>
+    <string name="overlay_blend">Mistura da sobreposição</string>
+    <string name="overlay_selection_title">Escolher look sobreposto</string>
+    <string name="overlay_selection_hint">Escolha um segundo LUT para sobrepor ao look atual. Use a mistura para controlar o efeito.</string>
+    <string name="overlay_done">Concluir</string>
+    <string name="panel_hints_setting">Mostrar dicas do painel</string>
+    <string name="panel_hints_setting_description">Mostra ou oculta os cartões de ajuda nos painéis de LUT e ajustes.</string>
 </resources>

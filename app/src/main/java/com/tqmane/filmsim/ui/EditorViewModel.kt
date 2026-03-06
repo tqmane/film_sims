@@ -58,6 +58,7 @@ class EditorViewModel @Inject constructor(
     private val _editState = MutableStateFlow(
         EditState(
             intensity = settings.lastIntensity,
+            overlayIntensity = settings.lastOverlayIntensity,
             grainEnabled = settings.lastGrainEnabled,
             grainIntensity = settings.lastGrainIntensity,
             grainStyle = settings.lastGrainStyle,
@@ -69,6 +70,9 @@ class EditorViewModel @Inject constructor(
         )
     )
     val editState: StateFlow<EditState> = _editState.asStateFlow()
+
+    private val _showPanelHints = MutableStateFlow(settings.panelHintsEnabled)
+    val showPanelHints: StateFlow<Boolean> = _showPanelHints.asStateFlow()
 
     // Lifted UI State for Brand/Category Selection
     private val _selectedBrandIndex = MutableStateFlow(0)
@@ -150,19 +154,50 @@ class EditorViewModel @Inject constructor(
     // ─── LUT application ────────────────────────────────
 
     fun applyLut(lutItem: LutItem) {
+        applyParsedLut(lutItem.assetPath, asOverlay = false)
+    }
+
+    fun applyOverlayLut(lutItem: LutItem) {
+        applyParsedLut(lutItem.assetPath, asOverlay = true)
+    }
+
+    fun clearOverlayLut() {
+        val current = _editState.value
+        _editState.value = current.copy(
+            overlayLutPath = null,
+            overlayLut = null,
+            lutVersion = current.lutVersion + 1
+        )
+    }
+
+    private fun applyParsedLut(path: String, asOverlay: Boolean) {
         if (!securityCheck.isTrusted()) return
 
-        val path = lutItem.assetPath
-        _editState.value = _editState.value.copy(currentLutPath = path, hasSelectedLut = true)
+        val current = _editState.value
+        _editState.value = if (asOverlay) {
+            current.copy(overlayLutPath = path)
+        } else {
+            current.copy(currentLutPath = path, hasSelectedLut = true)
+        }
 
         viewModelScope.launch(ioDispatcher) {
             val lut = lutApplyUseCase.parseLut(path)
             if (lut != null) {
-                val cur = _editState.value
-                _editState.value = cur.copy(
-                    currentLut = lut,
-                    lutVersion = cur.lutVersion + 1
-                )
+                val updated = _editState.value
+                _editState.value = if (asOverlay) {
+                    updated.copy(
+                        overlayLutPath = path,
+                        overlayLut = lut,
+                        lutVersion = updated.lutVersion + 1
+                    )
+                } else {
+                    updated.copy(
+                        currentLutPath = path,
+                        currentLut = lut,
+                        hasSelectedLut = true,
+                        lutVersion = updated.lutVersion + 1
+                    )
+                }
             } else {
                 _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
             }
@@ -174,6 +209,11 @@ class EditorViewModel @Inject constructor(
     fun setIntensity(value: Float) {
         _editState.value = _editState.value.copy(intensity = value)
         settings.lastIntensity = value
+    }
+
+    fun setOverlayIntensity(value: Float) {
+        _editState.value = _editState.value.copy(overlayIntensity = value)
+        settings.lastOverlayIntensity = value
     }
 
     fun setGrainEnabled(enabled: Boolean) {
@@ -229,6 +269,11 @@ class EditorViewModel @Inject constructor(
         settings.lastColorTemp = 0f
     }
 
+    fun setPanelHintsEnabled(enabled: Boolean) {
+        _showPanelHints.value = enabled
+        settings.panelHintsEnabled = enabled
+    }
+
     // ─── Presets ────────────────────────────────────────
 
     private val _presets = MutableStateFlow(settings.loadPresets())
@@ -242,6 +287,8 @@ class EditorViewModel @Inject constructor(
             name = name,
             lutPath = edit.currentLutPath,
             intensity = edit.intensity,
+            overlayLutPath = edit.overlayLutPath,
+            overlayIntensity = edit.overlayIntensity,
             grainEnabled = edit.grainEnabled,
             grainIntensity = edit.grainIntensity,
             grainStyle = edit.grainStyle,
@@ -270,7 +317,11 @@ class EditorViewModel @Inject constructor(
         // Restore edit state (LUT will be applied separately)
         _editState.value = _editState.value.copy(
             currentLutPath = preset.lutPath,
+            currentLut = null,
+            overlayLutPath = preset.overlayLutPath,
+            overlayLut = null,
             intensity = preset.intensity,
+            overlayIntensity = preset.overlayIntensity,
             grainEnabled = preset.grainEnabled,
             grainIntensity = preset.grainIntensity,
             grainStyle = preset.grainStyle,
@@ -296,6 +347,7 @@ class EditorViewModel @Inject constructor(
         )
         // Persist the restored values
         settings.lastIntensity = preset.intensity
+        settings.lastOverlayIntensity = preset.overlayIntensity
         settings.lastGrainEnabled = preset.grainEnabled
         settings.lastGrainIntensity = preset.grainIntensity
         settings.lastGrainStyle = preset.grainStyle
@@ -305,22 +357,16 @@ class EditorViewModel @Inject constructor(
         settings.lastShadows = preset.shadows
         settings.lastColorTemp = preset.colorTemp
         // Apply the LUT if present
-        if (preset.lutPath != null) {
-            viewModelScope.launch(ioDispatcher) {
-                val lut = lutApplyUseCase.parseLut(preset.lutPath)
-                if (lut != null) {
-                    val cur = _editState.value
-                    _editState.value = cur.copy(
-                        currentLut = lut,
-                        lutVersion = cur.lutVersion + 1
-                    )
-                }
-                _uiEvent.emit(UiEvent.ShowToast(R.string.preset_loaded, arrayOf(preset.name)))
-            }
-        } else {
-            viewModelScope.launch {
-                _uiEvent.emit(UiEvent.ShowToast(R.string.preset_loaded, arrayOf(preset.name)))
-            }
+        viewModelScope.launch(ioDispatcher) {
+            val baseLut = preset.lutPath?.let { lutApplyUseCase.parseLut(it) }
+            val overlayLut = preset.overlayLutPath?.let { lutApplyUseCase.parseLut(it) }
+            val current = _editState.value
+            _editState.value = current.copy(
+                currentLut = baseLut,
+                overlayLut = overlayLut,
+                lutVersion = current.lutVersion + 1
+            )
+            _uiEvent.emit(UiEvent.ShowToast(R.string.preset_loaded, arrayOf(preset.name)))
         }
     }
 
@@ -374,7 +420,12 @@ class EditorViewModel @Inject constructor(
                 lensInfo = wm.lensInfo.ifEmpty { null }
             )
             val result = watermarkUseCase.renderPreview(
-                preview, edit.currentLut, edit.intensity, config
+                preview,
+                edit.currentLut,
+                edit.intensity,
+                edit.overlayLut,
+                edit.overlayIntensity,
+                config
             )
             withContext(kotlinx.coroutines.Dispatchers.Main) { callback(result) }
         }
@@ -423,10 +474,10 @@ class EditorViewModel @Inject constructor(
                 val sourceBitmap = imageLoadUseCase.loadFullResolution(contentResolver, state.originalUri)
 
                 try {
-                    val lut = if (edit.currentLutPath != null) {
-                        lutApplyUseCase.parseLut(edit.currentLutPath)
-                    } else null
+                    val lut = edit.currentLutPath?.let { lutApplyUseCase.parseLut(it) }
+                    val overlayLut = edit.overlayLutPath?.let { lutApplyUseCase.parseLut(it) }
                     val effectiveIntensity = if (lut != null) edit.intensity else 0f
+                    val effectiveOverlayIntensity = if (overlayLut != null) edit.overlayIntensity else 0f
 
                     // 2. GPU rendering via suspendCancellableCoroutine
                     var outputBitmap: Bitmap? = runCatching {
@@ -436,7 +487,11 @@ class EditorViewModel @Inject constructor(
                             }
                             gpuExportRenderer.setGrainStyle(edit.grainStyle)
                             gpuExportRenderer.renderHighRes(
-                                sourceBitmap, lut, effectiveIntensity,
+                                sourceBitmap,
+                                lut,
+                                effectiveIntensity,
+                                overlayLut,
+                                effectiveOverlayIntensity,
                                 edit.grainEnabled, edit.grainIntensity, 4.0f,
                                 edit.exposure, edit.contrast, edit.highlights,
                                 edit.shadows, edit.colorTemp
@@ -449,8 +504,14 @@ class EditorViewModel @Inject constructor(
                     // 3. CPU fallback
                     if (outputBitmap == null) {
                         withContext(kotlinx.coroutines.Dispatchers.Main) { onCpuFallback() }
-                        outputBitmap = if (lut != null) {
-                            watermarkUseCase.applyCpuLut(sourceBitmap, lut, effectiveIntensity)
+                        outputBitmap = if (lut != null || overlayLut != null) {
+                            watermarkUseCase.applyCpuLut(
+                                sourceBitmap,
+                                lut,
+                                effectiveIntensity,
+                                overlayLut,
+                                effectiveOverlayIntensity
+                            )
                         } else {
                             shouldRecycleOutput = false
                             sourceBitmap

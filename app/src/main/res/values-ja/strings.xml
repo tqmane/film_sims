@@ -238,4 +238,17 @@
     <string name="adjust_hint_grain">色味が決まってからグレインを足すと、質感を自然に仕上げられます。</string>
     <string name="adjust_hint_watermark">仕上げとしてブランド透かしを重ねて、カメラらしい見た目を作れます。</string>
     <string name="adjust_hint_presets">今のレシピを保存しておくと、次の写真でもすぐ再利用できます。</string>
+    <string name="overlay_filter">重ねがけフィルター</string>
+    <string name="overlay_filter_none">重ねがけなし</string>
+    <string name="overlay_filter_hint_empty">ベースのLUTを残したまま、もう一つのルックを重ねて色味をミックスできます。</string>
+    <string name="overlay_filter_hint_active">ベースLUTの上に別のルックを重ねて、色のニュアンスを足せます。</string>
+    <string name="overlay_pick">重ねがけを選ぶ</string>
+    <string name="overlay_change">重ねがけを変更</string>
+    <string name="overlay_remove">重ねがけを外す</string>
+    <string name="overlay_blend">重ねがけ量</string>
+    <string name="overlay_selection_title">重ねがけするルックを選択</string>
+    <string name="overlay_selection_hint">今のルックに重ねる2つ目のLUTを選びます。仕上がりはブレンド量で調整できます。</string>
+    <string name="overlay_done">完了</string>
+    <string name="panel_hints_setting">パネルのヒントを表示</string>
+    <string name="panel_hints_setting_description">LUTパネルと調整パネル内の案内カードを表示するか切り替えます。</string>
 </resources>

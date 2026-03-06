@@ -151,4 +151,17 @@
     <string name="adjust_hint_grain">استخدم الحبيبات بعد استقرار LUT والدرجات للحصول على نسيج طبيعي أكثر.</string>
     <string name="adjust_hint_watermark">أنهِ الصورة بعلامة مائية خاصة بالعلامة التجارية عندما يصبح التعديل جاهزًا.</string>
     <string name="adjust_hint_presets">احفظ إعدادك الحالي حتى تتمكن من إعادة استخدامه في الصورة التالية.</string>
+    <string name="overlay_filter">فلتر متراكب</string>
+    <string name="overlay_filter_none">لا يوجد فلتر متراكب</string>
+    <string name="overlay_filter_hint_empty">أضف مظهرا ثانيا لمزج الأنماط من دون استبدال LUT الأساسي.</string>
+    <string name="overlay_filter_hint_active">امزج مظهرا ثانيا فوق LUT الأساسي لإضافة طابع لوني إضافي.</string>
+    <string name="overlay_pick">اختيار التراكب</string>
+    <string name="overlay_change">تغيير التراكب</string>
+    <string name="overlay_remove">إزالة التراكب</string>
+    <string name="overlay_blend">مزج التراكب</string>
+    <string name="overlay_selection_title">اختيار المظهر المتراكب</string>
+    <string name="overlay_selection_hint">اختر LUT ثانيا لوضعه فوق المظهر الحالي، ثم استخدم المزج للتحكم في النتيجة.</string>
+    <string name="overlay_done">تم</string>
+    <string name="panel_hints_setting">إظهار تلميحات اللوحة</string>
+    <string name="panel_hints_setting_description">يبدل بين إظهار بطاقات المساعدة داخل لوحتي LUT والتعديلات أو إخفائها.</string>
 </resources>

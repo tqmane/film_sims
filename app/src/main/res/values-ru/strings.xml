@@ -151,4 +151,17 @@
     <string name="adjust_hint_grain">Добавляйте зерно после настройки LUT и тона для более естественной текстуры.</string>
     <string name="adjust_hint_watermark">Завершите кадр фирменным водяным знаком, когда редактирование будет готово.</string>
     <string name="adjust_hint_presets">Сохраните текущий рецепт, чтобы повторно использовать его на следующем фото.</string>
+    <string name="overlay_filter">Наложенный фильтр</string>
+    <string name="overlay_filter_none">Наложение не выбрано</string>
+    <string name="overlay_filter_hint_empty">Добавьте второй стиль, чтобы смешать образы, не заменяя основной LUT.</string>
+    <string name="overlay_filter_hint_active">Смешайте второй стиль поверх основного LUT, чтобы добавить больше цветового характера.</string>
+    <string name="overlay_pick">Выбрать наложение</string>
+    <string name="overlay_change">Изменить наложение</string>
+    <string name="overlay_remove">Убрать наложение</string>
+    <string name="overlay_blend">Смешивание наложения</string>
+    <string name="overlay_selection_title">Выбрать стиль наложения</string>
+    <string name="overlay_selection_hint">Выберите второй LUT для наложения на текущий стиль. Силу эффекта можно настроить смешиванием.</string>
+    <string name="overlay_done">Готово</string>
+    <string name="panel_hints_setting">Показывать подсказки панели</string>
+    <string name="panel_hints_setting_description">Показывает или скрывает карточки-подсказки в панелях LUT и настройки.</string>
 </resources>

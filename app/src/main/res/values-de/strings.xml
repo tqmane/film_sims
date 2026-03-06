@@ -151,4 +151,17 @@
     <string name="adjust_hint_grain">Nutze Körnung erst, wenn LUT und Tonalität stehen, um natürliche Textur zu erhalten.</string>
     <string name="adjust_hint_watermark">Schließe das Bild mit einem Marken-Wasserzeichen ab, sobald der Look fertig ist.</string>
     <string name="adjust_hint_presets">Speichere dein aktuelles Rezept, damit du es beim nächsten Foto wiederverwenden kannst.</string>
+    <string name="overlay_filter">Overlay-Filter</string>
+    <string name="overlay_filter_none">Kein Overlay ausgewählt</string>
+    <string name="overlay_filter_hint_empty">Füge einen zweiten Look hinzu, um Stile zu mischen, ohne dein Basis-LUT zu ersetzen.</string>
+    <string name="overlay_filter_hint_active">Mische einen zweiten Look über dein Basis-LUT, um dem Bild mehr Farbcharakter zu geben.</string>
+    <string name="overlay_pick">Overlay wählen</string>
+    <string name="overlay_change">Overlay ändern</string>
+    <string name="overlay_remove">Overlay entfernen</string>
+    <string name="overlay_blend">Overlay-Mix</string>
+    <string name="overlay_selection_title">Overlay-Look wählen</string>
+    <string name="overlay_selection_hint">Wähle ein zweites LUT, das über deinem aktuellen Look liegt. Mit dem Mix-Regler steuerst du die Stärke.</string>
+    <string name="overlay_done">Fertig</string>
+    <string name="panel_hints_setting">Panel-Hinweise anzeigen</string>
+    <string name="panel_hints_setting_description">Blendet Hilfekarten im LUT- und Anpassungsbereich ein oder aus.</string>
 </resources>
