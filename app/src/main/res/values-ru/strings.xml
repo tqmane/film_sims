@@ -129,4 +129,26 @@
     <string name="preset_limit_reached">Достигнуто максимальное количество пресетов (20)</string>
     <string name="preset_empty">Еще нет сохраненных пресетов</string>
     <string name="preset_pro_locked">Функция лицензии: Войдите, чтобы использовать пресеты</string>
+
+    <string name="workflow_title">Как это работает</string>
+    <string name="workflow_step_import">Импортируйте фото, чтобы начать предпросмотр</string>
+    <string name="workflow_step_choose">Выберите бренд и нажмите на стиль для предпросмотра</string>
+    <string name="workflow_step_refine_save">Точно настройте результат и экспортируйте, когда всё готово</string>
+    <string name="section_brands">Бренды</string>
+    <string name="section_collections">Коллекции</string>
+    <string name="section_looks">Стили</string>
+    <string name="single_collection_label">Избранная коллекция</string>
+    <string name="look_count_label">%1$d стилей готово</string>
+    <string name="look_preview_hint">Доступно %1$d стилей для предпросмотра. Нажмите один раз для просмотра и ещё раз для настройки.</string>
+    <string name="look_ready_hint">Нажмите на выбранный стиль ещё раз, чтобы открыть настройки.</string>
+    <string name="more_brands_title">Доступно больше стилей</string>
+    <string name="more_tools_title">Доступно больше инструментов финальной обработки</string>
+    <string name="premium_brands_hint">Войдите, чтобы открыть больше брендов и полный сценарий финальной обработки.</string>
+    <string name="pro_adjust_locked">Лицензионная функция: войдите, чтобы использовать тоновые настройки</string>
+    <string name="pro_adjust_tools_hint">Войдите, чтобы открыть тоновые настройки, водяные знаки и пресеты в одном месте.</string>
+    <string name="adjust_hint_intensity">Сначала подберите силу LUT, чтобы задать общее настроение.</string>
+    <string name="adjust_hint_basic">Настройте экспозицию и контраст перед добавлением зерна или водяного знака.</string>
+    <string name="adjust_hint_grain">Добавляйте зерно после настройки LUT и тона для более естественной текстуры.</string>
+    <string name="adjust_hint_watermark">Завершите кадр фирменным водяным знаком, когда редактирование будет готово.</string>
+    <string name="adjust_hint_presets">Сохраните текущий рецепт, чтобы повторно использовать его на следующем фото.</string>
 </resources>

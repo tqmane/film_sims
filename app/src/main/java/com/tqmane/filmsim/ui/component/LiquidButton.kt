@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
@@ -46,6 +47,17 @@ fun LiquidButton(
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+    val backgroundColors = if (enabled) {
+        listOf(
+            LiquidColors.GradientAccentStart,
+            LiquidColors.GradientAccentEnd
+        )
+    } else {
+        listOf(
+            LiquidColors.SurfaceElevated,
+            LiquidColors.SurfaceMedium
+        )
+    }
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
@@ -59,16 +71,10 @@ fun LiquidButton(
     Box(
         modifier = modifier
             .scale(scale)
+            .alpha(if (enabled) 1f else 0.56f)
             .height(LiquidDimensions.ButtonHeight)
             .clip(RoundedCornerShape(24.dp))
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        LiquidColors.GradientAccentStart,
-                        LiquidColors.GradientAccentEnd
-                    )
-                )
-            )
+            .background(Brush.linearGradient(colors = backgroundColors))
             .drawBehind {
                 drawRect(
                     brush = Brush.verticalGradient(
@@ -81,7 +87,11 @@ fun LiquidButton(
                     size = size
                 )
             }
-            .border(1.dp, Color(0x25FFFFFF), RoundedCornerShape(24.dp))
+            .border(
+                1.dp,
+                if (enabled) Color(0x25FFFFFF) else Color(0x12FFFFFF),
+                RoundedCornerShape(24.dp)
+            )
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

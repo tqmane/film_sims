@@ -5,15 +5,15 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.opengl.GLSurfaceView
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -60,6 +60,7 @@ import com.tqmane.filmsim.ui.editor.panel.LutSelectorPanel
 import com.tqmane.filmsim.ui.editor.dialog.SettingsDialog
 import com.tqmane.filmsim.ui.UiEvent
 import com.tqmane.filmsim.ui.editor.dialog.UpdateDialog
+import com.tqmane.filmsim.ui.editor.panel.AdjustTab
 import com.tqmane.filmsim.ui.ViewState
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.AuroraBackground
@@ -99,12 +100,16 @@ fun EditorScreen(
 
         // ─── Panel state (replaces scattered booleans) ────────────────────────
         var panelState by rememberSaveable { mutableStateOf<String>("LutSelector") }
+        var selectedAdjustTabName by rememberSaveable { mutableStateOf(AdjustTab.INTENSITY.name) }
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
 
         // Derived state helpers
         val isImmersive = panelState == "Immersive"
         val showAdjustPanel = panelState == "Adjustments"
+        val selectedAdjustTab = remember(selectedAdjustTabName) {
+            runCatching { AdjustTab.valueOf(selectedAdjustTabName) }.getOrElse { AdjustTab.INTENSITY }
+        }
 
         val selectedBrandIndex by viewModel.selectedBrandIndex.collectAsState()
         val selectedCategoryIndex by viewModel.selectedCategoryIndex.collectAsState()
@@ -389,6 +394,7 @@ fun EditorScreen(
                                 }
                             }
                         },
+                        canSave = viewState is ViewState.Content,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
@@ -416,6 +422,8 @@ fun EditorScreen(
                     isProUser = isProUser,
                     selectedBrandIndex = selectedBrandIndex,
                     selectedCategoryIndex = selectedCategoryIndex,
+                    selectedAdjustTab = selectedAdjustTab,
+                    onAdjustTabSelected = { selectedAdjustTabName = it.name },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onGloballyPositioned { bottomPanelHeightPx = it.size.height.toFloat() }
@@ -508,52 +516,60 @@ private fun BottomControlArea(
     isProUser: Boolean,
     selectedBrandIndex: Int,
     selectedCategoryIndex: Int,
+    selectedAdjustTab: AdjustTab,
+    onAdjustTabSelected: (AdjustTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        AnimatedVisibility(
-            visible = !isImmersive && showAdjustPanel && editState.hasSelectedLut,
-            enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
-            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
-        ) {
-            AdjustPanel(
-                editState = editState,
-                watermarkState = watermarkState,
-                viewModel = viewModel,
-                glSurfaceView = glSurfaceView,
-                renderer = renderer,
-                isWatermarkActive = isWatermarkActive,
-                onRefreshWatermark = onRefreshWatermark,
-                isProUser = isProUser,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+    val navPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-        AnimatedVisibility(
-            visible = !isImmersive && viewState is ViewState.Content,
-            enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(animationSpec = tween(300)),
-            exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { it } + fadeOut(animationSpec = tween(250))
-        ) {
-            LutSelectorPanel(
-                viewModel = viewModel,
-                editState = editState,
-                watermarkState = watermarkState,
-                viewState = viewState,
-                glSurfaceView = glSurfaceView,
-                renderer = renderer,
-                isWatermarkActive = isWatermarkActive,
-                onRefreshWatermark = onRefreshWatermark,
-                onLutReselected = { onShowAdjustPanelChange(!showAdjustPanel) },
-                isProUser = isProUser,
-                selectedBrandIndex = selectedBrandIndex,
-                onBrandIndexChanged = { viewModel.setSelectedBrandIndex(it) },
-                selectedCategoryIndex = selectedCategoryIndex,
-                onCategoryIndexChanged = { viewModel.setSelectedCategoryIndex(it) },
-                squareTop = showAdjustPanel && editState.hasSelectedLut,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-            )
+    AnimatedVisibility(
+        visible = !isImmersive && viewState is ViewState.Content,
+        modifier = modifier,
+        enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(animationSpec = tween(300)),
+        exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { it } + fadeOut(animationSpec = tween(250))
+    ) {
+        AnimatedContent(
+            targetState = showAdjustPanel && editState.hasSelectedLut,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(180))
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) { showAdj ->
+            if (showAdj) {
+                AdjustPanel(
+                    editState = editState,
+                    watermarkState = watermarkState,
+                    viewModel = viewModel,
+                    glSurfaceView = glSurfaceView,
+                    renderer = renderer,
+                    isWatermarkActive = isWatermarkActive,
+                    onRefreshWatermark = onRefreshWatermark,
+                    selectedTab = selectedAdjustTab,
+                    onTabSelected = onAdjustTabSelected,
+                    isProUser = isProUser,
+                    onClose = { onShowAdjustPanelChange(false) },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
+                )
+            } else {
+                LutSelectorPanel(
+                    viewModel = viewModel,
+                    editState = editState,
+                    watermarkState = watermarkState,
+                    viewState = viewState,
+                    glSurfaceView = glSurfaceView,
+                    renderer = renderer,
+                    isWatermarkActive = isWatermarkActive,
+                    onRefreshWatermark = onRefreshWatermark,
+                    onLutReselected = { onShowAdjustPanelChange(true) },
+                    isProUser = isProUser,
+                    selectedBrandIndex = selectedBrandIndex,
+                    onBrandIndexChanged = { viewModel.setSelectedBrandIndex(it) },
+                    selectedCategoryIndex = selectedCategoryIndex,
+                    onCategoryIndexChanged = { viewModel.setSelectedCategoryIndex(it) },
+                    squareTop = false,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
+                )
+            }
         }
     }
 }

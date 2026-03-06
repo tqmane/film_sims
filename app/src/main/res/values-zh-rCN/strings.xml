@@ -188,4 +188,26 @@
     <string name="preset_limit_reached">已达到最大预设数量 (20)</string>
     <string name="preset_empty">尚未保存预设</string>
     <string name="preset_pro_locked">许可功能：登录以使用预设</string>
+
+    <string name="workflow_title">使用方法</string>
+    <string name="workflow_step_import">导入照片以开始预览</string>
+    <string name="workflow_step_choose">选择品牌并点按风格进行预览</string>
+    <string name="workflow_step_refine_save">微调效果，准备好后再导出</string>
+    <string name="section_brands">品牌</string>
+    <string name="section_collections">合集</string>
+    <string name="section_looks">风格</string>
+    <string name="single_collection_label">精选合集</string>
+    <string name="look_count_label">已准备好 %1$d 种风格</string>
+    <string name="look_preview_hint">已可预览 %1$d 种风格。点按一次卡片预览，再点按一次进入调整。</string>
+    <string name="look_ready_hint">再次点按当前风格即可打开调整。</string>
+    <string name="more_brands_title">更多风格可用</string>
+    <string name="more_tools_title">更多润色工具可用</string>
+    <string name="premium_brands_hint">登录后即可解锁更多品牌和完整的后期流程。</string>
+    <string name="pro_adjust_locked">许可证功能：登录后可使用色调调整</string>
+    <string name="pro_adjust_tools_hint">登录后即可在一个位置解锁色调调整、水印和预设。</string>
+    <string name="adjust_hint_intensity">先调整 LUT 强度，让整体氛围更合适。</string>
+    <string name="adjust_hint_basic">在添加颗粒或水印之前，先调整曝光和对比度。</string>
+    <string name="adjust_hint_grain">当 LUT 和色调稳定后再添加颗粒，质感会更自然。</string>
+    <string name="adjust_hint_watermark">编辑完成后，再用品牌水印作为收尾。</string>
+    <string name="adjust_hint_presets">保存当前配方，方便在下一张照片中复用。</string>
 </resources>

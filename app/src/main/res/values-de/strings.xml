@@ -129,4 +129,26 @@
     <string name="preset_limit_reached">Maximale Anzahl an Vorgaben erreicht (20)</string>
     <string name="preset_empty">Noch keine Vorgaben gespeichert</string>
     <string name="preset_pro_locked">Lizenzfunktion: Melden Sie sich an, um Vorgaben zu nutzen</string>
+
+    <string name="workflow_title">So funktioniert es</string>
+    <string name="workflow_step_import">Importiere ein Foto, um die Vorschau zu starten</string>
+    <string name="workflow_step_choose">Wähle eine Marke und tippe auf einen Look für die Vorschau</string>
+    <string name="workflow_step_refine_save">Feine das Ergebnis ab und exportiere es, wenn alles passt</string>
+    <string name="section_brands">Marken</string>
+    <string name="section_collections">Kollektionen</string>
+    <string name="section_looks">Looks</string>
+    <string name="single_collection_label">Kuratierte Kollektion</string>
+    <string name="look_count_label">%1$d Looks bereit</string>
+    <string name="look_preview_hint">%1$d Looks sind zur Vorschau bereit. Einmal tippen für die Vorschau, nochmal tippen zum Anpassen.</string>
+    <string name="look_ready_hint">Tippe erneut auf den ausgewählten Look, um die Anpassungen zu öffnen.</string>
+    <string name="more_brands_title">Weitere Looks sind verfügbar</string>
+    <string name="more_tools_title">Weitere Finish-Werkzeuge sind verfügbar</string>
+    <string name="premium_brands_hint">Melde dich an, um mehr Marken und den vollständigen Finish-Workflow freizuschalten.</string>
+    <string name="pro_adjust_locked">Lizenzfunktion: Melde dich an, um Tonanpassungen zu nutzen</string>
+    <string name="pro_adjust_tools_hint">Melde dich an, um Tonanpassungen, Wasserzeichen und Presets an einem Ort freizuschalten.</string>
+    <string name="adjust_hint_intensity">Beginne mit der LUT-Stärke, damit die Gesamtstimmung passt.</string>
+    <string name="adjust_hint_basic">Passe Belichtung und Kontrast an, bevor du Körnung oder Wasserzeichen hinzufügst.</string>
+    <string name="adjust_hint_grain">Nutze Körnung erst, wenn LUT und Tonalität stehen, um natürliche Textur zu erhalten.</string>
+    <string name="adjust_hint_watermark">Schließe das Bild mit einem Marken-Wasserzeichen ab, sobald der Look fertig ist.</string>
+    <string name="adjust_hint_presets">Speichere dein aktuelles Rezept, damit du es beim nächsten Foto wiederverwenden kannst.</string>
 </resources>

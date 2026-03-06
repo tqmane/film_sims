@@ -34,6 +34,7 @@ fun TopBar(
     onPickImage: () -> Unit,
     onSettings: () -> Unit,
     onSave: () -> Unit,
+    canSave: Boolean,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -43,13 +44,13 @@ fun TopBar(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        LiquidColors.SurfaceDark.copy(alpha = 0.75f),
-                        Color(0xFF0C0C11).copy(alpha = 0.5f),
+                        LiquidColors.SurfaceDark.copy(alpha = 0.65f),
+                        Color(0xFF0C0C11).copy(alpha = 0.35f),
                         Color.Transparent
                     )
                 )
             )
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -59,19 +60,19 @@ fun TopBar(
                 Text(
                     stringResource(R.string.app_name),
                     color = LiquidColors.TextHighEmphasis,
-                    fontSize = 26.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = FontFamily.SansSerif,
                     letterSpacing = 0.005.sp
                 )
                 Text(
-                    stringResource(R.string.subtitle_film_simulator).uppercase(),
+                    stringResource(R.string.subtitle_film_simulator),
                     color = LiquidColors.AccentPrimary,
-                    fontSize = 11.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     fontFamily = FontFamily.SansSerif,
-                    letterSpacing = 0.15.sp,
-                    modifier = Modifier.padding(top = 3.dp)
+                    letterSpacing = 0.1.sp,
+                    modifier = Modifier.padding(top = 1.dp)
                 )
             }
 
@@ -96,6 +97,7 @@ fun TopBar(
                     )
                     onSave()
                 },
+                enabled = canSave,
                 modifier = Modifier.width(94.dp)
             ) {
                 Icon(

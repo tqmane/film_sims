@@ -129,4 +129,26 @@
     <string name="preset_limit_reached">Nombre maximal de préréglages atteint (20)</string>
     <string name="preset_empty">Aucun préréglage enregistré</string>
     <string name="preset_pro_locked">Fonction licence : Connectez-vous pour utiliser les préréglages</string>
+
+    <string name="workflow_title">Fonctionnement</string>
+    <string name="workflow_step_import">Importez une photo pour démarrer l aperçu</string>
+    <string name="workflow_step_choose">Choisissez une marque et touchez un rendu pour l aperçu</string>
+    <string name="workflow_step_refine_save">Affinez le résultat puis exportez quand tout est prêt</string>
+    <string name="section_brands">Marques</string>
+    <string name="section_collections">Collections</string>
+    <string name="section_looks">Rendus</string>
+    <string name="single_collection_label">Collection sélectionnée</string>
+    <string name="look_count_label">%1$d rendus prêts</string>
+    <string name="look_preview_hint">%1$d rendus sont prêts à être prévisualisés. Touchez une carte une fois pour l aperçu, puis une seconde fois pour ajuster.</string>
+    <string name="look_ready_hint">Touchez à nouveau le rendu sélectionné pour ouvrir les réglages.</string>
+    <string name="more_brands_title">D autres rendus sont disponibles</string>
+    <string name="more_tools_title">D autres outils de finition sont disponibles</string>
+    <string name="premium_brands_hint">Connectez-vous pour débloquer plus de marques et tout le flux de finition.</string>
+    <string name="pro_adjust_locked">Fonction sous licence : connectez-vous pour utiliser les réglages de tonalité</string>
+    <string name="pro_adjust_tools_hint">Connectez-vous pour débloquer les réglages de tonalité, les filigranes et les préréglages au même endroit.</string>
+    <string name="adjust_hint_intensity">Commencez par équilibrer l intensité du LUT pour définir l ambiance générale.</string>
+    <string name="adjust_hint_basic">Réglez l exposition et le contraste avant d ajouter du grain ou un filigrane.</string>
+    <string name="adjust_hint_grain">Ajoutez du grain une fois le LUT et la tonalité en place pour une texture plus naturelle.</string>
+    <string name="adjust_hint_watermark">Terminez l image avec un filigrane de marque lorsque l édition est prête.</string>
+    <string name="adjust_hint_presets">Enregistrez votre recette actuelle pour la réutiliser sur la prochaine photo.</string>
 </resources>

@@ -12,13 +12,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -139,6 +142,27 @@ fun EmptyState(
             modifier = Modifier.padding(top = 12.dp)
         )
 
+        Text(
+            text = stringResource(R.string.workflow_title).uppercase(),
+            color = LiquidColors.AccentPrimary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.SansSerif,
+            letterSpacing = 0.12.sp,
+            modifier = Modifier.padding(top = 28.dp, bottom = 10.dp)
+        )
+
+        Column(
+            modifier = Modifier
+                .widthIn(max = 320.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            WorkflowStep(stepNumber = 1, text = stringResource(R.string.workflow_step_import))
+            WorkflowStep(stepNumber = 2, text = stringResource(R.string.workflow_step_choose))
+            WorkflowStep(stepNumber = 3, text = stringResource(R.string.workflow_step_refine_save))
+        }
+
         LiquidButton(
             onClick = {
                 haptic.performHapticFeedback(
@@ -147,7 +171,7 @@ fun EmptyState(
                 onPickImage()
             },
             modifier = Modifier
-                .padding(top = 40.dp)
+                .padding(top = 32.dp)
                 .height(58.dp)
                 .widthIn(min = 220.dp)
         ) {
@@ -167,5 +191,42 @@ fun EmptyState(
                 letterSpacing = 0.01.sp
             )
         }
+    }
+}
+
+@Composable
+private fun WorkflowStep(
+    stepNumber: Int,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(LiquidColors.AccentPrimary.copy(alpha = 0.16f))
+                .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.28f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stepNumber.toString(),
+                color = LiquidColors.AccentPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.SansSerif
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = text,
+            color = LiquidColors.TextMediumEmphasis,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.SansSerif,
+            lineHeight = 18.sp
+        )
     }
 }

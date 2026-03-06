@@ -129,4 +129,26 @@
     <string name="preset_limit_reached">Numero massimo di predefiniti raggiunto (20)</string>
     <string name="preset_empty">Nessun predefinito salvato</string>
     <string name="preset_pro_locked">Funzione licenza: Accedi per usare i predefiniti</string>
+
+    <string name="workflow_title">Come funziona</string>
+    <string name="workflow_step_import">Importa una foto per avviare l anteprima</string>
+    <string name="workflow_step_choose">Scegli un marchio e tocca un look per l anteprima</string>
+    <string name="workflow_step_refine_save">Rifinisci il risultato ed esporta quando è pronto</string>
+    <string name="section_brands">Marchi</string>
+    <string name="section_collections">Collezioni</string>
+    <string name="section_looks">Look</string>
+    <string name="single_collection_label">Collezione curata</string>
+    <string name="look_count_label">%1$d look pronti</string>
+    <string name="look_preview_hint">%1$d look sono pronti per l anteprima. Tocca una card una volta per vedere l anteprima e di nuovo per regolare.</string>
+    <string name="look_ready_hint">Tocca di nuovo il look selezionato per aprire le regolazioni.</string>
+    <string name="more_brands_title">Altri look sono disponibili</string>
+    <string name="more_tools_title">Altri strumenti di finitura sono disponibili</string>
+    <string name="premium_brands_hint">Accedi per sbloccare più marchi e l intero flusso di finitura.</string>
+    <string name="pro_adjust_locked">Funzione con licenza: accedi per usare le regolazioni tonali</string>
+    <string name="pro_adjust_tools_hint">Accedi per sbloccare regolazioni tonali, filigrane e preset in un unico posto.</string>
+    <string name="adjust_hint_intensity">Inizia bilanciando l intensità del LUT così che l atmosfera generale sia quella giusta.</string>
+    <string name="adjust_hint_basic">Regola esposizione e contrasto prima di aggiungere grana o filigrana.</string>
+    <string name="adjust_hint_grain">Usa la grana dopo aver definito LUT e tono per una texture più naturale.</string>
+    <string name="adjust_hint_watermark">Completa l immagine con una filigrana del marchio quando l editing è pronto.</string>
+    <string name="adjust_hint_presets">Salva la ricetta corrente così da riutilizzarla sulla prossima foto.</string>
 </resources>

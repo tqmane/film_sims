@@ -188,4 +188,26 @@
     <string name="preset_limit_reached">최대 프리셋 개수에 도달했습니다 (20)</string>
     <string name="preset_empty">저장된 프리셋이 없습니다</string>
     <string name="preset_pro_locked">라이선스 기능: 프리셋을 사용하려면 로그인하세요</string>
+
+    <string name="workflow_title">사용 방법</string>
+    <string name="workflow_step_import">사진을 불러와 미리보기를 시작하세요</string>
+    <string name="workflow_step_choose">브랜드를 고르고 룩을 탭해 미리보세요</string>
+    <string name="workflow_step_refine_save">결과를 미세 조정한 뒤 준비되면 저장하세요</string>
+    <string name="section_brands">브랜드</string>
+    <string name="section_collections">컬렉션</string>
+    <string name="section_looks">룩</string>
+    <string name="single_collection_label">추천 컬렉션</string>
+    <string name="look_count_label">%1$d개의 룩 준비됨</string>
+    <string name="look_preview_hint">%1$d개의 룩을 바로 미리볼 수 있습니다. 한 번 탭하면 미리보기, 다시 탭하면 조정으로 이동합니다.</string>
+    <string name="look_ready_hint">선택한 룩을 다시 탭하면 조정을 열 수 있습니다.</string>
+    <string name="more_brands_title">더 많은 룩을 사용할 수 있습니다</string>
+    <string name="more_tools_title">더 많은 마무리 도구를 사용할 수 있습니다</string>
+    <string name="premium_brands_hint">로그인하면 더 많은 브랜드와 전체 마무리 워크플로를 잠금 해제할 수 있습니다.</string>
+    <string name="pro_adjust_locked">라이선스 기능: 로그인하여 색조 조정을 사용하세요</string>
+    <string name="pro_adjust_tools_hint">로그인하면 색조 조정, 워터마크, 프리셋을 한곳에서 사용할 수 있습니다.</string>
+    <string name="adjust_hint_intensity">먼저 LUT 강도를 맞춰 전체 분위기를 잡아보세요.</string>
+    <string name="adjust_hint_basic">그레인이나 워터마크를 추가하기 전에 노출과 대비를 먼저 다듬으세요.</string>
+    <string name="adjust_hint_grain">LUT와 톤이 정리된 후에 그레인을 더하면 질감이 자연스럽습니다.</string>
+    <string name="adjust_hint_watermark">편집이 완성되면 브랜드 워터마크로 마무리하세요.</string>
+    <string name="adjust_hint_presets">현재 레시피를 저장해 다음 사진에도 다시 사용하세요.</string>
 </resources>

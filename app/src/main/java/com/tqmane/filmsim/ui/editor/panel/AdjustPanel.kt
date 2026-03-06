@@ -1,7 +1,6 @@
 package com.tqmane.filmsim.ui.editor.panel
 
 import android.opengl.GLSurfaceView
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,13 +59,14 @@ import com.tqmane.filmsim.ui.EditorViewModel
 import com.tqmane.filmsim.ui.Preset
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.LiquidIntensitySlider
+import com.tqmane.filmsim.ui.component.LiquidNoticeCard
 import com.tqmane.filmsim.ui.component.LiquidTabBar
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
 internal enum class AdjustTab { INTENSITY, ADJUST, GRAIN, WATERMARK, PRESETS }
 
 @Composable
-fun AdjustPanel(
+internal fun AdjustPanel(
     editState: EditState,
     watermarkState: WatermarkState,
     viewModel: EditorViewModel,
@@ -74,14 +74,38 @@ fun AdjustPanel(
     renderer: FilmSimRenderer?,
     isWatermarkActive: Boolean,
     onRefreshWatermark: () -> Unit,
+    selectedTab: AdjustTab,
+    onTabSelected: (AdjustTab) -> Unit,
+    onClose: () -> Unit,
     isProUser: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    var selectedTab by rememberSaveable {
-        mutableStateOf(AdjustTab.INTENSITY.name)
+    val lockedFeatureMessageResState = rememberSaveable {
+        mutableIntStateOf(R.string.pro_adjust_tools_hint)
     }
-    val currentTab = try { AdjustTab.valueOf(selectedTab) } catch (_: Exception) { AdjustTab.INTENSITY }
+    val currentTab = if (!isProUser && selectedTab in setOf(AdjustTab.ADJUST, AdjustTab.WATERMARK, AdjustTab.PRESETS)) {
+        AdjustTab.INTENSITY
+    } else {
+        selectedTab
+    }
+    val currentTabLabel = when (currentTab) {
+        AdjustTab.INTENSITY -> stringResource(R.string.adjustments)
+        AdjustTab.ADJUST -> stringResource(R.string.tab_adjust)
+        AdjustTab.GRAIN -> stringResource(R.string.grain)
+        AdjustTab.WATERMARK -> stringResource(R.string.watermark)
+        AdjustTab.PRESETS -> stringResource(R.string.tab_presets)
+    }
+    val currentHintMessage = when (currentTab) {
+        AdjustTab.INTENSITY -> stringResource(R.string.adjust_hint_intensity)
+        AdjustTab.ADJUST -> stringResource(R.string.adjust_hint_basic)
+        AdjustTab.GRAIN -> stringResource(R.string.adjust_hint_grain)
+        AdjustTab.WATERMARK -> stringResource(R.string.adjust_hint_watermark)
+        AdjustTab.PRESETS -> stringResource(R.string.adjust_hint_presets)
+    }
+    val currentLutName = editState.currentLutPath
+        ?.substringAfterLast("/")
+        ?.substringBeforeLast(".")
+        ?: stringResource(R.string.adjustments)
 
     val tabs = listOf(
         AdjustTab.INTENSITY to stringResource(R.string.adjustments),
@@ -117,23 +141,64 @@ fun AdjustPanel(
             ) {}
             .padding(top = 14.dp, bottom = 10.dp, start = 18.dp, end = 18.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(onClick = onClose) {
+                Text(
+                    "← LUT",
+                    color = LiquidColors.TextMediumEmphasis,
+                    fontSize = 13.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif
+                )
+            }
+            Text(
+                text = currentTabLabel.uppercase(),
+                color = LiquidColors.AccentPrimary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 4.dp)
+            )
+        }
+
+        LiquidNoticeCard(
+            title = currentLutName,
+            message = currentHintMessage,
+            label = currentTabLabel,
+            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+        )
+
+        if (!isProUser) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.more_tools_title),
+                message = stringResource(lockedFeatureMessageResState.intValue),
+                label = stringResource(R.string.label_pro),
+                accentColor = LiquidColors.AccentSecondary,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
+
         LiquidTabBar(
             tabs = tabs,
             selectedTab = currentTab,
             onTabSelected = { tab ->
                 if (tab == AdjustTab.WATERMARK && !isProUser) {
-                    Toast.makeText(context, context.getString(R.string.pro_watermark_locked), Toast.LENGTH_SHORT).show()
+                    lockedFeatureMessageResState.intValue = R.string.pro_watermark_locked
                     return@LiquidTabBar
                 }
                 if (tab == AdjustTab.ADJUST && !isProUser) {
-                    Toast.makeText(context, context.getString(R.string.preset_pro_locked), Toast.LENGTH_SHORT).show()
+                    lockedFeatureMessageResState.intValue = R.string.pro_adjust_locked
                     return@LiquidTabBar
                 }
                 if (tab == AdjustTab.PRESETS && !isProUser) {
-                    Toast.makeText(context, context.getString(R.string.preset_pro_locked), Toast.LENGTH_SHORT).show()
+                    lockedFeatureMessageResState.intValue = R.string.preset_pro_locked
                     return@LiquidTabBar
                 }
-                selectedTab = tab.name
+                onTabSelected(tab)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -143,7 +208,7 @@ fun AdjustPanel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 220.dp)
+                .heightIn(max = 240.dp)
         ) {
             when (currentTab) {
                 AdjustTab.INTENSITY -> {

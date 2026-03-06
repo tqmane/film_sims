@@ -162,6 +162,10 @@
     <string name="label_pick_image">画像を選択</string>
     <string name="desc_pick_image">写真を選んでフィルムシミュレーションを適用</string>
     <string name="btn_open_gallery">ギャラリーを開く</string>
+    <string name="workflow_title">使い方</string>
+    <string name="workflow_step_import">まず写真を読み込んでプレビューを始めます</string>
+    <string name="workflow_step_choose">ブランドを選び、ルックをタップしてプレビューします</string>
+    <string name="workflow_step_refine_save">仕上がりを微調整して、準備ができたら保存します</string>
     <string name="header_grain">エフェクト</string>
     <string name="label_film_grain">フィルムグレイン</string>
     <string name="header_camera">カメラ</string>
@@ -204,6 +208,15 @@
     <string name="adjustments">調整</string>
     <string name="grain">エフェクト</string>
     <string name="watermark">透かし</string>
+    <string name="section_brands">ブランド</string>
+    <string name="section_collections">コレクション</string>
+    <string name="section_looks">ルック</string>
+    <string name="single_collection_label">おすすめコレクション</string>
+    <string name="look_count_label">%1$d件のルックを表示中</string>
+    <string name="look_preview_hint">%1$d件のルックをすぐ試せます。1回タップでプレビュー、もう1回で調整に進みます。</string>
+    <string name="look_ready_hint">選択中のルックをもう一度タップすると調整を開けます。</string>
+    <string name="more_brands_title">さらに多くのルックを解放</string>
+    <string name="more_tools_title">仕上げツールをさらに解放</string>
     <string name="watermark_select_brand">ブランドを選択して透かしスタイルを表示</string>
     <string name="device_name">デバイス名</string>
     <string name="time">撮影日時</string>
@@ -215,6 +228,14 @@
     <string name="btn_sign_out">ログアウト</string>
     <string name="label_pro">ライセンス</string>
     <string name="pro_brand_locked">ライセンス機能: ログインしてこのブランドを有効化</string>
+    <string name="premium_brands_hint">ログインすると、さらに多くのブランドと仕上げ機能を利用できます。</string>
+    <string name="pro_adjust_locked">ライセンス機能: ログインして色調整を有効化</string>
+    <string name="pro_adjust_tools_hint">ログインすると、色調整・透かし・プリセットをまとめて使えるようになります。</string>
     <string name="pro_watermark_locked">ライセンス機能: ログインして透かしを有効化</string>
     <string name="pro_quality_limit">ライセンス機能: 60%以上の画質で保存するにはライセンスが必要です</string>
+    <string name="adjust_hint_intensity">まずはLUTの強度を整えて、全体の雰囲気を決めましょう。</string>
+    <string name="adjust_hint_basic">グレインや透かしの前に、露出やコントラストを整えると仕上がりが安定します。</string>
+    <string name="adjust_hint_grain">色味が決まってからグレインを足すと、質感を自然に仕上げられます。</string>
+    <string name="adjust_hint_watermark">仕上げとしてブランド透かしを重ねて、カメラらしい見た目を作れます。</string>
+    <string name="adjust_hint_presets">今のレシピを保存しておくと、次の写真でもすぐ再利用できます。</string>
 </resources>

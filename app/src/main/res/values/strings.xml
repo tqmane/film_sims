@@ -265,6 +265,10 @@
     <string name="label_pick_image">Pick Image</string>
     <string name="desc_pick_image">Pick a photo to apply film simulations</string>
     <string name="btn_open_gallery">Open Gallery</string>
+    <string name="workflow_title">How it works</string>
+    <string name="workflow_step_import">Import a photo to start the preview</string>
+    <string name="workflow_step_choose">Choose a brand and tap a look to preview</string>
+    <string name="workflow_step_refine_save">Fine-tune the result, then export when ready</string>
     <string name="header_grain">Effects</string>
     <string name="label_film_grain">Film Grain</string>
     <string name="header_camera">Camera</string>
@@ -306,6 +310,15 @@
     <string name="adjustments">Adjustments</string>
     <string name="grain">Grain</string>
     <string name="watermark">Watermark</string>
+    <string name="section_brands">Brands</string>
+    <string name="section_collections">Collections</string>
+    <string name="section_looks">Looks</string>
+    <string name="single_collection_label">Curated collection</string>
+    <string name="look_count_label">%1$d looks ready</string>
+    <string name="look_preview_hint">%1$d looks are ready to preview. Tap a card once to preview and again to refine.</string>
+    <string name="look_ready_hint">Tap the selected look again to open adjustments.</string>
+    <string name="more_brands_title">More looks are available</string>
+    <string name="more_tools_title">More finishing tools are available</string>
     <string name="watermark_select_brand">Select a brand to see watermark styles</string>
     <string name="device_name">Device Name</string>
     <string name="time">Time</string>
@@ -321,8 +334,16 @@
 
     <!-- Pro restrictions -->
     <string name="pro_brand_locked">License feature: Sign in to unlock this brand</string>
+    <string name="premium_brands_hint">Sign in to unlock more brands and the full finishing workflow.</string>
+    <string name="pro_adjust_locked">License feature: Sign in to use tone adjustments</string>
+    <string name="pro_adjust_tools_hint">Sign in to unlock tone adjustments, watermarks, and presets in one place.</string>
     <string name="pro_watermark_locked">License feature: Sign in to unlock watermarks</string>
     <string name="pro_quality_limit">License feature: Quality above 60% requires License</string>
+    <string name="adjust_hint_intensity">Start by balancing LUT strength so the overall mood feels right.</string>
+    <string name="adjust_hint_basic">Shape exposure and contrast before adding grain or a watermark.</string>
+    <string name="adjust_hint_grain">Use grain to add texture after the LUT and tone feel settled.</string>
+    <string name="adjust_hint_watermark">Finish the frame with a branded watermark once the edit is ready.</string>
+    <string name="adjust_hint_presets">Save your current recipe so you can reuse it on the next photo.</string>
     <!-- Pro Licenses -->
     <string name="label_license_permanent">Permanent License</string>
     <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>

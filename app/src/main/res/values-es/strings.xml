@@ -129,4 +129,26 @@
     <string name="preset_limit_reached">Número máximo de preajustes alcanzado (20)</string>
     <string name="preset_empty">No hay preajustes guardados aún</string>
     <string name="preset_pro_locked">Función de licencia: Inicie sesión para usar preajustes</string>
+
+    <string name="workflow_title">Como funciona</string>
+    <string name="workflow_step_import">Importa una foto para iniciar la vista previa</string>
+    <string name="workflow_step_choose">Elige una marca y toca un estilo para previsualizarlo</string>
+    <string name="workflow_step_refine_save">Ajusta el resultado y exporta cuando esté listo</string>
+    <string name="section_brands">Marcas</string>
+    <string name="section_collections">Colecciones</string>
+    <string name="section_looks">Estilos</string>
+    <string name="single_collection_label">Colección destacada</string>
+    <string name="look_count_label">%1$d estilos listos</string>
+    <string name="look_preview_hint">%1$d estilos están listos para previsualizar. Toca una tarjeta una vez para ver y otra vez para ajustar.</string>
+    <string name="look_ready_hint">Vuelve a tocar el estilo seleccionado para abrir los ajustes.</string>
+    <string name="more_brands_title">Hay más estilos disponibles</string>
+    <string name="more_tools_title">Hay más herramientas de acabado disponibles</string>
+    <string name="premium_brands_hint">Inicia sesión para desbloquear más marcas y todo el flujo de acabado.</string>
+    <string name="pro_adjust_locked">Función de licencia: inicia sesión para usar los ajustes de tono</string>
+    <string name="pro_adjust_tools_hint">Inicia sesión para desbloquear ajustes de tono, marcas de agua y preajustes en un solo lugar.</string>
+    <string name="adjust_hint_intensity">Empieza equilibrando la intensidad del LUT para definir el ambiente general.</string>
+    <string name="adjust_hint_basic">Ajusta exposición y contraste antes de añadir grano o marca de agua.</string>
+    <string name="adjust_hint_grain">Aplica el grano después de fijar el LUT y el tono para una textura más natural.</string>
+    <string name="adjust_hint_watermark">Termina la imagen con una marca de agua de la marca cuando la edición esté lista.</string>
+    <string name="adjust_hint_presets">Guarda tu receta actual para reutilizarla en la siguiente foto.</string>
 </resources>

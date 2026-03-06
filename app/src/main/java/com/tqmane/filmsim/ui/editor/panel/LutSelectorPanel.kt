@@ -2,23 +2,31 @@ package com.tqmane.filmsim.ui.editor.panel
 
 import android.graphics.Bitmap
 import android.opengl.GLSurfaceView
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.data.LutBrand
 import com.tqmane.filmsim.data.LutItem
@@ -29,6 +37,7 @@ import com.tqmane.filmsim.ui.ViewState
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.GlassBottomSheet
 import com.tqmane.filmsim.ui.component.LiquidChip
+import com.tqmane.filmsim.ui.component.LiquidNoticeCard
 import com.tqmane.filmsim.ui.component.LiquidSectionHeader
 import com.tqmane.filmsim.ui.component.LutPreviewCard
 
@@ -55,7 +64,6 @@ fun LutSelectorPanel(
         modifier = modifier,
         squareTop = squareTop
     ) {
-        LiquidSectionHeader(stringResource(R.string.header_camera))
         BrandGenreLutSection(
             viewModel.brands, viewModel, viewState, editState, watermarkState,
             glSurfaceView, renderer, isWatermarkActive, onRefreshWatermark,
@@ -87,8 +95,10 @@ private fun BrandGenreLutSection(
     selectedCategoryIndex: Int = 0,
     onCategoryIndexChanged: (Int) -> Unit = {}
 ) {
-    val context = LocalContext.current
     val freeBrands = setOf("TECNO", "Nothing", "Nubia")
+    val licenseMessageResState = rememberSaveable {
+        mutableIntStateOf(R.string.premium_brands_hint)
+    }
 
     LaunchedEffect(isProUser, brands.size) {
         if (!isProUser && brands.isNotEmpty()) {
@@ -105,6 +115,16 @@ private fun BrandGenreLutSection(
 
     val categories = remember(selectedBrandIndex) { brands.getOrNull(selectedBrandIndex)?.categories.orEmpty() }
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
+    val currentBrand = brands.getOrNull(selectedBrandIndex)
+    val currentCategory = categories.getOrNull(selectedCategoryIndex)
+    val selectedLutName = editState.currentLutPath
+        ?.substringAfterLast("/")
+        ?.substringBeforeLast(".")
+    val collectionLabel = if (categories.size > 1) {
+        currentCategory?.displayName ?: stringResource(R.string.section_collections)
+    } else {
+        currentCategory?.displayName ?: stringResource(R.string.single_collection_label)
+    }
 
     val brandScrollIndex by viewModel.brandScrollIndex.collectAsState()
     val categoryScrollIndex by viewModel.categoryScrollIndex.collectAsState()
@@ -131,59 +151,87 @@ private fun BrandGenreLutSection(
         snapshotFlow { categoryListState.firstVisibleItemIndex }.collect { viewModel.setCategoryScrollIndex(it) }
     }
 
-    // Brand chips
-    LazyRow(
-        state = brandListState,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(bottom = 12.dp)
-    ) {
-        itemsIndexed(brands) { index, brand ->
-            val isFree = brand.name in freeBrands
-            LiquidChip(
-                text = if (!isFree && !isProUser) "${brand.displayName} 🔒" else brand.displayName,
-                selected = index == selectedBrandIndex,
-                onClick = {
-                    if (!isFree && !isProUser) {
-                        Toast.makeText(context, context.getString(R.string.pro_brand_locked), Toast.LENGTH_SHORT).show()
-                        return@LiquidChip
-                    }
-                    onBrandIndexChanged(index)
-                    onCategoryIndexChanged(0)
-                    viewModel.updateWatermarkBrand(brand.name)
-                }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        LiquidNoticeCard(
+            title = selectedLutName ?: (currentBrand?.displayName ?: stringResource(R.string.section_brands)),
+            message = if (selectedLutName != null) {
+                stringResource(R.string.look_ready_hint)
+            } else {
+                stringResource(R.string.look_preview_hint, lutItems.size)
+            },
+            label = collectionLabel,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        if (!isProUser) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.more_brands_title),
+                message = stringResource(licenseMessageResState.intValue),
+                label = stringResource(R.string.label_pro),
+                accentColor = LiquidColors.AccentSecondary,
+                modifier = Modifier.padding(bottom = 14.dp)
             )
         }
-    }
 
-    LiquidSectionHeader(stringResource(R.string.header_style))
-
-    // Category chips
-    if (categories.isNotEmpty()) {
+        LiquidSectionHeader(text = stringResource(R.string.section_brands))
         LazyRow(
-            state = categoryListState,
+            state = brandListState,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 12.dp)
         ) {
-            itemsIndexed(categories) { index, cat ->
+            itemsIndexed(brands) { index, brand ->
+                val isFree = brand.name in freeBrands
                 LiquidChip(
-                    text = cat.displayName,
-                    selected = index == selectedCategoryIndex,
-                    onClick = { onCategoryIndexChanged(index) }
+                    text = if (!isFree && !isProUser) "${brand.displayName} 🔒" else brand.displayName,
+                    selected = index == selectedBrandIndex,
+                    onClick = {
+                        if (!isFree && !isProUser) {
+                            licenseMessageResState.intValue = R.string.pro_brand_locked
+                            return@LiquidChip
+                        }
+                        licenseMessageResState.intValue = R.string.premium_brands_hint
+                        onBrandIndexChanged(index)
+                        onCategoryIndexChanged(0)
+                        viewModel.updateWatermarkBrand(brand.name)
+                    }
                 )
             }
         }
+
+        if (categories.size > 1) {
+            LiquidSectionHeader(text = stringResource(R.string.section_collections))
+            LazyRow(
+                state = categoryListState,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                itemsIndexed(categories) { index, cat ->
+                    LiquidChip(
+                        text = cat.displayName,
+                        selected = index == selectedCategoryIndex,
+                        onClick = { onCategoryIndexChanged(index) }
+                    )
+                }
+            }
+        }
+
+        LiquidSectionHeader(text = stringResource(R.string.section_looks))
+        Text(
+            text = stringResource(R.string.look_count_label, lutItems.size),
+            color = LiquidColors.TextLowEmphasis,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.SansSerif,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
     }
 
-    LiquidSectionHeader(stringResource(R.string.header_presets))
-
-    val currentBrand = brands.getOrNull(selectedBrandIndex)
     val isCurrentBrandLocked = currentBrand != null && currentBrand.name !in freeBrands && !isProUser
     LutRow(
         items = lutItems,
         thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap,
         onLutSelected = { item ->
             if (isCurrentBrandLocked) {
-                Toast.makeText(context, context.getString(R.string.pro_brand_locked), Toast.LENGTH_SHORT).show()
+                licenseMessageResState.intValue = R.string.pro_brand_locked
                 return@LutRow
             }
             if (item.assetPath == editState.currentLutPath) {
