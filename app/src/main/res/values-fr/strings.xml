@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">Image chargée : %1$s (Aperçu : %2$s)</string>
     <string name="image_load_failed">Échec du chargement : %1$s</string>
+    <string name="security_environment_untrusted">La vérification de sécurité a échoué. La modification n\'est pas disponible sur cet appareil.</string>
     <string name="select_image_first">Veuillez d\'abord sélectionner une image</string>
 
     <!-- Export -->
@@ -165,3 +166,4 @@
     <string name="panel_hints_setting">Afficher les aides du panneau</string>
     <string name="panel_hints_setting_description">Affiche ou masque les cartes d aide dans les panneaux LUT et réglages.</string>
 </resources>
+

@@ -27,6 +27,16 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
         } else {
             null
         }
+
+        private val SUSPICIOUS_PACKAGES = arrayOf(
+            "com.topjohnwu.magisk",
+            "org.lsposed.manager",
+            "de.robv.android.xposed.installer",
+            "org.meowcat.edxposed.manager",
+            "com.saurik.substrate",
+            "eu.chainfire.supersu",
+            "com.chelpus.lackypatch"
+        )
     }
 
     @Volatile
@@ -47,7 +57,12 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
         val rooted = isRootedDevice()
         val hookingPresent = isHookingFrameworkPresent()
         val debuggerAttached = isDebuggerAttached(context)
-        val result = signatureValid && !rooted && !hookingPresent && !debuggerAttached
+        val detectedSuspiciousPackages = findSuspiciousPackages(context)
+        val result = signatureValid &&
+                !rooted &&
+                !hookingPresent &&
+                !debuggerAttached &&
+                detectedSuspiciousPackages.isEmpty()
 
         cachedTrustResult = result
         lastCheckTimestamp = now
@@ -57,7 +72,8 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
                 TAG,
                 "Environment trust check FAILED: " +
                     "signatureValid=$signatureValid, rooted=$rooted, " +
-                    "hookingPresent=$hookingPresent, debuggerAttached=$debuggerAttached"
+                    "hookingPresent=$hookingPresent, debuggerAttached=$debuggerAttached, " +
+                    "suspiciousPackages=${detectedSuspiciousPackages.joinToString()}"
             )
         }
         return result
@@ -166,6 +182,31 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
             }
         } catch (_: Exception) {
             null
+        }
+    }
+
+    private fun findSuspiciousPackages(context: Context): List<String> {
+        return SUSPICIOUS_PACKAGES.filter { packageName ->
+            isPackageInstalled(context.packageManager, packageName)
+        }
+    }
+
+    private fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, 0)
+            }
+            true
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        } catch (_: Exception) {
+            false
         }
     }
 

@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">已加载图片: %1$s (预览: %2$s)</string>
     <string name="image_load_failed">图片加载失败: %1$s</string>
+    <string name="security_environment_untrusted">安全检查失败，此设备无法编辑。</string>
     <string name="select_image_first">请先选择图片</string>
     
     <!-- Export -->
@@ -224,3 +225,4 @@
     <string name="panel_hints_setting">显示面板提示</string>
     <string name="panel_hints_setting_description">切换是否显示 LUT 面板和调整面板中的提示卡片。</string>
 </resources>
+

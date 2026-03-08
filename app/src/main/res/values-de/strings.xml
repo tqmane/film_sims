@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">Bild geladen: %1$s (Vorschau: %2$s)</string>
     <string name="image_load_failed">Bild konnte nicht geladen werden: %1$s</string>
+    <string name="security_environment_untrusted">Sicherheitsprüfung fehlgeschlagen. Bearbeitung ist auf diesem Gerät nicht verfügbar.</string>
     <string name="select_image_first">Bitte wählen Sie zuerst ein Bild aus</string>
 
     <!-- Export -->
@@ -165,3 +166,4 @@
     <string name="panel_hints_setting">Panel-Hinweise anzeigen</string>
     <string name="panel_hints_setting_description">Blendet Hilfekarten im LUT- und Anpassungsbereich ein oder aus.</string>
 </resources>
+

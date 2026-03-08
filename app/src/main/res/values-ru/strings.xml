@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">Изображение загружено: %1$s (Предпросмотр: %2$s)</string>
     <string name="image_load_failed">Не удалось загрузить изображение: %1$s</string>
+    <string name="security_environment_untrusted">Проверка безопасности не пройдена. Редактирование недоступно на этом устройстве.</string>
     <string name="select_image_first">Сначала выберите изображение</string>
 
     <!-- Export -->
@@ -165,3 +166,4 @@
     <string name="panel_hints_setting">Показывать подсказки панели</string>
     <string name="panel_hints_setting_description">Показывает или скрывает карточки-подсказки в панелях LUT и настройки.</string>
 </resources>
+

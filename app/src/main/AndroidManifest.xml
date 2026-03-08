@@ -13,6 +13,16 @@
     <!-- API 33+ granular media permission -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <queries>
+        <package android:name="com.topjohnwu.magisk" />
+        <package android:name="org.lsposed.manager" />
+        <package android:name="de.robv.android.xposed.installer" />
+        <package android:name="org.meowcat.edxposed.manager" />
+        <package android:name="com.saurik.substrate" />
+        <package android:name="eu.chainfire.supersu" />
+        <package android:name="com.chelpus.lackypatch" />
+    </queries>
+
     <application
         android:name=".FilmSimsApplication"
         android:allowBackup="false"

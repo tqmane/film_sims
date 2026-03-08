@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">تم تحميل الصورة: %1$s (المعاينة: %2$s)</string>
     <string name="image_load_failed">فشل تحميل الصورة: %1$s</string>
+    <string name="security_environment_untrusted">فشل التحقق الأمني. التحرير غير متاح على هذا الجهاز.</string>
     <string name="select_image_first">يرجى اختيار صورة أولاً</string>
 
     <!-- Export -->
@@ -165,3 +166,4 @@
     <string name="panel_hints_setting">إظهار تلميحات اللوحة</string>
     <string name="panel_hints_setting_description">يبدل بين إظهار بطاقات المساعدة داخل لوحتي LUT والتعديلات أو إخفائها.</string>
 </resources>
+

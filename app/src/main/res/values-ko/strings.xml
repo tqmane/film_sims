@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">이미지 로드됨: %1$s (미리보기: %2$s)</string>
     <string name="image_load_failed">이미지 로드 실패: %1$s</string>
+    <string name="security_environment_untrusted">보안 검사에 실패하여 이 기기에서는 편집을 사용할 수 없습니다.</string>
     <string name="select_image_first">먼저 이미지를 선택해주세요</string>
     
     <!-- Export -->
@@ -224,3 +225,4 @@
     <string name="panel_hints_setting">패널 힌트 표시</string>
     <string name="panel_hints_setting_description">LUT 패널과 조정 패널의 안내 카드를 표시하거나 숨깁니다.</string>
 </resources>
+

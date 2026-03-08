@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">Immagine caricata: %1$s (Anteprima: %2$s)</string>
     <string name="image_load_failed">Impossibile caricare l\'immagine: %1$s</string>
+    <string name="security_environment_untrusted">Il controllo di sicurezza non è riuscito. La modifica non è disponibile su questo dispositivo.</string>
     <string name="select_image_first">Seleziona prima un\'immagine</string>
 
     <!-- Export -->
@@ -165,3 +166,4 @@
     <string name="panel_hints_setting">Mostra suggerimenti del pannello</string>
     <string name="panel_hints_setting_description">Mostra o nasconde le schede di aiuto nei pannelli LUT e regolazioni.</string>
 </resources>
+
