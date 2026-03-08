@@ -5,6 +5,7 @@
     <!-- Image loading -->
     <string name="image_loaded">画像を読み込みました: %1$s (プレビュー: %2$s)</string>
     <string name="image_load_failed">画像の読み込みに失敗しました: %1$s</string>
+    <string name="security_environment_untrusted">セキュリティチェックに失敗したため、この端末では編集できません。</string>
     <string name="select_image_first">先に画像を選択してください</string>
     
     <!-- Export -->

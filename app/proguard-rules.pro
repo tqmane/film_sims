@@ -76,6 +76,7 @@
 # --- Security / Anti-Crack ---
 # Flatten package hierarchy to make reversing harder
 -repackageclasses ""
+-keep,allowobfuscation class com.tqmane.filmsim.core.security.** { *; }
 
 # --- Hilt (if/when added) ---
 -dontwarn dagger.**

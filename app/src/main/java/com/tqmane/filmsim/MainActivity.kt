@@ -2,25 +2,30 @@ package com.tqmane.filmsim
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.IntentCompat
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.ktx.analytics
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.ui.AuthViewModel
-import com.tqmane.filmsim.ui.editor.EditorScreen
 import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.editor.EditorScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +41,14 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    companion object {
+        private const val EVENT_IMAGE_OPENED = "image_opened"
+        private const val PARAM_SOURCE = "source"
+        private const val PARAM_SCHEME = "scheme"
+        private const val SOURCE_PICKER = "picker"
+        private const val SOURCE_SHARE = "share"
+    }
+
     private val vm: EditorViewModel by viewModels()
     private val authVm: AuthViewModel by viewModels()
 
@@ -44,7 +57,10 @@ class MainActivity : ComponentActivity() {
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            uri?.let { vm.loadImage(it) }
+            uri?.let {
+                logImageOpened(SOURCE_PICKER, it)
+                vm.loadImage(it)
+            }
         }
 
     private val googleSignInLauncher =
@@ -61,6 +77,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        applyReleaseWindowSecurity()
+        if (savedInstanceState == null) {
+            handleIncomingIntent(intent)
+        }
 
         setContent {
             EditorScreen(
@@ -73,6 +93,12 @@ class MainActivity : ComponentActivity() {
         }
 
         vm.checkForUpdates()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
     }
 
     // ─── Google Sign-In (CredentialManager + legacy fallback) ───────────────
@@ -117,4 +143,49 @@ class MainActivity : ComponentActivity() {
 
     private fun launchPicker() =
         pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+
+    private fun applyReleaseWindowSecurity() {
+        if (!BuildConfig.DEBUG) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE
+            )
+        }
+    }
+
+    private fun handleIncomingIntent(incomingIntent: Intent) {
+        val sharedImageUri = extractIncomingImageUri(incomingIntent) ?: return
+        logImageOpened(SOURCE_SHARE, sharedImageUri)
+        vm.loadImage(sharedImageUri)
+    }
+
+    private fun extractIncomingImageUri(incomingIntent: Intent): Uri? {
+        val uri = when (incomingIntent.action) {
+            Intent.ACTION_SEND -> {
+                IntentCompat.getParcelableExtra(incomingIntent, Intent.EXTRA_STREAM, Uri::class.java)
+                    ?: incomingIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+            }
+
+            Intent.ACTION_SEND_MULTIPLE -> {
+                IntentCompat.getParcelableArrayListExtra(
+                    incomingIntent,
+                    Intent.EXTRA_STREAM,
+                    Uri::class.java
+                )?.firstOrNull()
+                    ?: incomingIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+            }
+
+            else -> null
+        } ?: return null
+
+        val mimeType = incomingIntent.type ?: contentResolver.getType(uri)
+        return if (mimeType == null || mimeType.startsWith("image/")) uri else null
+    }
+
+    private fun logImageOpened(source: String, uri: Uri) {
+        Firebase.analytics.logEvent(EVENT_IMAGE_OPENED) {
+            param(PARAM_SOURCE, source)
+            param(PARAM_SCHEME, uri.scheme ?: "unknown")
+        }
+    }
 }

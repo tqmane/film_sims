@@ -151,6 +151,18 @@ class EditorViewModel @Inject constructor(
         }
     }
 
+    private fun ensureTrustedEnvironment(showErrorState: Boolean = false): Boolean {
+        if (securityCheck.isTrusted()) return true
+
+        if (showErrorState) {
+            _viewState.value = ViewState.Error(context.getString(R.string.security_environment_untrusted))
+        }
+        viewModelScope.launch {
+            _uiEvent.emit(UiEvent.ShowToast(R.string.security_environment_untrusted))
+        }
+        return false
+    }
+
     // ─── LUT application ────────────────────────────────
 
     fun applyLut(lutItem: LutItem) {
@@ -171,7 +183,7 @@ class EditorViewModel @Inject constructor(
     }
 
     private fun applyParsedLut(path: String, asOverlay: Boolean) {
-        if (!securityCheck.isTrusted()) return
+        if (!ensureTrustedEnvironment()) return
 
         val current = _editState.value
         _editState.value = if (asOverlay) {
@@ -314,6 +326,10 @@ class EditorViewModel @Inject constructor(
     }
 
     fun loadPreset(preset: Preset) {
+        if ((preset.lutPath != null || preset.overlayLutPath != null) && !ensureTrustedEnvironment()) {
+            return
+        }
+
         // Restore edit state (LUT will be applied separately)
         _editState.value = _editState.value.copy(
             currentLutPath = preset.lutPath,
@@ -461,12 +477,7 @@ class EditorViewModel @Inject constructor(
         val edit = _editState.value
         val wm = _watermarkState.value
 
-        if (!securityCheck.isTrusted()) {
-            viewModelScope.launch {
-                _uiEvent.emit(UiEvent.ShowToast(R.string.lut_load_failed))
-            }
-            return
-        }
+        if (!ensureTrustedEnvironment()) return
 
         viewModelScope.launch(ioDispatcher) {
             runCatching {

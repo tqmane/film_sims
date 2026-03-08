@@ -43,16 +43,22 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
             return cached
         }
 
-        val result = verifySignature(context) &&
-                !isRootedDevice() &&
-                !isHookingFrameworkPresent() &&
-                !isDebuggerAttached(context)
+        val signatureValid = verifySignature(context)
+        val rooted = isRootedDevice()
+        val hookingPresent = isHookingFrameworkPresent()
+        val debuggerAttached = isDebuggerAttached(context)
+        val result = signatureValid && !rooted && !hookingPresent && !debuggerAttached
 
         cachedTrustResult = result
         lastCheckTimestamp = now
 
         if (!result) {
-            Log.e(TAG, "Environment trust check FAILED")
+            Log.e(
+                TAG,
+                "Environment trust check FAILED: " +
+                    "signatureValid=$signatureValid, rooted=$rooted, " +
+                    "hookingPresent=$hookingPresent, debuggerAttached=$debuggerAttached"
+            )
         }
         return result
     }
@@ -115,12 +121,16 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
     }
 
     private fun isRootedDevice(): Boolean {
+        if (Build.TAGS?.contains("test-keys", ignoreCase = true) == true) return true
+        if (hasInsecureSystemProperties()) return true
+
         val suPaths = arrayOf(
             "/system/bin/su", "/system/xbin/su", "/sbin/su",
             "/data/local/xbin/su", "/data/local/bin/su",
             "/system/sd/xbin/su", "/system/bin/failsafe/su",
             "/data/local/su", "/su/bin/su",
-            "/sbin/.magisk", "/data/adb/magisk"
+            "/sbin/.magisk", "/data/adb/magisk",
+            "/system/app/Superuser.apk", "/cache/su"
         )
         for (path in suPaths) {
             if (File(path).exists()) return true
@@ -136,10 +146,33 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
         return false
     }
 
+    private fun hasInsecureSystemProperties(): Boolean {
+        val suspiciousProperties = mapOf(
+            "ro.debuggable" to "1",
+            "ro.secure" to "0"
+        )
+        return suspiciousProperties.any { (key, expectedValue) ->
+            readSystemProperty(key) == expectedValue
+        }
+    }
+
+    private fun readSystemProperty(key: String): String? {
+        return try {
+            val process = Runtime.getRuntime().exec(arrayOf("getprop", key))
+            process.inputStream.bufferedReader().use { reader ->
+                reader.readText().trim().ifEmpty { null }
+            }.also {
+                process.destroy()
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private fun isHookingFrameworkPresent(): Boolean {
         val fridaIndicators = arrayOf(
             "frida-server", "frida-agent", "frida-gadget",
-            "gmain", "linjector"
+            "gmain", "linjector", "zygisk", "riru", "lsposed", "substrate"
         )
 
         try {
@@ -154,20 +187,42 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
             }
         } catch (_: Exception) { }
 
+        if (isKnownHookClassLoaded()) return true
+
         try {
             val stackTrace = Thread.currentThread().stackTrace
             for (element in stackTrace) {
                 val className = element.className
                 if (className.contains("de.robv.android.xposed", ignoreCase = true)) return true
                 if (className.contains("com.saurik.substrate", ignoreCase = true)) return true
+                if (className.contains("org.lsposed", ignoreCase = true)) return true
             }
         } catch (_: Exception) { }
 
         return false
     }
 
+    private fun isKnownHookClassLoaded(): Boolean {
+        val classLoader = Thread.currentThread().contextClassLoader ?: return false
+        val hookClasses = arrayOf(
+            "de.robv.android.xposed.XposedBridge",
+            "org.lsposed.lspd.core.Main",
+            "com.saurik.substrate.MS\$2"
+        )
+        return hookClasses.any { className ->
+            try {
+                Class.forName(className, false, classLoader)
+                true
+            } catch (_: ClassNotFoundException) {
+                false
+            } catch (_: LinkageError) {
+                false
+            }
+        }
+    }
+
     private fun isDebuggerAttached(context: Context): Boolean {
-        if (Debug.isDebuggerConnected()) return true
+        if (Debug.isDebuggerConnected() || Debug.waitingForDebugger() || hasActiveTracer()) return true
 
         try {
             val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
@@ -177,5 +232,25 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
         } catch (_: Exception) { }
 
         return false
+    }
+
+    private fun hasActiveTracer(): Boolean {
+        return try {
+            val statusFile = File("/proc/self/status")
+            if (!statusFile.exists()) {
+                false
+            } else {
+                statusFile.useLines { lines ->
+                    lines.firstOrNull { it.startsWith("TracerPid:") }
+                        ?.substringAfter(':')
+                        ?.trim()
+                        ?.toIntOrNull()
+                        ?.let { it > 0 }
+                        ?: false
+                }
+            }
+        } catch (_: Exception) {
+            false
+        }
     }
 }
