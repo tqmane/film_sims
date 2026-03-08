@@ -3,10 +3,8 @@ package com.tqmane.filmsim
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,7 +22,6 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.analytics.ktx.analytics
-import com.tqmane.filmsim.core.security.SecurityCheckUseCase
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.ui.AuthViewModel
 import com.tqmane.filmsim.ui.EditorViewModel
@@ -58,9 +55,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var updateChecker: UpdateCheckerWrapper
 
-    @Inject
-    lateinit var securityCheck: SecurityCheckUseCase
-
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -84,7 +78,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         applyReleaseWindowSecurity()
-        if (!enforceTrustedEnvironment(forceRefresh = true)) return
         if (savedInstanceState == null) {
             handleIncomingIntent(intent)
         }
@@ -100,13 +93,6 @@ class MainActivity : ComponentActivity() {
         }
 
         vm.checkForUpdates()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!isFinishing) {
-            enforceTrustedEnvironment(forceRefresh = true)
-        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -164,25 +150,7 @@ class MainActivity : ComponentActivity() {
                 WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE
             )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                window.setHideOverlayWindows(true)
-            }
         }
-    }
-
-    private fun enforceTrustedEnvironment(forceRefresh: Boolean): Boolean {
-        if (BuildConfig.DEBUG) return true
-
-        val trusted = if (forceRefresh) {
-            securityCheck.refreshTrust()
-        } else {
-            securityCheck.isTrusted()
-        }
-        if (trusted) return true
-
-        Toast.makeText(this, R.string.security_environment_untrusted, Toast.LENGTH_LONG).show()
-        finishAffinity()
-        return false
     }
 
     private fun handleIncomingIntent(incomingIntent: Intent) {

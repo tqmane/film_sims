@@ -15,9 +15,4 @@ class SecurityCheckUseCase @Inject constructor(
     private val securityChecker: SecurityChecker
 ) {
     fun isTrusted(): Boolean = securityChecker.isEnvironmentTrusted(context)
-
-    fun refreshTrust(): Boolean {
-        securityChecker.invalidateCache()
-        return securityChecker.isEnvironmentTrusted(context)
-    }
 }
