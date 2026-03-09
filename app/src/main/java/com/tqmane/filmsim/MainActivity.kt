@@ -145,12 +145,15 @@ class MainActivity : ComponentActivity() {
         pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 
     private fun applyReleaseWindowSecurity() {
+        // Disabled FLAG_SECURE to allow taking screenshots
+        /*
         if (!BuildConfig.DEBUG) {
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_SECURE,
                 WindowManager.LayoutParams.FLAG_SECURE
             )
         }
+        */
     }
 
     private fun handleIncomingIntent(incomingIntent: Intent) {
