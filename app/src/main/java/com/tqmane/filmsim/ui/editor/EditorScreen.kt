@@ -14,19 +14,28 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,11 +50,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.gl.FilmSimRenderer
@@ -65,9 +81,12 @@ import com.tqmane.filmsim.ui.ViewState
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.AuroraBackground
 import com.tqmane.filmsim.ui.component.EmptyState
+import com.tqmane.filmsim.ui.component.LiquidButton
 import com.tqmane.filmsim.ui.component.TopBar
+import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.ui.theme.LiquidTheme
 import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
+import kotlinx.coroutines.delay
 
 /**
  * Root editor screen — replaces MainScreen.
@@ -88,6 +107,7 @@ fun EditorScreen(
         val watermarkState by viewModel.watermarkState.collectAsState()
         val showPanelHints by viewModel.showPanelHints.collectAsState()
         val isProUser by authViewModel.isProUser.collectAsState()
+        val isSaving by viewModel.isSaving.collectAsState()
 
         // GL references
         var glSurfaceView by remember { mutableStateOf<GLSurfaceView?>(null) }
@@ -105,6 +125,7 @@ fun EditorScreen(
         var isSelectingOverlay by rememberSaveable { mutableStateOf(false) }
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
+        var savedBanner by remember { mutableStateOf<UiEvent.ImageSaved?>(null) }
 
         // Derived state helpers
         val isImmersive = panelState == "Immersive"
@@ -137,11 +158,7 @@ fun EditorScreen(
                         Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                     is UiEvent.ShowUpdateDialog -> pendingUpdate = event.release
                     is UiEvent.ImageSaved -> {
-                        val msg = context.getString(
-                            R.string.image_saved,
-                            "${event.width}x${event.height}", event.path, event.filename
-                        )
-                        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        savedBanner = event
                     }
                 }
             }
@@ -149,6 +166,14 @@ fun EditorScreen(
 
         fun refreshWatermarkPreview() {
             viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
+        }
+
+        // Auto-dismiss save success banner after 3 seconds
+        LaunchedEffect(savedBanner) {
+            if (savedBanner != null) {
+                delay(3000)
+                savedBanner = null
+            }
         }
 
         // ─── GL Sync Effects ──────────────────────────────────────────────────
@@ -389,7 +414,14 @@ fun EditorScreen(
 
                 ImageStateContent(
                     viewState = viewState,
-                    onPickImage = onPickImage
+                    onPickImage = onPickImage,
+                    onRetry = {
+                        val content = viewState
+                        if (content is ViewState.Error) {
+                            // Trigger image picker again as retry
+                            onPickImage()
+                        }
+                    }
                 )
             }
 
@@ -409,13 +441,13 @@ fun EditorScreen(
                             if (viewState !is ViewState.Content) {
                                 Toast.makeText(context, context.getString(R.string.select_image_first), Toast.LENGTH_SHORT).show()
                             } else if (gl != null) {
-                                Toast.makeText(context, context.getString(R.string.exporting), Toast.LENGTH_SHORT).show()
                                 viewModel.saveHighResImage(gl, gpuExportRendererRef[0]) {
                                     Toast.makeText(context, context.getString(R.string.cpu_processing), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
-                        canSave = viewState is ViewState.Content,
+                        canSave = viewState is ViewState.Content && !isSaving,
+                        isSaving = isSaving,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
@@ -483,6 +515,12 @@ fun EditorScreen(
             )
         }
 
+        // Save success banner overlay (floats above all content)
+        SaveSuccessBanner(
+            event = savedBanner,
+            onDismiss = { savedBanner = null }
+        )
+
         DisposableEffect(Unit) {
             onDispose {
                 gpuExportRendererRef[0]?.release()
@@ -497,7 +535,8 @@ fun EditorScreen(
 @Composable
 private fun ImageStateContent(
     viewState: ViewState,
-    onPickImage: () -> Unit
+    onPickImage: () -> Unit,
+    onRetry: () -> Unit
 ) {
     when (val state = viewState) {
         is ViewState.Empty -> EmptyState(onPickImage = onPickImage)
@@ -506,7 +545,20 @@ private fun ImageStateContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.White)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(
+                        color = LiquidColors.AccentPrimary,
+                        strokeWidth = 3.dp,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.loading_image),
+                        color = LiquidColors.TextMediumEmphasis,
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                }
             }
         }
         is ViewState.Error -> {
@@ -514,12 +566,68 @@ private fun ImageStateContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = state.message,
-                    color = Color.White,
-                    modifier = Modifier.padding(16.dp),
-                    textAlign = TextAlign.Center
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    // Error icon
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color(0x1AFF6B6B)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "!",
+                            color = Color(0xFFFF6B6B),
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.SansSerif
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = stringResource(R.string.error_title),
+                        color = LiquidColors.TextHighEmphasis,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.SansSerif
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = state.message,
+                        color = LiquidColors.TextLowEmphasis,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        fontFamily = FontFamily.SansSerif,
+                        lineHeight = 20.sp,
+                        modifier = Modifier.widthIn(max = 280.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        LiquidButton(
+                            onClick = onRetry,
+                            modifier = Modifier.height(46.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.error_pick_another),
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = FontFamily.SansSerif
+                            )
+                        }
+                    }
+                }
             }
         }
         else -> {}
@@ -616,6 +724,79 @@ private fun BottomControlArea(
                     squareTop = false,
                     modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
                 )
+            }
+        }
+    }
+}
+
+// ─── Save Success Banner ─────────────────────────────────────────────────────
+
+@Composable
+private fun SaveSuccessBanner(
+    event: UiEvent.ImageSaved?,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+            .padding(bottom = 88.dp, start = 16.dp, end = 16.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        AnimatedVisibility(
+            visible = event != null,
+            enter = slideInVertically(
+                animationSpec = tween(340, easing = FastOutSlowInEasing)
+            ) { it / 2 } + fadeIn(animationSpec = tween(280)),
+            exit = slideOutVertically(
+                animationSpec = tween(260, easing = FastOutSlowInEasing)
+            ) { it / 2 } + fadeOut(animationSpec = tween(200))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(LiquidColors.SurfaceMedium.copy(alpha = 0.95f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDismiss
+                    )
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFF2ECC71).copy(alpha = 0.18f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_save),
+                        contentDescription = null,
+                        tint = Color(0xFF2ECC71),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = event?.filename ?: "",
+                        color = LiquidColors.TextHighEmphasis,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.SansSerif,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = event?.let { "${it.width}×${it.height}" } ?: "",
+                        color = LiquidColors.TextLowEmphasis,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                }
             }
         }
     }

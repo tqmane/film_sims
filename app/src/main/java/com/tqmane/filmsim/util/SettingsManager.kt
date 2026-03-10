@@ -2,7 +2,6 @@ package com.tqmane.filmsim.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
@@ -167,24 +166,22 @@ class SettingsManager(context: Context) {
     // ─── Internal helpers ───────────────────────────────
 
     private fun createPreferences(context: Context): SharedPreferences {
-        val encrypted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                val masterKey = MasterKey.Builder(context)
-                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                    .build()
+        val encrypted = try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
 
-                EncryptedSharedPreferences.create(
-                    context,
-                    ENCRYPTED_PREFS,
-                    masterKey,
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to create encrypted prefs, falling back", e)
-                null
-            }
-        } else null
+            EncryptedSharedPreferences.create(
+                context,
+                ENCRYPTED_PREFS,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create encrypted prefs, falling back", e)
+            null
+        }
 
         val target = encrypted ?: context.getSharedPreferences(LEGACY_PREFS, Context.MODE_PRIVATE)
 

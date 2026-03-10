@@ -110,7 +110,7 @@ fun UpdateDialog(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_update),
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.update_available),
                             tint = LiquidColors.AccentPrimary,
                             modifier = Modifier.size(30.dp)
                         )

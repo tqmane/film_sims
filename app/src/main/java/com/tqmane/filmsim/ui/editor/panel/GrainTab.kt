@@ -62,7 +62,7 @@ internal fun GrainTab(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_grain),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.label_film_grain),
             tint = accent,
             modifier = Modifier.size(20.dp)
         )
@@ -90,10 +90,12 @@ internal fun GrainTab(
                 viewModel.setGrainEnabled(on)
                 haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setGrainEnabled(on)
-                        if (on) renderer?.setGrainIntensity(grainIntensity)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setGrainEnabled(on)
+                            if (on) renderer?.setGrainIntensity(grainIntensity)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -115,9 +117,11 @@ internal fun GrainTab(
             viewModel.setGrainIntensity(value)
             if (grainEnabled) {
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setGrainIntensity(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setGrainIntensity(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -144,7 +148,7 @@ internal fun GrainTab(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_grain),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.label_grain_style),
             tint = LiquidColors.AccentSecondary,
             modifier = Modifier.size(20.dp)
         )
@@ -168,9 +172,11 @@ internal fun GrainTab(
                             viewModel.setGrainStyle(key)
                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                             if (!isWatermarkActive) {
-                                glSurfaceView?.queueEvent {
-                                    renderer?.setGrainStyle(key)
-                                    glSurfaceView.requestRender()
+                                glSurfaceView?.let { glView ->
+                                    glView.queueEvent {
+                                        renderer?.setGrainStyle(key)
+                                        glView.requestRender()
+                                    }
                                 }
                             }
                             onRefreshWatermark()

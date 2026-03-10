@@ -143,7 +143,7 @@ private fun SettingsDialogHeader(onDismiss: () -> Unit) {
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_settings),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.title_settings),
                 tint = LiquidColors.AccentPrimary,
                 modifier = Modifier.size(22.dp)
             )

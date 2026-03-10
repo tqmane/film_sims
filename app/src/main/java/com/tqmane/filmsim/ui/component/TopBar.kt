@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
@@ -35,6 +37,7 @@ fun TopBar(
     onSettings: () -> Unit,
     onSave: () -> Unit,
     canSave: Boolean,
+    isSaving: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -78,14 +81,14 @@ fun TopBar(
 
             LiquidRoundButton(
                 iconRes = R.drawable.ic_add,
-                contentDesc = stringResource(R.string.btn_open_gallery),
+                contentDesc = stringResource(R.string.cd_add_photo),
                 onClick = onPickImage,
                 modifier = Modifier.padding(end = 8.dp)
             )
 
             LiquidRoundButton(
                 iconRes = R.drawable.ic_settings,
-                contentDesc = stringResource(R.string.title_settings),
+                contentDesc = stringResource(R.string.cd_open_settings),
                 onClick = onSettings,
                 modifier = Modifier.padding(end = 12.dp)
             )
@@ -100,20 +103,37 @@ fun TopBar(
                 enabled = canSave,
                 modifier = Modifier.width(94.dp)
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_save),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(15.dp)
-                )
-                Spacer(Modifier.width(5.dp))
-                Text(
-                    stringResource(R.string.save),
-                    color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = FontFamily.SansSerif
-                )
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        stringResource(R.string.exporting),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.SansSerif,
+                        maxLines = 1
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_save),
+                        contentDescription = stringResource(R.string.cd_save_image),
+                        tint = Color.White,
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Spacer(Modifier.width(5.dp))
+                    Text(
+                        stringResource(R.string.save),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        fontFamily = FontFamily.SansSerif
+                    )
+                }
             }
         }
     }

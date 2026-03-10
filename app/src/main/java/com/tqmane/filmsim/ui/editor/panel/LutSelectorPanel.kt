@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.data.LutBrand
@@ -108,6 +110,7 @@ private fun BrandGenreLutSection(
     onCategoryIndexChanged: (Int) -> Unit = {}
 ) {
     val freeBrands = setOf("TECNO", "Nothing", "Nubia")
+    val haptic = LocalHapticFeedback.current
     val licenseMessageResState = rememberSaveable {
         mutableIntStateOf(R.string.premium_brands_hint)
     }
@@ -209,9 +212,11 @@ private fun BrandGenreLutSection(
                             onClick = {
                                 viewModel.clearOverlayLut()
                                 if (!isWatermarkActive) {
-                                    glSurfaceView?.queueEvent {
-                                        renderer?.setOverlayIntensity(0f)
-                                        glSurfaceView.requestRender()
+                                    glSurfaceView?.let { glView ->
+                                        glView.queueEvent {
+                                            renderer?.setOverlayIntensity(0f)
+                                            glView.requestRender()
+                                        }
                                     }
                                 }
                                 onRefreshWatermark()
@@ -249,6 +254,7 @@ private fun BrandGenreLutSection(
                     selected = index == selectedBrandIndex,
                     onClick = {
                         if (!isFree && !isProUser) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             licenseMessageResState.intValue = R.string.pro_brand_locked
                             return@LiquidChip
                         }
@@ -294,15 +300,18 @@ private fun BrandGenreLutSection(
         thumbnailBitmap = (viewState as? ViewState.Content)?.thumbnailBitmap,
         onLutSelected = { item ->
             if (isCurrentBrandLocked) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 licenseMessageResState.intValue = R.string.pro_brand_locked
                 return@LutRow
             }
             if (isSelectingOverlay) {
                 viewModel.applyOverlayLut(item)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setOverlayIntensity(editState.overlayIntensity)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setOverlayIntensity(editState.overlayIntensity)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()

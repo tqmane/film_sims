@@ -116,7 +116,7 @@ fun EmptyState(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_add_photo),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.cd_pick_image),
                     tint = LiquidColors.AccentPrimary.copy(alpha = 0.85f),
                     modifier = Modifier.fillMaxSize()
                 )
@@ -177,7 +177,7 @@ fun EmptyState(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_gallery),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.btn_open_gallery),
                 tint = Color.White,
                 modifier = Modifier.size(20.dp)
             )

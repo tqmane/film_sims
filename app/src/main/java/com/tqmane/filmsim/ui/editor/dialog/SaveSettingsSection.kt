@@ -78,7 +78,7 @@ internal fun SaveSettingsSection(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_save),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.label_save_folder),
             tint = LiquidColors.TextLowEmphasis,
             modifier = Modifier.size(18.dp)
         )

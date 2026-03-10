@@ -2,11 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">写真を追加</string>
+    <string name="cd_open_settings">設定を開く</string>
+    <string name="cd_save_image">画像を保存</string>
+    <string name="cd_pick_image">画像を選ぶ</string>
+
     <!-- Image loading -->
     <string name="image_loaded">画像を読み込みました: %1$s (プレビュー: %2$s)</string>
     <string name="image_load_failed">画像の読み込みに失敗しました: %1$s</string>
     <string name="security_environment_untrusted">セキュリティチェックに失敗したため、この端末では編集できません。</string>
     <string name="select_image_first">先に画像を選択してください</string>
+    <string name="loading_image">画像を読み込み中…</string>
+    <string name="error_title">エラーが発生しました</string>
+    <string name="error_retry">再試行</string>
+    <string name="error_pick_another">別の画像を選ぶ</string>
     
     <!-- Export -->
     <string name="exporting">書き出し中…</string>
@@ -219,6 +229,8 @@
     <string name="more_brands_title">さらに多くのルックを解放</string>
     <string name="more_tools_title">仕上げツールをさらに解放</string>
     <string name="watermark_select_brand">ブランドを選択して透かしスタイルを表示</string>
+    <string name="label_watermark_style">スタイル</string>
+    <string name="label_watermark_brand">ブランド</string>
     <string name="device_name">デバイス名</string>
     <string name="time">撮影日時</string>
     <string name="location">場所</string>

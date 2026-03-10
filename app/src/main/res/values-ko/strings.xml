@@ -2,11 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">사진 추가</string>
+    <string name="cd_open_settings">설정 열기</string>
+    <string name="cd_save_image">이미지 저장</string>
+    <string name="cd_pick_image">이미지 선택</string>
+
     <!-- Image loading -->
     <string name="image_loaded">이미지 로드됨: %1$s (미리보기: %2$s)</string>
     <string name="image_load_failed">이미지 로드 실패: %1$s</string>
     <string name="security_environment_untrusted">보안 검사에 실패하여 이 기기에서는 편집을 사용할 수 없습니다.</string>
     <string name="select_image_first">먼저 이미지를 선택해주세요</string>
+    <string name="loading_image">이미지 로딩 중…</string>
+    <string name="error_title">오류가 발생했습니다</string>
+    <string name="error_retry">다시 시도</string>
+    <string name="error_pick_another">다른 이미지 선택</string>
     
     <!-- Export -->
     <string name="exporting">내보내는 중…</string>
@@ -138,6 +148,7 @@
     <string name="btn_open_gallery">갤러리 열기</string>
     <string name="header_grain">효과</string>
     <string name="label_film_grain">필름 그레인</string>
+    <string name="label_grain_style">그레인 스타일</string>
     <string name="header_camera">카메라</string>
     <string name="header_style">스타일</string>
     <string name="label_intensity">강도</string>
@@ -157,6 +168,8 @@
     <string name="grain">효과</string>
     <string name="watermark">워터마크</string>
     <string name="watermark_select_brand">브랜드 선택하여 워터마크 스타일 보기</string>
+    <string name="label_watermark_style">스타일</string>
+    <string name="label_watermark_brand">브랜드</string>
     <string name="device_name">기기 이름</string>
     <string name="time">시간</string>
     <string name="location">위치</string>

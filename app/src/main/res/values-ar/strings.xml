@@ -2,11 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">إضافة صورة</string>
+    <string name="cd_open_settings">فتح الإعدادات</string>
+    <string name="cd_save_image">حفظ الصورة</string>
+    <string name="cd_pick_image">اختيار صورة</string>
+
     <!-- Image loading -->
     <string name="image_loaded">تم تحميل الصورة: %1$s (المعاينة: %2$s)</string>
     <string name="image_load_failed">فشل تحميل الصورة: %1$s</string>
     <string name="security_environment_untrusted">فشل التحقق الأمني. التحرير غير متاح على هذا الجهاز.</string>
     <string name="select_image_first">يرجى اختيار صورة أولاً</string>
+    <string name="loading_image">جارٍ تحميل الصورة…</string>
+    <string name="error_title">حدث خطأ ما</string>
+    <string name="error_retry">إعادة المحاولة</string>
+    <string name="error_pick_another">اختيار صورة أخرى</string>
 
     <!-- Export -->
     <string name="exporting">جارٍ التصدير…</string>

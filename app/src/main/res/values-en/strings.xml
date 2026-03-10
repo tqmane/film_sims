@@ -2,11 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Add photo</string>
+    <string name="cd_open_settings">Open settings</string>
+    <string name="cd_save_image">Save image</string>
+    <string name="cd_pick_image">Pick an image</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Image loaded: %1$s (Preview: %2$s)</string>
     <string name="image_load_failed">Failed to load image: %1$s</string>
     <string name="security_environment_untrusted">Security check failed. Editing is unavailable on this device.</string>
     <string name="select_image_first">Please select an image first</string>
+    <string name="loading_image">Loading image…</string>
+    <string name="error_title">Something went wrong</string>
+    <string name="error_retry">Try Again</string>
+    <string name="error_pick_another">Pick Another</string>
     
     <!-- Export -->
     <string name="exporting">Exporting…</string>
@@ -135,6 +145,7 @@
     <string name="btn_open_gallery">Open Gallery</string>
     <string name="header_grain">Effects</string>
     <string name="label_film_grain">Film Grain</string>
+    <string name="label_grain_style">Grain Style</string>
     <string name="header_camera">Camera</string>
     <string name="header_style">Style</string>
     <string name="label_intensity">Intensity</string>
@@ -169,6 +180,8 @@
     <string name="adjust_hint_basic">Shape exposure and contrast before adding grain or a watermark.</string>
     <string name="adjust_hint_grain">Use grain to add texture after the LUT and tone feel settled.</string>
     <string name="adjust_hint_watermark">Finish the frame with a branded watermark once the edit is ready.</string>
+    <string name="label_watermark_style">Style</string>
+    <string name="label_watermark_brand">Brand</string>
     <string name="adjust_hint_presets">Save your current recipe so you can reuse it on the next photo.</string>
     <string name="overlay_filter">Overlay filter</string>
     <string name="overlay_filter_none">No overlay selected</string>

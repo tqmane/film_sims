@@ -99,9 +99,11 @@ internal fun AdjustPanel(
         { value: Float ->
             viewModel.setIntensity(value)
             if (!currentIsWatermarkActive) {
-                currentGlSurfaceView?.queueEvent {
-                    currentRenderer?.setIntensity(value)
-                    currentGlSurfaceView.requestRender()
+                currentGlSurfaceView?.let { glView ->
+                    glView.queueEvent {
+                        currentRenderer?.setIntensity(value)
+                        glView.requestRender()
+                    }
                 }
             }
             currentOnRefreshWatermark()
@@ -111,11 +113,13 @@ internal fun AdjustPanel(
         { value: Float ->
             viewModel.setOverlayIntensity(value)
             if (!currentIsWatermarkActive) {
-                currentGlSurfaceView?.queueEvent {
-                    currentRenderer?.setOverlayIntensity(
-                        if (currentEditState.overlayLutPath != null) value else 0f
-                    )
-                    currentGlSurfaceView.requestRender()
+                currentGlSurfaceView?.let { glView ->
+                    glView.queueEvent {
+                        currentRenderer?.setOverlayIntensity(
+                            if (currentEditState.overlayLutPath != null) value else 0f
+                        )
+                        glView.requestRender()
+                    }
                 }
             }
             currentOnRefreshWatermark()
@@ -395,13 +399,15 @@ internal fun BasicAdjustTab(
         ) {
             TextButton(onClick = {
                 viewModel.resetAdjustments()
-                glSurfaceView?.queueEvent {
-                    renderer?.setExposure(0f)
-                    renderer?.setContrast(0f)
-                    renderer?.setHighlights(0f)
-                    renderer?.setShadows(0f)
-                    renderer?.setColorTemp(0f)
-                    glSurfaceView.requestRender()
+                glSurfaceView?.let { glView ->
+                    glView.queueEvent {
+                        renderer?.setExposure(0f)
+                        renderer?.setContrast(0f)
+                        renderer?.setHighlights(0f)
+                        renderer?.setShadows(0f)
+                        renderer?.setColorTemp(0f)
+                        glView.requestRender()
+                    }
                 }
                 onRefreshWatermark()
             }) {
@@ -420,9 +426,11 @@ internal fun BasicAdjustTab(
             onValueChange = { value ->
                 viewModel.setExposure(value)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setExposure(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setExposure(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -435,9 +443,11 @@ internal fun BasicAdjustTab(
             onValueChange = { value ->
                 viewModel.setContrast(value)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setContrast(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setContrast(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -450,9 +460,11 @@ internal fun BasicAdjustTab(
             onValueChange = { value ->
                 viewModel.setHighlights(value)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setHighlights(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setHighlights(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -465,9 +477,11 @@ internal fun BasicAdjustTab(
             onValueChange = { value ->
                 viewModel.setShadows(value)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setShadows(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setShadows(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()
@@ -480,9 +494,11 @@ internal fun BasicAdjustTab(
             onValueChange = { value ->
                 viewModel.setColorTemp(value)
                 if (!isWatermarkActive) {
-                    glSurfaceView?.queueEvent {
-                        renderer?.setColorTemp(value)
-                        glSurfaceView.requestRender()
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setColorTemp(value)
+                            glView.requestRender()
+                        }
                     }
                 }
                 onRefreshWatermark()

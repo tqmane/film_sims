@@ -57,8 +57,8 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
             cachedTrustResult = null
         }
 
-        if (!result) {
-            Log.e(
+        if (!result && BuildConfig.DEBUG) {
+            Log.d(
                 TAG,
                 "Environment trust check FAILED: " +
                     "signatureValid=$signatureValid, rooted=$rooted, " +
@@ -99,7 +99,7 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
             }
 
             if (signatures.isNullOrEmpty()) {
-                Log.e(TAG, "No signatures found!")
+                if (BuildConfig.DEBUG) Log.d(TAG, "No signatures found!")
                 return isDebugBuild
             }
 
@@ -116,11 +116,11 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
                 if (isDebugBuild && currentHash == DEBUG_SIGNATURE_HASH) return true
             }
 
-            Log.e(TAG, "Signature verification failed! The app might be modified.")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Signature verification failed!")
             return isDebugBuild
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error generating signature hash", e)
+            if (BuildConfig.DEBUG) Log.d(TAG, "Error generating signature hash", e)
             return isDebugBuild
         }
     }

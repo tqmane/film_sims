@@ -92,6 +92,9 @@ class EditorViewModel @Inject constructor(
     private val _watermarkState = MutableStateFlow(WatermarkState())
     val watermarkState: StateFlow<WatermarkState> = _watermarkState.asStateFlow()
 
+    private val _isSaving = MutableStateFlow(false)
+    val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
+
     private val _uiEvent = MutableSharedFlow<UiEvent>(extraBufferCapacity = 8)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
@@ -465,6 +468,7 @@ class EditorViewModel @Inject constructor(
 
         if (!ensureTrustedEnvironment()) return
 
+        _isSaving.value = true
         viewModelScope.launch(ioDispatcher) {
             runCatching {
                 // 1. Load full-res on-demand (not kept in memory)
@@ -552,6 +556,7 @@ class EditorViewModel @Inject constructor(
             }.onFailure { e ->
                 _uiEvent.emit(UiEvent.ShowToast(R.string.save_error, arrayOf(e.message ?: "")))
             }
+            _isSaving.value = false
         }
     }
 

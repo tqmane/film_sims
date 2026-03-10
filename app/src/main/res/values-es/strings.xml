@@ -2,11 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Agregar foto</string>
+    <string name="cd_open_settings">Abrir ajustes</string>
+    <string name="cd_save_image">Guardar imagen</string>
+    <string name="cd_pick_image">Elegir una imagen</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Imagen cargada: %1$s (Vista previa: %2$s)</string>
     <string name="image_load_failed">Error al cargar la imagen: %1$s</string>
     <string name="security_environment_untrusted">La verificación de seguridad falló. La edición no está disponible en este dispositivo.</string>
     <string name="select_image_first">Selecciona una imagen primero</string>
+    <string name="loading_image">Cargando imagen…</string>
+    <string name="error_title">Algo salió mal</string>
+    <string name="error_retry">Intentar de nuevo</string>
+    <string name="error_pick_another">Elegir otra</string>
 
     <!-- Export -->
     <string name="exporting">Exportando…</string>
