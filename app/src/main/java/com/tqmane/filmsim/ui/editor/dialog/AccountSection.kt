@@ -161,7 +161,7 @@ private fun SignedInContent(
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("⚠", color = LiquidColors.AccentPrimary, fontSize = 13.sp)
+                Text(stringResource(R.string.warning_indicator), color = LiquidColors.AccentPrimary, fontSize = 13.sp)
                 Spacer(Modifier.width(8.dp))
                 Text(
                     stringResource(R.string.label_license_version_mismatch, mismatchVer),

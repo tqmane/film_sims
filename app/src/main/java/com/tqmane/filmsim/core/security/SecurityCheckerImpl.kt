@@ -19,7 +19,7 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
 
     companion object {
         private const val TAG = "SecurityChecker"
-        private const val CACHE_TTL_MS = 60_000L
+        private const val CACHE_TTL_MS = 10_000L
 
         private val RELEASE_SIGNATURE_HASH = "07D6Pj199ET0XVf2+Ui/ZB+veLHMPph1mLzMWSAeW/w="
         private val DEBUG_SIGNATURE_HASH = if (BuildConfig.DEBUG) {
@@ -49,8 +49,13 @@ class SecurityCheckerImpl @Inject constructor() : SecurityChecker {
         val debuggerAttached = isDebuggerAttached(context)
         val result = signatureValid && !rooted && !hookingPresent && !debuggerAttached
 
-        cachedTrustResult = result
-        lastCheckTimestamp = now
+        // Only cache positive results; failures are always re-evaluated
+        if (result) {
+            cachedTrustResult = result
+            lastCheckTimestamp = now
+        } else {
+            cachedTrustResult = null
+        }
 
         if (!result) {
             Log.e(

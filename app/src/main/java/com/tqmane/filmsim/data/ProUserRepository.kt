@@ -65,7 +65,6 @@ class ProUserRepository @Inject constructor(
      * ドキュメントが見つかれば Pro ユーザーと判定。
      */
     suspend fun checkProStatus(email: String?) {
-        Log.d(TAG, "checkProStatus called: email='$email'")
         if (email.isNullOrBlank()) {
             _isProUser.value = false
             _licenseMismatchVersion.value = null
@@ -73,7 +72,6 @@ class ProUserRepository @Inject constructor(
             return
         }
         val normalizedEmail = email.trim().lowercase()
-        Log.d(TAG, "Querying pro_users and android where email == '$normalizedEmail'")
 
         var hadNetworkError = false
         try {

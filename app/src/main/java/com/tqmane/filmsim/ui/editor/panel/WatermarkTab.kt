@@ -104,7 +104,7 @@ internal fun WatermarkTab(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_watermark),
-                contentDescription = null,
+                contentDescription = "",
                 tint = LiquidColors.AccentSecondary,
                 modifier = Modifier.size(20.dp)
             )
