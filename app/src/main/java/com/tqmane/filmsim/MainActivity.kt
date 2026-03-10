@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -77,7 +76,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        applyReleaseWindowSecurity()
         if (savedInstanceState == null) {
             handleIncomingIntent(intent)
         }
@@ -115,9 +113,10 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 val credentialManager = CredentialManager.create(this@MainActivity)
+                val webClientId = getString(R.string.default_web_client_id)
                 val googleIdOption = GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId(AuthViewModel.WEB_CLIENT_ID)
+                    .setServerClientId(webClientId)
                     .build()
                 val request = GetCredentialRequest.Builder()
                     .addCredentialOption(googleIdOption)
@@ -128,9 +127,10 @@ class MainActivity : ComponentActivity() {
                 authVm.processGoogleIdToken(googleIdTokenCredential.idToken)
             } catch (e: Exception) {
                 // CredentialManager failed – fall back to legacy Google Sign-In
+                val webClientId = getString(R.string.default_web_client_id)
                 val gso = GoogleSignInOptions
                     .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(AuthViewModel.WEB_CLIENT_ID)
+                    .requestIdToken(webClientId)
                     .requestEmail()
                     .build()
                 val client = GoogleSignIn.getClient(this@MainActivity, gso)
@@ -143,18 +143,6 @@ class MainActivity : ComponentActivity() {
 
     private fun launchPicker() =
         pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-
-    private fun applyReleaseWindowSecurity() {
-        // Disabled FLAG_SECURE to allow taking screenshots
-        /*
-        if (!BuildConfig.DEBUG) {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_SECURE,
-                WindowManager.LayoutParams.FLAG_SECURE
-            )
-        }
-        */
-    }
 
     private fun handleIncomingIntent(incomingIntent: Intent) {
         val sharedImageUri = extractIncomingImageUri(incomingIntent) ?: return

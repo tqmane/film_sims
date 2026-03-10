@@ -13,11 +13,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -138,9 +138,9 @@ private fun BrandGenreLutSection(
         currentCategory?.displayName ?: stringResource(R.string.single_collection_label)
     }
 
-    val brandScrollIndex by viewModel.brandScrollIndex.collectAsState()
-    val categoryScrollIndex by viewModel.categoryScrollIndex.collectAsState()
-    val lutScrollIndex by viewModel.lutScrollIndex.collectAsState()
+    var brandScrollIndex by rememberSaveable { mutableIntStateOf(0) }
+    var categoryScrollIndex by rememberSaveable { mutableIntStateOf(0) }
+    var lutScrollIndex by rememberSaveable { mutableIntStateOf(0) }
 
     val brandListState = rememberLazyListState()
     val categoryListState = rememberLazyListState()
@@ -156,11 +156,11 @@ private fun BrandGenreLutSection(
         }
     }
 
-    LaunchedEffect(brandListState) {
-        snapshotFlow { brandListState.firstVisibleItemIndex }.collect { viewModel.setBrandScrollIndex(it) }
+    LaunchedEffect(Unit) {
+        snapshotFlow { brandListState.firstVisibleItemIndex }.collect { brandScrollIndex = it }
     }
-    LaunchedEffect(categoryListState) {
-        snapshotFlow { categoryListState.firstVisibleItemIndex }.collect { viewModel.setCategoryScrollIndex(it) }
+    LaunchedEffect(Unit) {
+        snapshotFlow { categoryListState.firstVisibleItemIndex }.collect { categoryScrollIndex = it }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -314,7 +314,7 @@ private fun BrandGenreLutSection(
         },
         currentLutPath = if (isSelectingOverlay) editState.overlayLutPath else editState.currentLutPath,
         savedScrollIndex = lutScrollIndex,
-        onScrollIndexChanged = { viewModel.setLutScrollIndex(it) }
+        onScrollIndexChanged = { lutScrollIndex = it }
     )
 }
 

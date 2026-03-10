@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -87,6 +88,40 @@ internal fun AdjustPanel(
     val lockedFeatureMessageResState = rememberSaveable {
         mutableIntStateOf(R.string.pro_adjust_tools_hint)
     }
+
+    // Stable lambdas to prevent unnecessary recomposition of child Composables
+    val currentGlSurfaceView by rememberUpdatedState(glSurfaceView)
+    val currentRenderer by rememberUpdatedState(renderer)
+    val currentIsWatermarkActive by rememberUpdatedState(isWatermarkActive)
+    val currentEditState by rememberUpdatedState(editState)
+    val currentOnRefreshWatermark by rememberUpdatedState(onRefreshWatermark)
+    val stableOnIntensityChange = remember(viewModel) {
+        { value: Float ->
+            viewModel.setIntensity(value)
+            if (!currentIsWatermarkActive) {
+                currentGlSurfaceView?.queueEvent {
+                    currentRenderer?.setIntensity(value)
+                    currentGlSurfaceView.requestRender()
+                }
+            }
+            currentOnRefreshWatermark()
+        }
+    }
+    val stableOnOverlayIntensityChange = remember(viewModel) {
+        { value: Float ->
+            viewModel.setOverlayIntensity(value)
+            if (!currentIsWatermarkActive) {
+                currentGlSurfaceView?.queueEvent {
+                    currentRenderer?.setOverlayIntensity(
+                        if (currentEditState.overlayLutPath != null) value else 0f
+                    )
+                    currentGlSurfaceView.requestRender()
+                }
+            }
+            currentOnRefreshWatermark()
+        }
+    }
+
     val currentTab = if (!isProUser && selectedTab in setOf(AdjustTab.ADJUST, AdjustTab.WATERMARK, AdjustTab.PRESETS)) {
         AdjustTab.INTENSITY
     } else {
@@ -114,16 +149,16 @@ internal fun AdjustPanel(
     val tabs = listOf(
         AdjustTab.INTENSITY to stringResource(R.string.adjustments),
         AdjustTab.ADJUST to (
-            if (!isProUser) "${stringResource(R.string.tab_adjust)} 🔒"
+            if (!isProUser) "${stringResource(R.string.tab_adjust)} ${stringResource(R.string.locked_indicator)}"
             else stringResource(R.string.tab_adjust)
         ),
         AdjustTab.GRAIN to stringResource(R.string.grain),
         AdjustTab.WATERMARK to (
-            if (!isProUser) "${stringResource(R.string.watermark)} 🔒"
+            if (!isProUser) "${stringResource(R.string.watermark)} ${stringResource(R.string.locked_indicator)}"
             else stringResource(R.string.watermark)
         ),
         AdjustTab.PRESETS to (
-            if (!isProUser) "${stringResource(R.string.tab_presets)} 🔒"
+            if (!isProUser) "${stringResource(R.string.tab_presets)} ${stringResource(R.string.locked_indicator)}"
             else stringResource(R.string.tab_presets)
         )
     )
@@ -152,7 +187,7 @@ internal fun AdjustPanel(
         ) {
             TextButton(onClick = onClose) {
                 Text(
-                    "← LUT",
+                    stringResource(R.string.back_to_lut),
                     color = LiquidColors.TextMediumEmphasis,
                     fontSize = 13.sp,
                     fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif
@@ -224,28 +259,8 @@ internal fun AdjustPanel(
                             ?.substringAfterLast("/")
                             ?.substringBeforeLast("."),
                         overlayIntensity = editState.overlayIntensity,
-                        onIntensityChange = { value ->
-                            viewModel.setIntensity(value)
-                            if (!isWatermarkActive) {
-                                glSurfaceView?.queueEvent {
-                                    renderer?.setIntensity(value)
-                                    glSurfaceView.requestRender()
-                                }
-                            }
-                            onRefreshWatermark()
-                        },
-                        onOverlayIntensityChange = { value ->
-                            viewModel.setOverlayIntensity(value)
-                            if (!isWatermarkActive) {
-                                glSurfaceView?.queueEvent {
-                                    renderer?.setOverlayIntensity(
-                                        if (editState.overlayLutPath != null) value else 0f
-                                    )
-                                    glSurfaceView.requestRender()
-                                }
-                            }
-                            onRefreshWatermark()
-                        },
+                        onIntensityChange = stableOnIntensityChange,
+                        onOverlayIntensityChange = stableOnOverlayIntensityChange,
                         onSelectOverlayFilter = onSelectOverlayFilter,
                         onClearOverlay = {
                             viewModel.clearOverlayLut()
@@ -645,7 +660,7 @@ private fun PresetItem(
         ) {
             Icon(
                 painter = painterResource(android.R.drawable.ic_menu_delete),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.cd_delete_preset),
                 tint = LiquidColors.TextMediumEmphasis,
                 modifier = Modifier.size(18.dp)
             )

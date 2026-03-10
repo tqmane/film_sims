@@ -157,7 +157,7 @@ fun UpdateDialog(
                             .padding(horizontal = 18.dp, vertical = 16.dp)
                     ) {
                         Text(
-                            "RELEASE NOTES",
+                            stringResource(R.string.release_notes_label),
                             color = LiquidColors.TextLowEmphasis,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,

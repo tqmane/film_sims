@@ -44,12 +44,6 @@ class AuthViewModel @Inject constructor(
     val isPermanentLicense: StateFlow<Boolean> = proUserRepository.isPermanentLicense
     val proCheckNetworkError: StateFlow<Boolean> = proUserRepository.proCheckNetworkError
 
-    // Web client ID from google-services.json (client_type 3)
-    companion object {
-        const val WEB_CLIENT_ID =
-            "566024328587-1e4rlh1dhh1cgvlvh25c2ap05qn7qntd.apps.googleusercontent.com"
-    }
-
     init {
         // Restore session on app start
         val user = auth.currentUser
@@ -92,7 +86,7 @@ class AuthViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                _authState.value = _authState.value.copy(isLoading = false, error = e.localizedMessage)
+                _authState.value = _authState.value.copy(isLoading = false, error = context.getString(com.tqmane.filmsim.R.string.error_sign_in_failed))
             }
         }
     }
@@ -126,7 +120,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = _authState.value.copy(isLoading = false, error = "No ID token found")
                 }
             } catch (e: Exception) {
-                _authState.value = _authState.value.copy(isLoading = false, error = e.localizedMessage)
+                _authState.value = _authState.value.copy(isLoading = false, error = context.getString(com.tqmane.filmsim.R.string.error_sign_in_failed))
             }
         }
     }

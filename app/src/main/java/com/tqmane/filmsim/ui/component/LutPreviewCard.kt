@@ -78,19 +78,26 @@ fun LutPreviewCard(
     var isLoadingPreview by remember(item.assetPath, thumbnailBitmap) {
         mutableStateOf(thumbnailBitmap != null)
     }
+    var hasPreviewError by remember(item.assetPath, thumbnailBitmap) {
+        mutableStateOf(false)
+    }
     LaunchedEffect(item.assetPath, thumbnailBitmap) {
         if (thumbnailBitmap != null) {
             isLoadingPreview = true
-            previewBitmap = withContext(Dispatchers.IO) {
+            hasPreviewError = false
+            val result = withContext(Dispatchers.IO) {
                 try {
                     val lut = CubeLUTParser.parse(context, item.assetPath)
                     if (lut != null) LutBitmapProcessor.applyLutToBitmap(thumbnailBitmap, lut) else null
                 } catch (e: Exception) { null }
             }
+            previewBitmap = result
             isLoadingPreview = false
+            if (result == null) hasPreviewError = true
         } else {
             previewBitmap = null
             isLoadingPreview = false
+            hasPreviewError = false
         }
     }
 
@@ -140,6 +147,20 @@ fun LutPreviewCard(
                         .fillMaxSize()
                         .alpha(0.5f)
                 )
+            }
+
+            if (!isLoadingPreview && hasPreviewError) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "!",
+                        color = LiquidColors.TextLowEmphasis,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             if (isLoadingPreview) {
