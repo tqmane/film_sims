@@ -251,6 +251,16 @@
     <string name="adjust_hint_grain">色味が決まってからグレインを足すと、質感を自然に仕上げられます。</string>
     <string name="adjust_hint_watermark">仕上げとしてブランド透かしを重ねて、カメラらしい見た目を作れます。</string>
     <string name="adjust_hint_presets">今のレシピを保存しておくと、次の写真でもすぐ再利用できます。</string>
+    <string name="compare_preview">比較プレビュー</string>
+    <string name="compare_preview_hint">現在の編集結果と元画像を見比べるためのビフォー・アフター表示です。</string>
+    <string name="compare_split">分割位置</string>
+    <string name="compare_before">元画像</string>
+    <string name="compare_after">編集後</string>
+    <string name="compare_vertical">縦分割</string>
+    <string name="compare_horizontal">横分割</string>
+    <string name="label_hue">色相</string>
+    <string name="label_saturation">彩度</string>
+    <string name="label_luminance">輝度</string>
     <string name="overlay_filter">重ねがけフィルター</string>
     <string name="overlay_filter_none">重ねがけなし</string>
     <string name="overlay_filter_hint_empty">ベースのLUTを残したまま、もう一つのルックを重ねて色味をミックスできます。</string>

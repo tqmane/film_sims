@@ -27,6 +27,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -81,6 +83,12 @@ internal fun AdjustPanel(
     onTabSelected: (AdjustTab) -> Unit,
     showPanelHints: Boolean,
     onSelectOverlayFilter: () -> Unit,
+    compareEnabled: Boolean,
+    comparePosition: Float,
+    compareVertical: Boolean,
+    onCompareEnabledChange: (Boolean) -> Unit,
+    onComparePositionChange: (Float) -> Unit,
+    onCompareVerticalChange: (Boolean) -> Unit,
     onClose: () -> Unit,
     isProUser: Boolean = false,
     modifier: Modifier = Modifier
@@ -269,7 +277,13 @@ internal fun AdjustPanel(
                         onClearOverlay = {
                             viewModel.clearOverlayLut()
                             onRefreshWatermark()
-                        }
+                        },
+                        compareEnabled = compareEnabled,
+                        comparePosition = comparePosition,
+                        compareVertical = compareVertical,
+                        onCompareEnabledChange = onCompareEnabledChange,
+                        onComparePositionChange = onComparePositionChange,
+                        onCompareVerticalChange = onCompareVerticalChange,
                     )
                 }
                 AdjustTab.ADJUST -> {
@@ -321,6 +335,12 @@ internal fun IntensityTab(
     onOverlayIntensityChange: (Float) -> Unit,
     onSelectOverlayFilter: () -> Unit,
     onClearOverlay: () -> Unit,
+    compareEnabled: Boolean,
+    comparePosition: Float,
+    compareVertical: Boolean,
+    onCompareEnabledChange: (Boolean) -> Unit,
+    onComparePositionChange: (Float) -> Unit,
+    onCompareVerticalChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -375,6 +395,66 @@ internal fun IntensityTab(
                 valueFormatter = { "${(it * 100).toInt()}%" }
             )
         }
+
+        Spacer(modifier = Modifier.height(6.dp))
+        LiquidSectionHeader(text = stringResource(R.string.compare_preview))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.compare_preview),
+                color = LiquidColors.TextMediumEmphasis,
+                fontSize = 14.sp,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = compareEnabled,
+                onCheckedChange = onCompareEnabledChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFF0C0C10),
+                    checkedTrackColor = LiquidColors.AccentPrimary,
+                    uncheckedThumbColor = LiquidColors.TextLowEmphasis,
+                    uncheckedTrackColor = Color(0x22FFFFFF),
+                    uncheckedBorderColor = Color(0x30FFFFFF)
+                )
+            )
+        }
+        Text(
+            text = stringResource(R.string.compare_preview_hint),
+            color = LiquidColors.TextLowEmphasis,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+
+        if (compareEnabled) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                LiquidChip(
+                    text = stringResource(R.string.compare_vertical),
+                    selected = compareVertical,
+                    onClick = { onCompareVerticalChange(true) }
+                )
+                LiquidChip(
+                    text = stringResource(R.string.compare_horizontal),
+                    selected = !compareVertical,
+                    onClick = { onCompareVerticalChange(false) }
+                )
+            }
+            AdjustSlider(
+                label = stringResource(R.string.compare_split),
+                value = comparePosition,
+                range = 0f..1f,
+                onValueChange = onComparePositionChange,
+                valueFormatter = { "${(it * 100).toInt()}%" }
+            )
+        }
     }
 }
 
@@ -406,6 +486,9 @@ internal fun BasicAdjustTab(
                         renderer?.setHighlights(0f)
                         renderer?.setShadows(0f)
                         renderer?.setColorTemp(0f)
+                        renderer?.setHue(0f)
+                        renderer?.setSaturation(0f)
+                        renderer?.setLuminance(0f)
                         glView.requestRender()
                     }
                 }
@@ -497,6 +580,57 @@ internal fun BasicAdjustTab(
                     glSurfaceView?.let { glView ->
                         glView.queueEvent {
                             renderer?.setColorTemp(value)
+                            glView.requestRender()
+                        }
+                    }
+                }
+                onRefreshWatermark()
+            }
+        )
+        AdjustSlider(
+            label = stringResource(R.string.label_hue),
+            value = editState.hue,
+            range = -1f..1f,
+            onValueChange = { value ->
+                viewModel.setHue(value)
+                if (!isWatermarkActive) {
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setHue(value)
+                            glView.requestRender()
+                        }
+                    }
+                }
+                onRefreshWatermark()
+            }
+        )
+        AdjustSlider(
+            label = stringResource(R.string.label_saturation),
+            value = editState.saturation,
+            range = -1f..1f,
+            onValueChange = { value ->
+                viewModel.setSaturation(value)
+                if (!isWatermarkActive) {
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setSaturation(value)
+                            glView.requestRender()
+                        }
+                    }
+                }
+                onRefreshWatermark()
+            }
+        )
+        AdjustSlider(
+            label = stringResource(R.string.label_luminance),
+            value = editState.luminance,
+            range = -1f..1f,
+            onValueChange = { value ->
+                viewModel.setLuminance(value)
+                if (!isWatermarkActive) {
+                    glSurfaceView?.let { glView ->
+                        glView.queueEvent {
+                            renderer?.setLuminance(value)
                             glView.requestRender()
                         }
                     }

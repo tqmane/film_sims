@@ -162,6 +162,16 @@
     <string name="adjust_hint_grain">Добавляйте зерно после настройки LUT и тона для более естественной текстуры.</string>
     <string name="adjust_hint_watermark">Завершите кадр фирменным водяным знаком, когда редактирование будет готово.</string>
     <string name="adjust_hint_presets">Сохраните текущий рецепт, чтобы повторно использовать его на следующем фото.</string>
+    <string name="compare_preview">Сравнение</string>
+    <string name="compare_preview_hint">Включите режим до и после, чтобы сравнить текущее редактирование с исходным изображением.</string>
+    <string name="compare_split">Разделение</string>
+    <string name="compare_before">До</string>
+    <string name="compare_after">После</string>
+    <string name="compare_vertical">Вертикально</string>
+    <string name="compare_horizontal">Горизонтально</string>
+    <string name="label_hue">Оттенок</string>
+    <string name="label_saturation">Насыщенность</string>
+    <string name="label_luminance">Яркость</string>
     <string name="overlay_filter">Наложенный фильтр</string>
     <string name="overlay_filter_none">Наложение не выбрано</string>
     <string name="overlay_filter_hint_empty">Добавьте второй стиль, чтобы смешать образы, не заменяя основной LUT.</string>
@@ -176,4 +186,3 @@
     <string name="panel_hints_setting">Показывать подсказки панели</string>
     <string name="panel_hints_setting_description">Показывает или скрывает карточки-подсказки в панелях LUT и настройки.</string>
 </resources>
-

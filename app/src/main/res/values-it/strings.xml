@@ -162,6 +162,16 @@
     <string name="adjust_hint_grain">Usa la grana dopo aver definito LUT e tono per una texture più naturale.</string>
     <string name="adjust_hint_watermark">Completa l immagine con una filigrana del marchio quando l editing è pronto.</string>
     <string name="adjust_hint_presets">Salva la ricetta corrente così da riutilizzarla sulla prossima foto.</string>
+    <string name="compare_preview">Anteprima confronto</string>
+    <string name="compare_preview_hint">Attiva il confronto prima dopo per paragonare la modifica corrente all immagine originale.</string>
+    <string name="compare_split">Divisione</string>
+    <string name="compare_before">Prima</string>
+    <string name="compare_after">Dopo</string>
+    <string name="compare_vertical">Verticale</string>
+    <string name="compare_horizontal">Orizzontale</string>
+    <string name="label_hue">Tonalità</string>
+    <string name="label_saturation">Saturazione</string>
+    <string name="label_luminance">Luminanza</string>
     <string name="overlay_filter">Filtro sovrapposto</string>
     <string name="overlay_filter_none">Nessuna sovrapposizione selezionata</string>
     <string name="overlay_filter_hint_empty">Aggiungi un secondo look per fondere gli stili senza sostituire il LUT di base.</string>
@@ -176,4 +186,3 @@
     <string name="panel_hints_setting">Mostra suggerimenti del pannello</string>
     <string name="panel_hints_setting_description">Mostra o nasconde le schede di aiuto nei pannelli LUT e regolazioni.</string>
 </resources>
-

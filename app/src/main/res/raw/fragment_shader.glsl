@@ -13,6 +13,9 @@ uniform float uOverlayIntensity; // 0.0 = no overlay, 1.0 = full overlay LUT
 uniform float uGrainIntensity; // 0.0 = no grain, 1.0 = full grain
 uniform float uGrainScale; // Grain texture tiling scale
 uniform float uTime; // For grain animation (optional)
+uniform float uCompareSplit; // 0.0 to 1.0 screen split position
+uniform float uCompareEnabled; // > 0.5 enables before/after compare
+uniform float uCompareVertical; // > 0.5 uses vertical divider, else horizontal divider
 
 // Basic adjustments (applied before LUT)
 uniform float uExposure;    // -2.0 to +2.0 (0.0 = no change)
@@ -20,6 +23,23 @@ uniform float uContrast;    // -1.0 to +1.0 (0.0 = no change)
 uniform float uHighlights;  // -1.0 to +1.0 (0.0 = no change)
 uniform float uShadows;     // -1.0 to +1.0 (0.0 = no change)
 uniform float uColorTemp;   // -1.0 to +1.0 (0.0 = neutral, + = warm, - = cool)
+uniform float uHue;         // -1.0 to +1.0 hue shift
+uniform float uSaturation;  // -1.0 to +1.0 saturation adjustment
+uniform float uLuminance;   // -1.0 to +1.0 luminance adjustment
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
+    return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
+}
 
 void main() {
     vec4 originalColor = texture(uInputTexture, vTexCoord);
@@ -42,6 +62,12 @@ void main() {
     adjusted.r *= 1.0 + uColorTemp * 0.15;
     adjusted.g *= 1.0 + uColorTemp * 0.05;
     adjusted.b *= 1.0 - uColorTemp * 0.15;
+
+    vec3 hsv = rgb2hsv(clamp(adjusted, 0.0, 1.0));
+    hsv.x = fract(hsv.x + uHue * 0.5);
+    hsv.y = clamp(hsv.y * (1.0 + uSaturation), 0.0, 1.0);
+    adjusted = hsv2rgb(hsv);
+    adjusted += vec3(uLuminance * 0.2);
 
     adjusted = clamp(adjusted, 0.0, 1.0);
 
@@ -71,5 +97,13 @@ void main() {
         finalColor = clamp(finalColor, 0.0, 1.0);
     }
     
-    outColor = vec4(finalColor, originalColor.a);
+    vec3 displayColor = finalColor;
+    if (uCompareEnabled > 0.5) {
+        float compareCoord = uCompareVertical > 0.5 ? vTexCoord.x : vTexCoord.y;
+        if (compareCoord > uCompareSplit) {
+            displayColor = originalColor.rgb;
+        }
+    }
+
+    outColor = vec4(displayColor, originalColor.a);
 }

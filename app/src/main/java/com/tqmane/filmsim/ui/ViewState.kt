@@ -53,7 +53,10 @@ data class EditState(
     val contrast: Float = 0f,
     val highlights: Float = 0f,
     val shadows: Float = 0f,
-    val colorTemp: Float = 0f
+    val colorTemp: Float = 0f,
+    val hue: Float = 0f,
+    val saturation: Float = 0f,
+    val luminance: Float = 0f
 )
 
 // ─── Watermark State ────────────────────────────────────
@@ -96,6 +99,9 @@ data class Preset(
     val highlights: Float = 0f,
     val shadows: Float = 0f,
     val colorTemp: Float = 0f,
+    val hue: Float = 0f,
+    val saturation: Float = 0f,
+    val luminance: Float = 0f,
     val watermarkStyleName: String = "NONE",
     val watermarkDeviceName: String = "",
     val watermarkTimeText: String = "",

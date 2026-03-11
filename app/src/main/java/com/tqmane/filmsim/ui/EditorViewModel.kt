@@ -66,7 +66,10 @@ class EditorViewModel @Inject constructor(
             contrast = settings.lastContrast,
             highlights = settings.lastHighlights,
             shadows = settings.lastShadows,
-            colorTemp = settings.lastColorTemp
+            colorTemp = settings.lastColorTemp,
+            hue = settings.lastHue,
+            saturation = settings.lastSaturation,
+            luminance = settings.lastLuminance
         )
     )
     val editState: StateFlow<EditState> = _editState.asStateFlow()
@@ -259,15 +262,40 @@ class EditorViewModel @Inject constructor(
         settings.lastColorTemp = value
     }
 
+    fun setHue(value: Float) {
+        _editState.value = _editState.value.copy(hue = value)
+        settings.lastHue = value
+    }
+
+    fun setSaturation(value: Float) {
+        _editState.value = _editState.value.copy(saturation = value)
+        settings.lastSaturation = value
+    }
+
+    fun setLuminance(value: Float) {
+        _editState.value = _editState.value.copy(luminance = value)
+        settings.lastLuminance = value
+    }
+
     fun resetAdjustments() {
         _editState.value = _editState.value.copy(
-            exposure = 0f, contrast = 0f, highlights = 0f, shadows = 0f, colorTemp = 0f
+            exposure = 0f,
+            contrast = 0f,
+            highlights = 0f,
+            shadows = 0f,
+            colorTemp = 0f,
+            hue = 0f,
+            saturation = 0f,
+            luminance = 0f
         )
         settings.lastExposure = 0f
         settings.lastContrast = 0f
         settings.lastHighlights = 0f
         settings.lastShadows = 0f
         settings.lastColorTemp = 0f
+        settings.lastHue = 0f
+        settings.lastSaturation = 0f
+        settings.lastLuminance = 0f
     }
 
     fun setPanelHintsEnabled(enabled: Boolean) {
@@ -298,6 +326,9 @@ class EditorViewModel @Inject constructor(
             highlights = edit.highlights,
             shadows = edit.shadows,
             colorTemp = edit.colorTemp,
+            hue = edit.hue,
+            saturation = edit.saturation,
+            luminance = edit.luminance,
             watermarkStyleName = wm.style.name,
             watermarkDeviceName = wm.deviceName,
             watermarkTimeText = wm.timeText,
@@ -335,6 +366,9 @@ class EditorViewModel @Inject constructor(
             highlights = preset.highlights,
             shadows = preset.shadows,
             colorTemp = preset.colorTemp,
+            hue = preset.hue,
+            saturation = preset.saturation,
+            luminance = preset.luminance,
             hasSelectedLut = preset.lutPath != null
         )
         // Restore watermark state
@@ -361,6 +395,9 @@ class EditorViewModel @Inject constructor(
         settings.lastHighlights = preset.highlights
         settings.lastShadows = preset.shadows
         settings.lastColorTemp = preset.colorTemp
+        settings.lastHue = preset.hue
+        settings.lastSaturation = preset.saturation
+        settings.lastLuminance = preset.luminance
         // Apply the LUT if present
         viewModelScope.launch(ioDispatcher) {
             val baseLut = preset.lutPath?.let { lutApplyUseCase.parseLut(it) }

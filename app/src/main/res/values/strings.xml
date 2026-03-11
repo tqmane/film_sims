@@ -365,6 +365,16 @@
     <string name="adjust_hint_grain">Use grain to add texture after the LUT and tone feel settled.</string>
     <string name="adjust_hint_watermark">Finish the frame with a branded watermark once the edit is ready.</string>
     <string name="adjust_hint_presets">Save your current recipe so you can reuse it on the next photo.</string>
+    <string name="compare_preview">Compare preview</string>
+    <string name="compare_preview_hint">Switch on before and after preview to compare the current edit against the original image.</string>
+    <string name="compare_split">Split</string>
+    <string name="compare_before">Before</string>
+    <string name="compare_after">After</string>
+    <string name="compare_vertical">Vertical</string>
+    <string name="compare_horizontal">Horizontal</string>
+    <string name="label_hue">Hue</string>
+    <string name="label_saturation">Saturation</string>
+    <string name="label_luminance">Luminance</string>
     <!-- Pro Licenses -->
     <string name="label_license_permanent">Permanent License</string>
     <string name="label_license_version_mismatch">Your license is limited to version %1$s!</string>

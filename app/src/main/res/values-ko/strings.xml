@@ -224,6 +224,16 @@
     <string name="adjust_hint_grain">LUT와 톤이 정리된 후에 그레인을 더하면 질감이 자연스럽습니다.</string>
     <string name="adjust_hint_watermark">편집이 완성되면 브랜드 워터마크로 마무리하세요.</string>
     <string name="adjust_hint_presets">현재 레시피를 저장해 다음 사진에도 다시 사용하세요.</string>
+    <string name="compare_preview">비교 미리보기</string>
+    <string name="compare_preview_hint">비포어 애프터 보기를 켜서 현재 편집 결과와 원본 이미지를 비교하세요.</string>
+    <string name="compare_split">분할 위치</string>
+    <string name="compare_before">원본</string>
+    <string name="compare_after">편집 후</string>
+    <string name="compare_vertical">세로 분할</string>
+    <string name="compare_horizontal">가로 분할</string>
+    <string name="label_hue">색조</string>
+    <string name="label_saturation">채도</string>
+    <string name="label_luminance">휘도</string>
     <string name="overlay_filter">오버레이 필터</string>
     <string name="overlay_filter_none">선택된 오버레이 없음</string>
     <string name="overlay_filter_hint_empty">기본 LUT를 유지한 채 두 번째 룩을 섞어 스타일을 겹칠 수 있습니다.</string>
@@ -238,4 +248,3 @@
     <string name="panel_hints_setting">패널 힌트 표시</string>
     <string name="panel_hints_setting_description">LUT 패널과 조정 패널의 안내 카드를 표시하거나 숨깁니다.</string>
 </resources>
-

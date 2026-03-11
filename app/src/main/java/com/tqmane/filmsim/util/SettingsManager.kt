@@ -83,6 +83,18 @@ class SettingsManager(context: Context) {
         get() = prefs.getFloat("last_color_temp", 0f).coerceIn(-1f, 1f)
         set(value) = prefs.edit().putFloat("last_color_temp", value).apply()
 
+    var lastHue: Float
+        get() = prefs.getFloat("last_hue", 0f).coerceIn(-1f, 1f)
+        set(value) = prefs.edit().putFloat("last_hue", value).apply()
+
+    var lastSaturation: Float
+        get() = prefs.getFloat("last_saturation", 0f).coerceIn(-1f, 1f)
+        set(value) = prefs.edit().putFloat("last_saturation", value).apply()
+
+    var lastLuminance: Float
+        get() = prefs.getFloat("last_luminance", 0f).coerceIn(-1f, 1f)
+        set(value) = prefs.edit().putFloat("last_luminance", value).apply()
+
     var panelHintsEnabled: Boolean
         get() = prefs.getBoolean(KEY_PANEL_HINTS, true)
         set(value) = prefs.edit().putBoolean(KEY_PANEL_HINTS, value).apply()
@@ -134,6 +146,9 @@ class SettingsManager(context: Context) {
         put("highlights", highlights.toDouble())
         put("shadows", shadows.toDouble())
         put("colorTemp", colorTemp.toDouble())
+        put("hue", hue.toDouble())
+        put("saturation", saturation.toDouble())
+        put("luminance", luminance.toDouble())
         put("watermarkStyleName", watermarkStyleName)
         put("watermarkDeviceName", watermarkDeviceName)
         put("watermarkTimeText", watermarkTimeText)
@@ -156,6 +171,9 @@ class SettingsManager(context: Context) {
         highlights = optDouble("highlights", 0.0).toFloat(),
         shadows = optDouble("shadows", 0.0).toFloat(),
         colorTemp = optDouble("colorTemp", 0.0).toFloat(),
+        hue = optDouble("hue", 0.0).toFloat(),
+        saturation = optDouble("saturation", 0.0).toFloat(),
+        luminance = optDouble("luminance", 0.0).toFloat(),
         watermarkStyleName = optString("watermarkStyleName", "NONE"),
         watermarkDeviceName = optString("watermarkDeviceName", ""),
         watermarkTimeText = optString("watermarkTimeText", ""),

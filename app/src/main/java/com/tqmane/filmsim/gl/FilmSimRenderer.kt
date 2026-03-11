@@ -54,6 +54,14 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var highlights: Float = 0.0f
     private var shadows: Float = 0.0f
     private var colorTemp: Float = 0.0f
+    private var hue: Float = 0.0f
+    private var saturation: Float = 0.0f
+    private var luminance: Float = 0.0f
+
+    // Before/after compare preview
+    private var compareEnabled: Boolean = false
+    private var compareSplit: Float = 0.5f
+    private var compareVertical: Boolean = true
     
     // Transform parameters
     private var userZoom: Float = 1.0f
@@ -84,6 +92,12 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var uHighlightsHandle: Int = -1
     private var uShadowsHandle: Int = -1
     private var uColorTempHandle: Int = -1
+    private var uHueHandle: Int = -1
+    private var uSaturationHandle: Int = -1
+    private var uLuminanceHandle: Int = -1
+    private var uCompareSplitHandle: Int = -1
+    private var uCompareEnabledHandle: Int = -1
+    private var uCompareVerticalHandle: Int = -1
 
     // Background shader attribute/uniform locations
     private var bgPositionHandle: Int = -1
@@ -171,6 +185,12 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     fun setHighlights(value: Float) { highlights = value.coerceIn(-1f, 1f) }
     fun setShadows(value: Float) { shadows = value.coerceIn(-1f, 1f) }
     fun setColorTemp(value: Float) { colorTemp = value.coerceIn(-1f, 1f) }
+    fun setHue(value: Float) { hue = value.coerceIn(-1f, 1f) }
+    fun setSaturation(value: Float) { saturation = value.coerceIn(-1f, 1f) }
+    fun setLuminance(value: Float) { luminance = value.coerceIn(-1f, 1f) }
+    fun setCompareEnabled(enabled: Boolean) { compareEnabled = enabled }
+    fun setCompareSplit(value: Float) { compareSplit = value.coerceIn(0f, 1f) }
+    fun setCompareVertical(vertical: Boolean) { compareVertical = vertical }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         val vertexSource = readRawTextFile(R.raw.vertex_shader)
@@ -237,6 +257,12 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         uHighlightsHandle = GLES30.glGetUniformLocation(programId, "uHighlights")
         uShadowsHandle = GLES30.glGetUniformLocation(programId, "uShadows")
         uColorTempHandle = GLES30.glGetUniformLocation(programId, "uColorTemp")
+        uHueHandle = GLES30.glGetUniformLocation(programId, "uHue")
+        uSaturationHandle = GLES30.glGetUniformLocation(programId, "uSaturation")
+        uLuminanceHandle = GLES30.glGetUniformLocation(programId, "uLuminance")
+        uCompareSplitHandle = GLES30.glGetUniformLocation(programId, "uCompareSplit")
+        uCompareEnabledHandle = GLES30.glGetUniformLocation(programId, "uCompareEnabled")
+        uCompareVerticalHandle = GLES30.glGetUniformLocation(programId, "uCompareVertical")
         
         bgPositionHandle = GLES30.glGetAttribLocation(bgProgramId, "aPosition")
         bgTexCoordHandle = GLES30.glGetAttribLocation(bgProgramId, "aTexCoord")
@@ -410,6 +436,12 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glUniform1f(uHighlightsHandle, highlights)
             GLES30.glUniform1f(uShadowsHandle, shadows)
             GLES30.glUniform1f(uColorTempHandle, colorTemp)
+            GLES30.glUniform1f(uHueHandle, hue)
+            GLES30.glUniform1f(uSaturationHandle, saturation)
+            GLES30.glUniform1f(uLuminanceHandle, luminance)
+            GLES30.glUniform1f(uCompareSplitHandle, compareSplit)
+            GLES30.glUniform1f(uCompareEnabledHandle, if (compareEnabled) 1f else 0f)
+            GLES30.glUniform1f(uCompareVerticalHandle, if (compareVertical) 1f else 0f)
 
             // Bind textures
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)

@@ -162,6 +162,16 @@
     <string name="adjust_hint_grain">استخدم الحبيبات بعد استقرار LUT والدرجات للحصول على نسيج طبيعي أكثر.</string>
     <string name="adjust_hint_watermark">أنهِ الصورة بعلامة مائية خاصة بالعلامة التجارية عندما يصبح التعديل جاهزًا.</string>
     <string name="adjust_hint_presets">احفظ إعدادك الحالي حتى تتمكن من إعادة استخدامه في الصورة التالية.</string>
+    <string name="compare_preview">معاينة المقارنة</string>
+    <string name="compare_preview_hint">فعّل عرض قبل وبعد لمقارنة التعديل الحالي بالصورة الأصلية.</string>
+    <string name="compare_split">موضع الفصل</string>
+    <string name="compare_before">قبل</string>
+    <string name="compare_after">بعد</string>
+    <string name="compare_vertical">عمودي</string>
+    <string name="compare_horizontal">أفقي</string>
+    <string name="label_hue">درجة اللون</string>
+    <string name="label_saturation">التشبع</string>
+    <string name="label_luminance">السطوع</string>
     <string name="overlay_filter">فلتر متراكب</string>
     <string name="overlay_filter_none">لا يوجد فلتر متراكب</string>
     <string name="overlay_filter_hint_empty">أضف مظهرا ثانيا لمزج الأنماط من دون استبدال LUT الأساسي.</string>
@@ -176,4 +186,3 @@
     <string name="panel_hints_setting">إظهار تلميحات اللوحة</string>
     <string name="panel_hints_setting_description">يبدل بين إظهار بطاقات المساعدة داخل لوحتي LUT والتعديلات أو إخفائها.</string>
 </resources>
-

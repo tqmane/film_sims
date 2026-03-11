@@ -224,6 +224,16 @@
     <string name="adjust_hint_grain">当 LUT 和色调稳定后再添加颗粒，质感会更自然。</string>
     <string name="adjust_hint_watermark">编辑完成后，再用品牌水印作为收尾。</string>
     <string name="adjust_hint_presets">保存当前配方，方便在下一张照片中复用。</string>
+    <string name="compare_preview">对比预览</string>
+    <string name="compare_preview_hint">开启前后对比，以便将当前编辑结果与原图进行比较。</string>
+    <string name="compare_split">分割位置</string>
+    <string name="compare_before">原图</string>
+    <string name="compare_after">编辑后</string>
+    <string name="compare_vertical">纵向分割</string>
+    <string name="compare_horizontal">横向分割</string>
+    <string name="label_hue">色相</string>
+    <string name="label_saturation">饱和度</string>
+    <string name="label_luminance">明度</string>
     <string name="overlay_filter">叠加滤镜</string>
     <string name="overlay_filter_none">未选择叠加滤镜</string>
     <string name="overlay_filter_hint_empty">在保留基础 LUT 的同时，再叠加一个风格来混合色彩效果。</string>
@@ -238,4 +248,3 @@
     <string name="panel_hints_setting">显示面板提示</string>
     <string name="panel_hints_setting_description">切换是否显示 LUT 面板和调整面板中的提示卡片。</string>
 </resources>
-

@@ -162,6 +162,16 @@
     <string name="adjust_hint_grain">Nutze Körnung erst, wenn LUT und Tonalität stehen, um natürliche Textur zu erhalten.</string>
     <string name="adjust_hint_watermark">Schließe das Bild mit einem Marken-Wasserzeichen ab, sobald der Look fertig ist.</string>
     <string name="adjust_hint_presets">Speichere dein aktuelles Rezept, damit du es beim nächsten Foto wiederverwenden kannst.</string>
+    <string name="compare_preview">Vergleichsvorschau</string>
+    <string name="compare_preview_hint">Aktiviere Vorher Nachher, um die aktuelle Bearbeitung mit dem Originalbild zu vergleichen.</string>
+    <string name="compare_split">Teilung</string>
+    <string name="compare_before">Vorher</string>
+    <string name="compare_after">Nachher</string>
+    <string name="compare_vertical">Vertikal</string>
+    <string name="compare_horizontal">Horizontal</string>
+    <string name="label_hue">Farbton</string>
+    <string name="label_saturation">Sättigung</string>
+    <string name="label_luminance">Luminanz</string>
     <string name="overlay_filter">Overlay-Filter</string>
     <string name="overlay_filter_none">Kein Overlay ausgewählt</string>
     <string name="overlay_filter_hint_empty">Füge einen zweiten Look hinzu, um Stile zu mischen, ohne dein Basis-LUT zu ersetzen.</string>
@@ -176,4 +186,3 @@
     <string name="panel_hints_setting">Panel-Hinweise anzeigen</string>
     <string name="panel_hints_setting_description">Blendet Hilfekarten im LUT- und Anpassungsbereich ein oder aus.</string>
 </resources>
-

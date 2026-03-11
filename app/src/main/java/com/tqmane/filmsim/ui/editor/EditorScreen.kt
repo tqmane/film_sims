@@ -16,10 +16,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -52,8 +56,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -126,6 +132,9 @@ fun EditorScreen(
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
         var savedBanner by remember { mutableStateOf<UiEvent.ImageSaved?>(null) }
+        var compareEnabled by rememberSaveable { mutableStateOf(false) }
+        var comparePosition by rememberSaveable { mutableFloatStateOf(0.5f) }
+        var compareVertical by rememberSaveable { mutableStateOf(true) }
 
         // Derived state helpers
         val isImmersive = panelState == "Immersive"
@@ -197,6 +206,9 @@ fun EditorScreen(
             val hl = editState.highlights
             val sh = editState.shadows
             val ct = editState.colorTemp
+            val hue = editState.hue
+            val sat = editState.saturation
+            val lum = editState.luminance
             gl.queueEvent {
                 r.setImage(bmp)
                 if (lut != null) r.setLut(lut)
@@ -211,6 +223,9 @@ fun EditorScreen(
                 r.setHighlights(hl)
                 r.setShadows(sh)
                 r.setColorTemp(ct)
+                r.setHue(hue)
+                r.setSaturation(sat)
+                r.setLuminance(lum)
                 gl.requestRender()
             }
         }
@@ -232,6 +247,9 @@ fun EditorScreen(
             val hl = editState.highlights
             val sh = editState.shadows
             val ct = editState.colorTemp
+            val hue = editState.hue
+            val sat = editState.saturation
+            val lum = editState.luminance
             gl.queueEvent {
                 if (wmBmp != null) {
                     r.setImage(wmBmp)
@@ -243,6 +261,9 @@ fun EditorScreen(
                     r.setHighlights(hl)
                     r.setShadows(sh)
                     r.setColorTemp(ct)
+                    r.setHue(hue)
+                    r.setSaturation(sat)
+                    r.setLuminance(lum)
                 } else if (content != null) {
                     r.setImage(content.previewBitmap)
                     if (lut != null) r.setLut(lut)
@@ -257,7 +278,22 @@ fun EditorScreen(
                     r.setHighlights(hl)
                     r.setShadows(sh)
                     r.setColorTemp(ct)
+                    r.setHue(hue)
+                    r.setSaturation(sat)
+                    r.setLuminance(lum)
                 }
+                gl.requestRender()
+            }
+        }
+
+        LaunchedEffect(compareEnabled, comparePosition, compareVertical, watermarkPreviewBitmap, renderer, glSurfaceView) {
+            val r = renderer ?: return@LaunchedEffect
+            val gl = glSurfaceView ?: return@LaunchedEffect
+            val isPreviewCompareEnabled = compareEnabled && watermarkPreviewBitmap == null
+            gl.queueEvent {
+                r.setCompareEnabled(isPreviewCompareEnabled)
+                r.setCompareSplit(comparePosition)
+                r.setCompareVertical(compareVertical)
                 gl.requestRender()
             }
         }
@@ -267,7 +303,8 @@ fun EditorScreen(
             editState.overlayIntensity,
             editState.grainEnabled, editState.grainIntensity, editState.grainStyle,
             editState.exposure, editState.contrast, editState.highlights,
-            editState.shadows, editState.colorTemp
+            editState.shadows, editState.colorTemp,
+            editState.hue, editState.saturation, editState.luminance
         ) {
             val r = renderer ?: return@LaunchedEffect
             val gl = glSurfaceView ?: return@LaunchedEffect
@@ -285,6 +322,9 @@ fun EditorScreen(
             val hl = editState.highlights
             val sh = editState.shadows
             val ct = editState.colorTemp
+            val hue = editState.hue
+            val sat = editState.saturation
+            val lum = editState.luminance
             gl.queueEvent {
                 if (lut != null) r.setLut(lut)
                 if (overlayLut != null) r.setOverlayLut(overlayLut)
@@ -300,6 +340,9 @@ fun EditorScreen(
                 r.setHighlights(hl)
                 r.setShadows(sh)
                 r.setColorTemp(ct)
+                r.setHue(hue)
+                r.setSaturation(sat)
+                r.setLuminance(lum)
                 gl.requestRender()
             }
             viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
@@ -423,6 +466,14 @@ fun EditorScreen(
                         }
                     }
                 )
+
+                if (viewState is ViewState.Content && compareEnabled && watermarkPreviewBitmap == null) {
+                    ComparePreviewOverlay(
+                        split = comparePosition,
+                        vertical = compareVertical,
+                        onSplitChange = { comparePosition = it }
+                    )
+                }
             }
 
             // Main vertical layout
@@ -478,6 +529,12 @@ fun EditorScreen(
                     selectedAdjustTab = selectedAdjustTab,
                     onAdjustTabSelected = { selectedAdjustTabName = it.name },
                     showPanelHints = showPanelHints,
+                    compareEnabled = compareEnabled,
+                    comparePosition = comparePosition,
+                    compareVertical = compareVertical,
+                    onCompareEnabledChange = { compareEnabled = it },
+                    onComparePositionChange = { comparePosition = it },
+                    onCompareVerticalChange = { compareVertical = it },
                     isSelectingOverlay = isSelectingOverlay,
                     onStartOverlaySelection = {
                         selectedAdjustTabName = AdjustTab.INTENSITY.name
@@ -655,6 +712,12 @@ private fun BottomControlArea(
     selectedAdjustTab: AdjustTab,
     onAdjustTabSelected: (AdjustTab) -> Unit,
     showPanelHints: Boolean,
+    compareEnabled: Boolean,
+    comparePosition: Float,
+    compareVertical: Boolean,
+    onCompareEnabledChange: (Boolean) -> Unit,
+    onComparePositionChange: (Float) -> Unit,
+    onCompareVerticalChange: (Boolean) -> Unit,
     isSelectingOverlay: Boolean,
     onStartOverlaySelection: () -> Unit,
     onFinishOverlaySelection: () -> Unit,
@@ -691,6 +754,12 @@ private fun BottomControlArea(
                         onStartOverlaySelection()
                         onShowAdjustPanelChange(false)
                     },
+                    compareEnabled = compareEnabled,
+                    comparePosition = comparePosition,
+                    compareVertical = compareVertical,
+                    onCompareEnabledChange = onCompareEnabledChange,
+                    onComparePositionChange = onComparePositionChange,
+                    onCompareVerticalChange = onCompareVerticalChange,
                     isProUser = isProUser,
                     onClose = { onShowAdjustPanelChange(false) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
@@ -724,6 +793,138 @@ private fun BottomControlArea(
                     squareTop = false,
                     modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComparePreviewOverlay(
+    split: Float,
+    vertical: Boolean,
+    onSplitChange: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    var dragActive by remember { mutableStateOf(false) }
+
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 20.dp, start = 14.dp, end = 14.dp, bottom = 20.dp)
+    ) {
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val dragThresholdPx = with(density) { 28.dp.toPx() }
+        val maxHeightPx = with(density) { maxHeight.toPx() }
+        val indicatorOffset = if (vertical) (maxWidth * split) - 1.dp else (maxHeight * split) - 1.dp
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(split, vertical, maxWidthPx, maxHeightPx) {
+                    val availablePx = if (vertical) maxWidthPx else maxHeightPx
+                    if (availablePx <= 0f) return@pointerInput
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            val indicator = split * availablePx
+                            val touchAxis = if (vertical) offset.x else offset.y
+                            dragActive = kotlin.math.abs(touchAxis - indicator) <= dragThresholdPx
+                            if (dragActive) {
+                                onSplitChange((touchAxis / availablePx).coerceIn(0f, 1f))
+                            }
+                        },
+                        onDragEnd = {
+                            dragActive = false
+                        },
+                        onDragCancel = {
+                            dragActive = false
+                        },
+                        onDrag = { change, _ ->
+                            if (!dragActive) return@detectDragGestures
+                            val dragAxis = if (vertical) change.position.x else change.position.y
+                            onSplitChange((dragAxis / availablePx).coerceIn(0f, 1f))
+                        }
+                    )
+                }
+        )
+
+        if (vertical) {
+            Text(
+                text = stringResource(R.string.compare_after),
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color(0x66000000))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.compare_before),
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color(0x66000000))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.compare_after),
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color(0x66000000))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.compare_before),
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color(0x66000000))
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+        }
+
+        if (vertical) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = indicatorOffset)
+                    .fillMaxHeight()
+                    .widthIn(min = 2.dp, max = 2.dp)
+                    .background(Color.White.copy(alpha = 0.92f))
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = indicatorOffset - 18.dp)
+                    .fillMaxHeight()
+                    .widthIn(min = 36.dp, max = 36.dp)
+                    .background(Color.Transparent)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = indicatorOffset)
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(Color.White.copy(alpha = 0.92f))
+            ) {
             }
         }
     }
