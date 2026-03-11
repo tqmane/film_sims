@@ -16,6 +16,7 @@ uniform float uTime; // For grain animation (optional)
 uniform float uCompareSplit; // 0.0 to 1.0 screen split position
 uniform float uCompareEnabled; // > 0.5 enables before/after compare
 uniform float uCompareVertical; // > 0.5 uses vertical divider, else horizontal divider
+uniform vec2 uResolution; // viewport size in pixels
 
 // Basic adjustments (applied before LUT)
 uniform float uExposure;    // -2.0 to +2.0 (0.0 = no change)
@@ -99,7 +100,10 @@ void main() {
     
     vec3 displayColor = finalColor;
     if (uCompareEnabled > 0.5) {
-        float compareCoord = uCompareVertical > 0.5 ? vTexCoord.x : vTexCoord.y;
+        // Use screen-space coordinates so the split line aligns with the UI overlay
+        vec2 screenUV = gl_FragCoord.xy / uResolution;
+        // gl_FragCoord.y is bottom-up; UI is top-down, so flip Y for horizontal split
+        float compareCoord = uCompareVertical > 0.5 ? screenUV.x : (1.0 - screenUV.y);
         if (compareCoord > uCompareSplit) {
             displayColor = originalColor.rgb;
         }

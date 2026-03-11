@@ -50,6 +50,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -807,11 +808,13 @@ private fun ComparePreviewOverlay(
 ) {
     val density = LocalDensity.current
     var dragActive by remember { mutableStateOf(false) }
+    // Keep latest values accessible inside the gesture handler without restarting it
+    val currentSplit by rememberUpdatedState(split)
+    val currentVertical by rememberUpdatedState(vertical)
 
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .padding(vertical = 20.dp)
     ) {
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val dragThresholdPx = with(density) { 28.dp.toPx() }
@@ -821,13 +824,16 @@ private fun ComparePreviewOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(split, vertical, maxWidthPx, maxHeightPx) {
-                    val availablePx = if (vertical) maxWidthPx else maxHeightPx
-                    if (availablePx <= 0f) return@pointerInput
+                .pointerInput(Unit) {
+                    val availableWidthPx = maxWidthPx
+                    val availableHeightPx = maxHeightPx
                     detectDragGestures(
                         onDragStart = { offset ->
-                            val indicator = split * availablePx
-                            val touchAxis = if (vertical) offset.x else offset.y
+                            val isVert = currentVertical
+                            val availablePx = if (isVert) availableWidthPx else availableHeightPx
+                            if (availablePx <= 0f) return@detectDragGestures
+                            val indicator = currentSplit * availablePx
+                            val touchAxis = if (isVert) offset.x else offset.y
                             dragActive = kotlin.math.abs(touchAxis - indicator) <= dragThresholdPx
                             if (dragActive) {
                                 onSplitChange((touchAxis / availablePx).coerceIn(0f, 1f))
@@ -841,7 +847,9 @@ private fun ComparePreviewOverlay(
                         },
                         onDrag = { change, _ ->
                             if (!dragActive) return@detectDragGestures
-                            val dragAxis = if (vertical) change.position.x else change.position.y
+                            val isVert = currentVertical
+                            val availablePx = if (isVert) availableWidthPx else availableHeightPx
+                            val dragAxis = if (isVert) change.position.x else change.position.y
                             onSplitChange((dragAxis / availablePx).coerceIn(0f, 1f))
                         }
                     )
@@ -856,7 +864,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(start = 14.dp)
+                    .padding(start = 14.dp, top = 20.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -869,7 +877,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(end = 14.dp)
+                    .padding(end = 14.dp, top = 20.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -882,6 +890,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
+                    .padding(top = 20.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -894,6 +903,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .padding(bottom = 20.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)

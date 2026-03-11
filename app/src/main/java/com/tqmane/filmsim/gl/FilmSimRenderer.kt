@@ -98,6 +98,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
     private var uCompareSplitHandle: Int = -1
     private var uCompareEnabledHandle: Int = -1
     private var uCompareVerticalHandle: Int = -1
+    private var uResolutionHandle: Int = -1
 
     // Background shader attribute/uniform locations
     private var bgPositionHandle: Int = -1
@@ -263,6 +264,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
         uCompareSplitHandle = GLES30.glGetUniformLocation(programId, "uCompareSplit")
         uCompareEnabledHandle = GLES30.glGetUniformLocation(programId, "uCompareEnabled")
         uCompareVerticalHandle = GLES30.glGetUniformLocation(programId, "uCompareVertical")
+        uResolutionHandle = GLES30.glGetUniformLocation(programId, "uResolution")
         
         bgPositionHandle = GLES30.glGetAttribLocation(bgProgramId, "aPosition")
         bgTexCoordHandle = GLES30.glGetAttribLocation(bgProgramId, "aTexCoord")
@@ -442,6 +444,7 @@ class FilmSimRenderer(context: Context) : BaseRenderer(context), GLSurfaceView.R
             GLES30.glUniform1f(uCompareSplitHandle, compareSplit)
             GLES30.glUniform1f(uCompareEnabledHandle, if (compareEnabled) 1f else 0f)
             GLES30.glUniform1f(uCompareVerticalHandle, if (compareVertical) 1f else 0f)
+            GLES30.glUniform2f(uResolutionHandle, viewportWidth.toFloat(), viewportHeight.toFloat())
 
             // Bind textures
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
