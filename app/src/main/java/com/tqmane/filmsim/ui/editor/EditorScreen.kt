@@ -499,6 +499,9 @@ fun EditorScreen(
                         },
                         canSave = viewState is ViewState.Content && !isSaving,
                         isSaving = isSaving,
+                        canCompare = viewState is ViewState.Content && editState.hasSelectedLut,
+                        compareEnabled = compareEnabled,
+                        onCompareToggle = { compareEnabled = !compareEnabled },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
@@ -532,7 +535,6 @@ fun EditorScreen(
                     compareEnabled = compareEnabled,
                     comparePosition = comparePosition,
                     compareVertical = compareVertical,
-                    onCompareEnabledChange = { compareEnabled = it },
                     onComparePositionChange = { comparePosition = it },
                     onCompareVerticalChange = { compareVertical = it },
                     isSelectingOverlay = isSelectingOverlay,
@@ -715,7 +717,6 @@ private fun BottomControlArea(
     compareEnabled: Boolean,
     comparePosition: Float,
     compareVertical: Boolean,
-    onCompareEnabledChange: (Boolean) -> Unit,
     onComparePositionChange: (Float) -> Unit,
     onCompareVerticalChange: (Boolean) -> Unit,
     isSelectingOverlay: Boolean,
@@ -757,7 +758,6 @@ private fun BottomControlArea(
                     compareEnabled = compareEnabled,
                     comparePosition = comparePosition,
                     compareVertical = compareVertical,
-                    onCompareEnabledChange = onCompareEnabledChange,
                     onComparePositionChange = onComparePositionChange,
                     onCompareVerticalChange = onCompareVerticalChange,
                     isProUser = isProUser,
@@ -811,7 +811,7 @@ private fun ComparePreviewOverlay(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
-            .padding(top = 20.dp, start = 14.dp, end = 14.dp, bottom = 20.dp)
+            .padding(vertical = 20.dp)
     ) {
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val dragThresholdPx = with(density) { 28.dp.toPx() }
@@ -856,6 +856,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.TopStart)
+                    .padding(start = 14.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -868,6 +869,7 @@ private fun ComparePreviewOverlay(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .padding(end = 14.dp)
                     .clip(RoundedCornerShape(999.dp))
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -899,6 +901,7 @@ private fun ComparePreviewOverlay(
         }
 
         if (vertical) {
+            // Divider line
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -907,16 +910,17 @@ private fun ComparePreviewOverlay(
                     .widthIn(min = 2.dp, max = 2.dp)
                     .background(Color.White.copy(alpha = 0.92f))
             )
-
+            // Drag handle pill
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset(x = indicatorOffset - 18.dp)
-                    .fillMaxHeight()
-                    .widthIn(min = 36.dp, max = 36.dp)
-                    .background(Color.Transparent)
+                    .offset(x = indicatorOffset - 3.dp)
+                    .size(width = 6.dp, height = 44.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color.White)
             )
         } else {
+            // Divider line
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -924,8 +928,16 @@ private fun ComparePreviewOverlay(
                     .fillMaxWidth()
                     .height(2.dp)
                     .background(Color.White.copy(alpha = 0.92f))
-            ) {
-            }
+            )
+            // Drag handle pill
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = indicatorOffset - 3.dp)
+                    .size(width = 44.dp, height = 6.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(Color.White)
+            )
         }
     }
 }

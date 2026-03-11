@@ -38,6 +38,9 @@ fun TopBar(
     onSave: () -> Unit,
     canSave: Boolean,
     isSaving: Boolean = false,
+    canCompare: Boolean = false,
+    compareEnabled: Boolean = false,
+    onCompareToggle: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -90,8 +93,20 @@ fun TopBar(
                 iconRes = R.drawable.ic_settings,
                 contentDesc = stringResource(R.string.cd_open_settings),
                 onClick = onSettings,
-                modifier = Modifier.padding(end = 12.dp)
+                modifier = Modifier.padding(end = 8.dp)
             )
+
+            if (canCompare) {
+                LiquidRoundButton(
+                    iconRes = R.drawable.ic_compare,
+                    contentDesc = stringResource(R.string.compare_preview),
+                    onClick = onCompareToggle,
+                    tint = if (compareEnabled) LiquidColors.AccentPrimary else LiquidColors.TextMediumEmphasis,
+                    modifier = Modifier.padding(end = 12.dp)
+                )
+            } else {
+                Spacer(Modifier.width(4.dp))
+            }
 
             LiquidButton(
                 onClick = {

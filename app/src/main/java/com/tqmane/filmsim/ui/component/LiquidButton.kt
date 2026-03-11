@@ -121,7 +121,8 @@ fun LiquidRoundButton(
     contentDesc: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    tint: Color = LiquidColors.TextMediumEmphasis
 ) {
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -158,7 +159,7 @@ fun LiquidRoundButton(
         Icon(
             painter = painterResource(iconRes),
             contentDescription = contentDesc,
-            tint = LiquidColors.TextMediumEmphasis,
+            tint = tint,
             modifier = Modifier.size(21.dp)
         )
     }

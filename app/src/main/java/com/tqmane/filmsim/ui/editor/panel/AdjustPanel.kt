@@ -27,8 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -86,7 +84,6 @@ internal fun AdjustPanel(
     compareEnabled: Boolean,
     comparePosition: Float,
     compareVertical: Boolean,
-    onCompareEnabledChange: (Boolean) -> Unit,
     onComparePositionChange: (Float) -> Unit,
     onCompareVerticalChange: (Boolean) -> Unit,
     onClose: () -> Unit,
@@ -281,7 +278,6 @@ internal fun AdjustPanel(
                         compareEnabled = compareEnabled,
                         comparePosition = comparePosition,
                         compareVertical = compareVertical,
-                        onCompareEnabledChange = onCompareEnabledChange,
                         onComparePositionChange = onComparePositionChange,
                         onCompareVerticalChange = onCompareVerticalChange,
                     )
@@ -338,12 +334,12 @@ internal fun IntensityTab(
     compareEnabled: Boolean,
     comparePosition: Float,
     compareVertical: Boolean,
-    onCompareEnabledChange: (Boolean) -> Unit,
     onComparePositionChange: (Float) -> Unit,
     onCompareVerticalChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    val scrollState = rememberScrollState()
+    Column(modifier = modifier.verticalScroll(scrollState)) {
         LiquidIntensitySlider(
             intensity = intensity,
             onIntensityChange = onIntensityChange
@@ -396,45 +392,12 @@ internal fun IntensityTab(
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
-        LiquidSectionHeader(text = stringResource(R.string.compare_preview))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.compare_preview),
-                color = LiquidColors.TextMediumEmphasis,
-                fontSize = 14.sp,
-                fontFamily = FontFamily.SansSerif,
-                modifier = Modifier.weight(1f)
-            )
-            Switch(
-                checked = compareEnabled,
-                onCheckedChange = onCompareEnabledChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF0C0C10),
-                    checkedTrackColor = LiquidColors.AccentPrimary,
-                    uncheckedThumbColor = LiquidColors.TextLowEmphasis,
-                    uncheckedTrackColor = Color(0x22FFFFFF),
-                    uncheckedBorderColor = Color(0x30FFFFFF)
-                )
-            )
-        }
-        Text(
-            text = stringResource(R.string.compare_preview_hint),
-            color = LiquidColors.TextLowEmphasis,
-            fontSize = 12.sp,
-            lineHeight = 18.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
         if (compareEnabled) {
+            Spacer(modifier = Modifier.height(6.dp))
+            LiquidSectionHeader(text = stringResource(R.string.compare_preview))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(vertical = 8.dp)
             ) {
                 LiquidChip(
                     text = stringResource(R.string.compare_vertical),
