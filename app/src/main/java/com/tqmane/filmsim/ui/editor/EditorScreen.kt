@@ -482,8 +482,8 @@ fun EditorScreen(
                 // Top Bar
                 AnimatedVisibility(
                     visible = !isImmersive,
-                    enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { -it } + fadeIn(animationSpec = tween(300)),
-                    exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { -it } + fadeOut(animationSpec = tween(250))
+                    enter = slideInVertically(animationSpec = tween(380, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedDecelerate)) { -it } + fadeIn(animationSpec = tween(300)),
+                    exit = slideOutVertically(animationSpec = tween(320, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedAccelerate)) { -it } + fadeOut(animationSpec = tween(250))
                 ) {
                     TopBar(
                         onPickImage = onPickImage,
@@ -730,8 +730,8 @@ private fun BottomControlArea(
     AnimatedVisibility(
         visible = !isImmersive && viewState is ViewState.Content,
         modifier = modifier,
-        enter = slideInVertically(animationSpec = tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(animationSpec = tween(300)),
-        exit = slideOutVertically(animationSpec = tween(320, easing = FastOutSlowInEasing)) { it } + fadeOut(animationSpec = tween(250))
+        enter = slideInVertically(animationSpec = tween(380, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedDecelerate)) { it } + fadeIn(animationSpec = tween(300)),
+        exit = slideOutVertically(animationSpec = tween(320, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedAccelerate)) { it } + fadeOut(animationSpec = tween(250))
     ) {
         AnimatedContent(
             targetState = showAdjustPanel && editState.hasSelectedLut,

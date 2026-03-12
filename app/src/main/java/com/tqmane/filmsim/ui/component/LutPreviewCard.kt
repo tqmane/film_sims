@@ -111,8 +111,8 @@ fun LutPreviewCard(
         label = "card_border"
     )
     val cardScale by animateFloatAsState(
-        targetValue = if (selected) 1.04f else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioMediumBouncy),
+        targetValue = if (selected) 1.05f else 1f,
+        animationSpec = com.tqmane.filmsim.ui.theme.LiquidMotion.SpringSpecElastic,
         label = "card_scale"
     )
 

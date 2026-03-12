@@ -37,9 +37,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.ui.theme.LiquidDimensions
+import com.tqmane.filmsim.ui.theme.LiquidMotion
 
 /**
- * Liquid-style button with gradient background and press animation.
+ * Liquid-style button with gradient background, shimmer, elastic press animation, and subtle glow.
  */
 @Composable
 fun LiquidButton(
@@ -68,19 +69,24 @@ fun LiquidButton(
         initialValue = -500f,
         targetValue = 1500f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = androidx.compose.animation.core.LinearEasing, delayMillis = 500),
+            animation = tween(2500, easing = LiquidMotion.EasingSmoothFluid, delayMillis = 500),
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart
         ),
         label = "shimmer_translate"
     )
 
+    // Richer, elastic scale down on press like web CSS button:active
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = LiquidMotion.SpringSpecElastic,
         label = "button_scale"
+    )
+    
+    // Dynamic glow alpha based on press state
+    val glowAlpha by animateFloatAsState(
+        targetValue = if (isPressed) 0.4f else 0.15f,
+        animationSpec = tween(durationMillis = LiquidMotion.DurationQuick, easing = LiquidMotion.EasingEmphasized),
+        label = "button_glow"
     )
 
     Box(
@@ -91,12 +97,26 @@ fun LiquidButton(
             .clip(RoundedCornerShape(24.dp))
             .background(Brush.linearGradient(colors = backgroundColors))
             .drawBehind {
+                // Web-like dynamic glow / inner shadow
+                if (enabled) {
+                    drawRect(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                LiquidColors.AccentPrimary.copy(alpha = glowAlpha),
+                                Color.Transparent
+                            ),
+                            radius = size.width * 0.8f
+                        )
+                    )
+                }
+                
+                // Existing depth and shimmer
                 drawRect(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.White.copy(alpha = 0.08f),
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.12f)
+                            Color.Black.copy(alpha = 0.15f)
                         )
                     ),
                     size = size
@@ -118,7 +138,7 @@ fun LiquidButton(
             }
             .border(
                 1.dp,
-                if (enabled) Color(0x25FFFFFF) else Color(0x12FFFFFF),
+                if (enabled) Color(0x35FFFFFF) else Color(0x12FFFFFF),
                 RoundedCornerShape(24.dp)
             )
             .clickable(
@@ -142,7 +162,7 @@ fun LiquidButton(
 }
 
 /**
- * Round glass button for icon actions.
+ * Round glass button for icon actions with fluid press state.
  */
 @Composable
 fun LiquidRoundButton(
@@ -159,10 +179,7 @@ fun LiquidRoundButton(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.88f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
+        animationSpec = LiquidMotion.SpringSpecElastic,
         label = "round_button_scale"
     )
 
