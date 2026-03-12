@@ -1,8 +1,12 @@
 package com.tqmane.filmsim.ui.component
 
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,6 +63,17 @@ fun LiquidButton(
         )
     }
 
+    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+    val shimmerTranslate = infiniteTransition.animateFloat(
+        initialValue = -500f,
+        targetValue = 1500f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = androidx.compose.animation.core.LinearEasing, delayMillis = 500),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+        ),
+        label = "shimmer_translate"
+    )
+
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.92f else 1f,
         animationSpec = spring(
@@ -86,6 +101,20 @@ fun LiquidButton(
                     ),
                     size = size
                 )
+                if (enabled) {
+                    val shimmerBrush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.White.copy(alpha = 0.4f),
+                            Color.White.copy(alpha = 0.8f),
+                            Color.White.copy(alpha = 0.4f),
+                            Color.Transparent
+                        ),
+                        start = androidx.compose.ui.geometry.Offset(shimmerTranslate.value - 200f, 0f),
+                        end = androidx.compose.ui.geometry.Offset(shimmerTranslate.value, size.height * 2f)
+                    )
+                    drawRect(brush = shimmerBrush)
+                }
             }
             .border(
                 1.dp,

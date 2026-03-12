@@ -30,6 +30,13 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.platform.LocalContext
+import com.tqmane.filmsim.util.SensorUtils
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+
 /**
  * Animated background with aurora mesh gradient and film grain noise overlay.
  */
@@ -37,6 +44,13 @@ import com.tqmane.filmsim.ui.theme.LiquidColors
 fun AuroraBackground(
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val tiltData by remember { SensorUtils.observeTilt(context) }.collectAsState(initial = SensorUtils.TiltData(0f, 0f))
+
+    // Smooth out sensor jitter with a spring animation
+    val smoothPitch by animateFloatAsState(targetValue = tiltData.pitch, animationSpec = spring(dampingRatio = 0.8f, stiffness = 50f), label = "pitch")
+    val smoothRoll by animateFloatAsState(targetValue = tiltData.roll, animationSpec = spring(dampingRatio = 0.8f, stiffness = 50f), label = "roll")
+
     val infiniteTransition = rememberInfiniteTransition(label = "aurora")
 
     val amberOffsetX by infiniteTransition.animateFloat(
@@ -80,7 +94,14 @@ fun AuroraBackground(
             .fillMaxSize()
             .background(LiquidColors.Background)
             .drawBehind {
-                drawAuroraLights(amberOffsetX, amberOffsetY, cyanOffsetX, cyanOffsetY, purpleOffsetX, purpleOffsetY, scalePulse)
+                drawAuroraLights(
+                    amberOffsetX = amberOffsetX, amberOffsetY = amberOffsetY,
+                    cyanOffsetX = cyanOffsetX, cyanOffsetY = cyanOffsetY,
+                    purpleOffsetX = purpleOffsetX, purpleOffsetY = purpleOffsetY,
+                    scalePulse = scalePulse,
+                    parallaxX = smoothRoll,
+                    parallaxY = smoothPitch
+                )
             }
     ) {
         NoiseOverlay(opacity = 0.025f, modifier = Modifier.fillMaxSize())
@@ -91,25 +112,33 @@ private fun DrawScope.drawAuroraLights(
     amberOffsetX: Float, amberOffsetY: Float,
     cyanOffsetX: Float, cyanOffsetY: Float,
     purpleOffsetX: Float, purpleOffsetY: Float,
-    scalePulse: Float
+    scalePulse: Float,
+    parallaxX: Float,
+    parallaxY: Float
 ) {
     val w = size.width; val h = size.height
+    
+    // Parallax multipliers - different depths for different colors
+    val pXAmber = parallaxX * w * 0.15f; val pYAmber = parallaxY * h * 0.15f
+    val pXCyan  = parallaxX * w * -0.1f; val pYCyan  = parallaxY * h * -0.1f
+    val pXPurple = parallaxX * w * 0.05f; val pYPurple = parallaxY * h * 0.05f
 
-    val amberCenter = Offset(w * 0.2f * amberOffsetX + w * 0.1f, h * 0.3f * amberOffsetY + h * 0.1f)
+    val amberCenter = Offset(w * 0.2f * amberOffsetX + w * 0.1f + pXAmber, h * 0.3f * amberOffsetY + h * 0.1f + pYAmber)
+
     val amberRadius = (w * 0.4f) * scalePulse
     drawCircle(
         brush = RadialGradient(listOf(LiquidColors.AmbientAmber.copy(alpha = 0.10f), LiquidColors.AmbientAmber.copy(alpha = 0f)), amberCenter, amberRadius),
         radius = amberRadius, center = amberCenter
     )
 
-    val cyanCenter = Offset(w * 0.8f * cyanOffsetX + w * 0.1f, h * 0.7f * cyanOffsetY + h * 0.1f)
+    val cyanCenter = Offset(w * 0.8f * cyanOffsetX + w * 0.1f + pXCyan, h * 0.7f * cyanOffsetY + h * 0.1f + pYCyan)
     val cyanRadius = (w * 0.35f) * scalePulse
     drawCircle(
         brush = RadialGradient(listOf(LiquidColors.AmbientCyan.copy(alpha = 0.08f), LiquidColors.AmbientCyan.copy(alpha = 0f)), cyanCenter, cyanRadius),
         radius = cyanRadius, center = cyanCenter
     )
 
-    val purpleCenter = Offset(w * 0.5f * purpleOffsetX + w * 0.3f, h * 0.8f * purpleOffsetY + h * 0.1f)
+    val purpleCenter = Offset(w * 0.5f * purpleOffsetX + w * 0.3f + pXPurple, h * 0.8f * purpleOffsetY + h * 0.1f + pYPurple)
     val purpleRadius = (w * 0.3f) * scalePulse
     drawCircle(
         brush = RadialGradient(listOf(LiquidColors.AmbientPurple.copy(alpha = 0.06f), LiquidColors.AmbientPurple.copy(alpha = 0f)), purpleCenter, purpleRadius),

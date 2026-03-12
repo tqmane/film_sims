@@ -129,18 +129,60 @@ fun LutPreviewCard(
             }
     ) {
         Box(
-            modifier = Modifier
-                .size(94.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(LiquidColors.SurfaceMedium)
-                .then(
-                    if (selected) {
-                        Modifier.border(2.5.dp, borderColor, RoundedCornerShape(12.dp))
-                    } else {
-                        Modifier
-                    }
-                )
+            modifier = Modifier.size(94.dp),
+            contentAlignment = Alignment.Center
         ) {
+            // Breathing glow effect
+            if (selected) {
+                val infiniteTransition = rememberInfiniteTransition(label = "breathing")
+                val glowScale by infiniteTransition.animateFloat(
+                    initialValue = 1.0f,
+                    targetValue = 1.15f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(2000, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "glow_scale"
+                )
+                val glowAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.3f,
+                    targetValue = 0.7f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(2000, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "glow_alpha"
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(glowScale)
+                        .alpha(glowAlpha)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    LiquidColors.AccentPrimary.copy(alpha = 0.8f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+            }
+
+            // Existing card
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LiquidColors.SurfaceMedium)
+                    .then(
+                        if (selected) {
+                            Modifier.border(2.5.dp, borderColor, RoundedCornerShape(12.dp))
+                        } else {
+                            Modifier
+                        }
+                    )
+            ) {
             if (previewBitmap != null) {
                 Image(
                     bitmap = previewBitmap!!.asImageBitmap(),
@@ -259,7 +301,8 @@ fun LutPreviewCard(
                     }
                 }
             }
-        }
+            }
+        } // End of outer Box that holds the glow and the card
 
         Text(
             item.name,
