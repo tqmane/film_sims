@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">添加照片</string>
+    <string name="cd_open_settings">打开设置</string>
+    <string name="cd_save_image">保存图片</string>
+    <string name="cd_pick_image">选择图片</string>
+
     <!-- Image loading -->
     <string name="image_loaded">已加载图片: %1$s (预览: %2$s)</string>
     <string name="image_load_failed">图片加载失败: %1$s</string>
+    <string name="security_environment_untrusted">安全检查失败，此设备无法编辑。</string>
     <string name="select_image_first">请先选择图片</string>
+    <string name="loading_image">正在加载图片…</string>
+    <string name="error_title">出现了错误</string>
+    <string name="error_retry">重试</string>
+    <string name="error_pick_another">选择其他</string>
     
     <!-- Export -->
     <string name="exporting">导出中…</string>
@@ -137,6 +148,7 @@
     <string name="btn_open_gallery">打开图库</string>
     <string name="header_grain">效果</string>
     <string name="label_film_grain">胶片颗粒</string>
+    <string name="label_grain_style">颗粒风格</string>
     <string name="header_camera">相机</string>
     <string name="header_style">风格</string>
     <string name="label_intensity">强度</string>
@@ -156,6 +168,8 @@
     <string name="grain">效果</string>
     <string name="watermark">水印</string>
     <string name="watermark_select_brand">选择品牌以查看水印样式</string>
+    <string name="label_watermark_style">样式</string>
+    <string name="label_watermark_brand">品牌</string>
     <string name="device_name">设备名称</string>
     <string name="time">时间</string>
     <string name="location">位置</string>
@@ -188,4 +202,70 @@
     <string name="preset_limit_reached">已达到最大预设数量 (20)</string>
     <string name="preset_empty">尚未保存预设</string>
     <string name="preset_pro_locked">许可功能：登录以使用预设</string>
+
+    <string name="workflow_title">使用方法</string>
+    <string name="workflow_step_import">导入照片以开始预览</string>
+    <string name="workflow_step_choose">选择品牌并点按风格进行预览</string>
+    <string name="workflow_step_refine_save">微调效果，准备好后再导出</string>
+    <string name="section_brands">品牌</string>
+    <string name="section_collections">合集</string>
+    <string name="section_looks">风格</string>
+    <string name="single_collection_label">精选合集</string>
+    <string name="look_count_label">已准备好 %1$d 种风格</string>
+    <string name="look_preview_hint">已可预览 %1$d 种风格。点按一次卡片预览，再点按一次进入调整。</string>
+    <string name="look_ready_hint">再次点按当前风格即可打开调整。</string>
+    <string name="more_brands_title">更多风格可用</string>
+    <string name="more_tools_title">更多润色工具可用</string>
+    <string name="premium_brands_hint">登录后即可解锁更多品牌和完整的后期流程。</string>
+    <string name="pro_adjust_locked">许可证功能：登录后可使用色调调整</string>
+    <string name="pro_adjust_tools_hint">登录后即可在一个位置解锁色调调整、水印和预设。</string>
+    <string name="adjust_hint_intensity">先调整 LUT 强度，让整体氛围更合适。</string>
+    <string name="adjust_hint_basic">在添加颗粒或水印之前，先调整曝光和对比度。</string>
+    <string name="adjust_hint_grain">当 LUT 和色调稳定后再添加颗粒，质感会更自然。</string>
+    <string name="adjust_hint_watermark">编辑完成后，再用品牌水印作为收尾。</string>
+    <string name="adjust_hint_presets">保存当前配方，方便在下一张照片中复用。</string>
+    <string name="compare_preview">对比预览</string>
+    <string name="compare_preview_hint">开启前后对比，以便将当前编辑结果与原图进行比较。</string>
+    <string name="compare_split">分割位置</string>
+    <string name="compare_before">原图</string>
+    <string name="compare_after">编辑后</string>
+    <string name="compare_vertical">纵向分割</string>
+    <string name="compare_horizontal">横向分割</string>
+    <string name="label_hue">色相</string>
+    <string name="label_saturation">饱和度</string>
+    <string name="label_luminance">明度</string>
+    <string name="overlay_filter">叠加滤镜</string>
+    <string name="overlay_filter_none">未选择叠加滤镜</string>
+    <string name="overlay_filter_hint_empty">在保留基础 LUT 的同时，再叠加一个风格来混合色彩效果。</string>
+    <string name="overlay_filter_hint_active">在基础 LUT 上再混合一个风格，为画面增加更多色彩层次。</string>
+    <string name="overlay_pick">选择叠加</string>
+    <string name="overlay_change">更换叠加</string>
+    <string name="overlay_remove">移除叠加</string>
+    <string name="overlay_blend">叠加强度</string>
+    <string name="overlay_selection_title">选择叠加风格</string>
+    <string name="overlay_selection_hint">选择要叠加在当前风格上的第二个 LUT，并用混合强度控制效果。</string>
+    <string name="overlay_done">完成</string>
+    <string name="panel_hints_setting">显示面板提示</string>
+    <string name="panel_hints_setting_description">切换是否显示 LUT 面板和调整面板中的提示卡片。</string>
+    <string name="gesture_hint_title">预览手势</string>
+    <string name="gesture_hint_body">轻点图片可进入无干扰查看。长按可临时将当前编辑与基础照片进行比较。</string>
+    <string name="gesture_hint_dismiss">知道了</string>
+    <string name="save_success_dismiss_hint">点击关闭</string>
+    <string name="lut_browser_title">更清晰地浏览风格</string>
+    <string name="lut_browser_hint">先选择品牌，再缩小合集范围，然后点按风格卡片在照片上预览。</string>
+    <string name="watermark_flow_title">分步骤完成水印</string>
+    <string name="watermark_flow_pick_brand">先选择品牌，即可解锁对应的水印样式。</string>
+    <string name="watermark_flow_customize">选择样式后，只填写该水印实际使用的字段即可。</string>
+    <string name="watermark_style_waiting_title">选择品牌后会显示样式</string>
+    <string name="watermark_style_waiting_body">请先选择品牌，这个面板才会显示对应的水印样式。</string>
+    <string name="watermark_details_title">详细信息</string>
+    <string name="intensity_strength_title">先调整整体强度</string>
+    <string name="intensity_strength_hint">在叠加覆盖、颗粒或比较工具之前，先把主风格的强弱调到合适会更顺手。</string>
+    <string name="overlay_active_title">叠加已启用：%1$s</string>
+    <string name="overlay_active_hint">调整混合度，让基础风格仍然清晰可辨，同时增加更多色彩个性。</string>
+    <string name="compare_active_title">比较模式已开启</string>
+    <string name="compare_active_hint">如果当前分割方向不顺手，可以切换方向，再拖动分隔线检查画面重点区域。</string>
+    <string name="presets_hint_title">保存可复用的风格</string>
+    <string name="presets_hint_body_empty">预设可以让你以后直接复用整套配方，包括 LUT、叠加、色调和颗粒设置。</string>
+    <string name="presets_hint_body_ready">点按预设即可立即加载；当你调出值得保留的风格时，也可以保存当前配方。</string>
 </resources>

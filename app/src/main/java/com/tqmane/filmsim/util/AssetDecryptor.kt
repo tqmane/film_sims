@@ -22,6 +22,9 @@ object AssetDecryptor {
      */
     fun decryptStream(inputStream: InputStream): InputStream {
         if (BuildConfig.ASSET_KEY == "placeholder_key" || masterKey.isEmpty()) {
+            if (!BuildConfig.DEBUG) {
+                throw SecurityException("Asset decryption key not configured")
+            }
             return inputStream
         }
 
@@ -34,7 +37,12 @@ object AssetDecryptor {
             bytesRead += read
         }
 
-        if (bytesRead < 16) return inputStream // File too small — not a valid encrypted asset
+        if (bytesRead < 16) {
+            if (!BuildConfig.DEBUG) {
+                throw SecurityException("Invalid encrypted asset format")
+            }
+            return inputStream
+        }
 
         // Derive 32-byte key: SHA-256(masterKeyBytes || IV)
         val fileKey = deriveKey(masterKey, iv)

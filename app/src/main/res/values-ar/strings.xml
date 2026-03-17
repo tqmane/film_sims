@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">إضافة صورة</string>
+    <string name="cd_open_settings">فتح الإعدادات</string>
+    <string name="cd_save_image">حفظ الصورة</string>
+    <string name="cd_pick_image">اختيار صورة</string>
+
     <!-- Image loading -->
     <string name="image_loaded">تم تحميل الصورة: %1$s (المعاينة: %2$s)</string>
     <string name="image_load_failed">فشل تحميل الصورة: %1$s</string>
+    <string name="security_environment_untrusted">فشل التحقق الأمني. التحرير غير متاح على هذا الجهاز.</string>
     <string name="select_image_first">يرجى اختيار صورة أولاً</string>
+    <string name="loading_image">جارٍ تحميل الصورة…</string>
+    <string name="error_title">حدث خطأ ما</string>
+    <string name="error_retry">إعادة المحاولة</string>
+    <string name="error_pick_another">اختيار صورة أخرى</string>
 
     <!-- Export -->
     <string name="exporting">جارٍ التصدير…</string>
@@ -129,4 +140,70 @@
     <string name="preset_limit_reached">تم الوصول للحد الأقصى للإعدادات المسبقة (20)</string>
     <string name="preset_empty">لم يتم حفظ أي إعدادات مسبقة بعد</string>
     <string name="preset_pro_locked">ميزة الترخيص: قم بتسجيل الدخول لاستخدام الإعدادات المسبقة</string>
+
+    <string name="workflow_title">طريقة الاستخدام</string>
+    <string name="workflow_step_import">استورد صورة لبدء المعاينة</string>
+    <string name="workflow_step_choose">اختر علامة تجارية واضغط على مظهر للمعاينة</string>
+    <string name="workflow_step_refine_save">حسّن النتيجة ثم صدّرها عندما تصبح جاهزة</string>
+    <string name="section_brands">العلامات التجارية</string>
+    <string name="section_collections">المجموعات</string>
+    <string name="section_looks">الأنماط</string>
+    <string name="single_collection_label">مجموعة مختارة</string>
+    <string name="look_count_label">%1$d من الأنماط جاهزة</string>
+    <string name="look_preview_hint">%1$d من الأنماط جاهزة للمعاينة. اضغط على البطاقة مرة للمعاينة ومرة أخرى للضبط.</string>
+    <string name="look_ready_hint">اضغط على النمط المحدد مرة أخرى لفتح أدوات الضبط.</string>
+    <string name="more_brands_title">تتوفر أنماط أكثر</string>
+    <string name="more_tools_title">تتوفر أدوات إنهاء إضافية</string>
+    <string name="premium_brands_hint">سجّل الدخول لفتح المزيد من العلامات التجارية ومسار الإنهاء الكامل.</string>
+    <string name="pro_adjust_locked">ميزة مرخّصة: سجّل الدخول لاستخدام تعديلات الدرجات اللونية</string>
+    <string name="pro_adjust_tools_hint">سجّل الدخول لفتح تعديلات الدرجات اللونية والعلامات المائية والإعدادات المسبقة في مكان واحد.</string>
+    <string name="adjust_hint_intensity">ابدأ بموازنة قوة LUT حتى يصبح الإحساس العام مناسبًا.</string>
+    <string name="adjust_hint_basic">اضبط التعريض والتباين قبل إضافة الحبيبات أو العلامة المائية.</string>
+    <string name="adjust_hint_grain">استخدم الحبيبات بعد استقرار LUT والدرجات للحصول على نسيج طبيعي أكثر.</string>
+    <string name="adjust_hint_watermark">أنهِ الصورة بعلامة مائية خاصة بالعلامة التجارية عندما يصبح التعديل جاهزًا.</string>
+    <string name="adjust_hint_presets">احفظ إعدادك الحالي حتى تتمكن من إعادة استخدامه في الصورة التالية.</string>
+    <string name="compare_preview">معاينة المقارنة</string>
+    <string name="compare_preview_hint">فعّل عرض قبل وبعد لمقارنة التعديل الحالي بالصورة الأصلية.</string>
+    <string name="compare_split">موضع الفصل</string>
+    <string name="compare_before">قبل</string>
+    <string name="compare_after">بعد</string>
+    <string name="compare_vertical">عمودي</string>
+    <string name="compare_horizontal">أفقي</string>
+    <string name="label_hue">درجة اللون</string>
+    <string name="label_saturation">التشبع</string>
+    <string name="label_luminance">السطوع</string>
+    <string name="overlay_filter">فلتر متراكب</string>
+    <string name="overlay_filter_none">لا يوجد فلتر متراكب</string>
+    <string name="overlay_filter_hint_empty">أضف مظهرا ثانيا لمزج الأنماط من دون استبدال LUT الأساسي.</string>
+    <string name="overlay_filter_hint_active">امزج مظهرا ثانيا فوق LUT الأساسي لإضافة طابع لوني إضافي.</string>
+    <string name="overlay_pick">اختيار التراكب</string>
+    <string name="overlay_change">تغيير التراكب</string>
+    <string name="overlay_remove">إزالة التراكب</string>
+    <string name="overlay_blend">مزج التراكب</string>
+    <string name="overlay_selection_title">اختيار المظهر المتراكب</string>
+    <string name="overlay_selection_hint">اختر LUT ثانيا لوضعه فوق المظهر الحالي، ثم استخدم المزج للتحكم في النتيجة.</string>
+    <string name="overlay_done">تم</string>
+    <string name="panel_hints_setting">إظهار تلميحات اللوحة</string>
+    <string name="panel_hints_setting_description">يبدل بين إظهار بطاقات المساعدة داخل لوحتي LUT والتعديلات أو إخفائها.</string>
+    <string name="gesture_hint_title">ايماءات المعاينة</string>
+    <string name="gesture_hint_body">اضغط على الصورة للحصول على عرض خال من المشتتات. اضغط مطولا للمقارنة المؤقتة بين التعديل والصورة الاساسية.</string>
+    <string name="gesture_hint_dismiss">حسنا</string>
+    <string name="save_success_dismiss_hint">اضغط للاغلاق</string>
+    <string name="lut_browser_title">تصفح الاطلالات بوضوح اكبر</string>
+    <string name="lut_browser_hint">اختر العلامة اولا، ثم ضيق المجموعة، وبعدها اضغط على بطاقة الاطلالة لمعاينتها على صورتك.</string>
+    <string name="watermark_flow_title">ابن العلامة المائية خطوة بخطوة</string>
+    <string name="watermark_flow_pick_brand">ابدأ بعلامة تجارية لعرض انماط العلامة المائية المطابقة.</string>
+    <string name="watermark_flow_customize">اختر نمطا ثم املأ فقط التفاصيل التي يستخدمها ذلك النمط.</string>
+    <string name="watermark_style_waiting_title">تظهر الانماط بعد اختيار العلامة</string>
+    <string name="watermark_style_waiting_body">اختر العلامة اولا حتى تعرض هذه اللوحة انماط العلامة المائية المناسبة.</string>
+    <string name="watermark_details_title">التفاصيل</string>
+    <string name="intensity_strength_title">اضبط الشدة العامة اولا</string>
+    <string name="intensity_strength_hint">ارفع او اخفض الاطلالة الرئيسية قبل اضافة التراكبات او الحبيبات او ادوات المقارنة.</string>
+    <string name="overlay_active_title">التراكب نشط: %1$s</string>
+    <string name="overlay_active_hint">اضبط المزج بحيث تبقى الاطلالة الاساسية واضحة مع اضافة طابع لوني اقوى.</string>
+    <string name="compare_active_title">وضع المقارنة مفعل</string>
+    <string name="compare_active_hint">اذا كان اتجاه التقسيم غير مريح فبدله ثم اسحب الفاصل لفحص الاجزاء المهمة من الصورة.</string>
+    <string name="presets_hint_title">احفظ اطلالات قابلة لاعادة الاستخدام</string>
+    <string name="presets_hint_body_empty">تسمح لك الاعدادات المسبقة باعادة استخدام الوصفة الكاملة لاحقا بما يشمل LUT والتراكب والدرجة والحبيبات.</string>
+    <string name="presets_hint_body_ready">اضغط على اعداد مسبق لتحميله فورا، او احفظ الوصفة الحالية عندما تجد اطلالة تستحق الاحتفاظ بها.</string>
 </resources>

@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">写真を追加</string>
+    <string name="cd_open_settings">設定を開く</string>
+    <string name="cd_save_image">画像を保存</string>
+    <string name="cd_pick_image">画像を選ぶ</string>
+
     <!-- Image loading -->
     <string name="image_loaded">画像を読み込みました: %1$s (プレビュー: %2$s)</string>
     <string name="image_load_failed">画像の読み込みに失敗しました: %1$s</string>
+    <string name="security_environment_untrusted">セキュリティチェックに失敗したため、この端末では編集できません。</string>
     <string name="select_image_first">先に画像を選択してください</string>
+    <string name="loading_image">画像を読み込み中…</string>
+    <string name="error_title">エラーが発生しました</string>
+    <string name="error_retry">再試行</string>
+    <string name="error_pick_another">別の画像を選ぶ</string>
     
     <!-- Export -->
     <string name="exporting">書き出し中…</string>
@@ -162,6 +173,10 @@
     <string name="label_pick_image">画像を選択</string>
     <string name="desc_pick_image">写真を選んでフィルムシミュレーションを適用</string>
     <string name="btn_open_gallery">ギャラリーを開く</string>
+    <string name="workflow_title">使い方</string>
+    <string name="workflow_step_import">まず写真を読み込んでプレビューを始めます</string>
+    <string name="workflow_step_choose">ブランドを選び、ルックをタップしてプレビューします</string>
+    <string name="workflow_step_refine_save">仕上がりを微調整して、準備ができたら保存します</string>
     <string name="header_grain">エフェクト</string>
     <string name="label_film_grain">フィルムグレイン</string>
     <string name="header_camera">カメラ</string>
@@ -204,7 +219,18 @@
     <string name="adjustments">調整</string>
     <string name="grain">エフェクト</string>
     <string name="watermark">透かし</string>
+    <string name="section_brands">ブランド</string>
+    <string name="section_collections">コレクション</string>
+    <string name="section_looks">ルック</string>
+    <string name="single_collection_label">おすすめコレクション</string>
+    <string name="look_count_label">%1$d件のルックを表示中</string>
+    <string name="look_preview_hint">%1$d件のルックをすぐ試せます。1回タップでプレビュー、もう1回で調整に進みます。</string>
+    <string name="look_ready_hint">選択中のルックをもう一度タップすると調整を開けます。</string>
+    <string name="more_brands_title">さらに多くのルックを解放</string>
+    <string name="more_tools_title">仕上げツールをさらに解放</string>
     <string name="watermark_select_brand">ブランドを選択して透かしスタイルを表示</string>
+    <string name="label_watermark_style">スタイル</string>
+    <string name="label_watermark_brand">ブランド</string>
     <string name="device_name">デバイス名</string>
     <string name="time">撮影日時</string>
     <string name="location">場所</string>
@@ -215,6 +241,58 @@
     <string name="btn_sign_out">ログアウト</string>
     <string name="label_pro">ライセンス</string>
     <string name="pro_brand_locked">ライセンス機能: ログインしてこのブランドを有効化</string>
+    <string name="premium_brands_hint">ログインすると、さらに多くのブランドと仕上げ機能を利用できます。</string>
+    <string name="pro_adjust_locked">ライセンス機能: ログインして色調整を有効化</string>
+    <string name="pro_adjust_tools_hint">ログインすると、色調整・透かし・プリセットをまとめて使えるようになります。</string>
     <string name="pro_watermark_locked">ライセンス機能: ログインして透かしを有効化</string>
     <string name="pro_quality_limit">ライセンス機能: 60%以上の画質で保存するにはライセンスが必要です</string>
+    <string name="adjust_hint_intensity">まずはLUTの強度を整えて、全体の雰囲気を決めましょう。</string>
+    <string name="adjust_hint_basic">グレインや透かしの前に、露出やコントラストを整えると仕上がりが安定します。</string>
+    <string name="adjust_hint_grain">色味が決まってからグレインを足すと、質感を自然に仕上げられます。</string>
+    <string name="adjust_hint_watermark">仕上げとしてブランド透かしを重ねて、カメラらしい見た目を作れます。</string>
+    <string name="adjust_hint_presets">今のレシピを保存しておくと、次の写真でもすぐ再利用できます。</string>
+    <string name="compare_preview">比較プレビュー</string>
+    <string name="compare_preview_hint">現在の編集結果と元画像を見比べるためのビフォー・アフター表示です。</string>
+    <string name="compare_split">分割位置</string>
+    <string name="compare_before">元画像</string>
+    <string name="compare_after">編集後</string>
+    <string name="compare_vertical">縦分割</string>
+    <string name="compare_horizontal">横分割</string>
+    <string name="label_hue">色相</string>
+    <string name="label_saturation">彩度</string>
+    <string name="label_luminance">輝度</string>
+    <string name="overlay_filter">重ねがけフィルター</string>
+    <string name="overlay_filter_none">重ねがけなし</string>
+    <string name="overlay_filter_hint_empty">ベースのLUTを残したまま、もう一つのルックを重ねて色味をミックスできます。</string>
+    <string name="overlay_filter_hint_active">ベースLUTの上に別のルックを重ねて、色のニュアンスを足せます。</string>
+    <string name="overlay_pick">重ねがけを選ぶ</string>
+    <string name="overlay_change">重ねがけを変更</string>
+    <string name="overlay_remove">重ねがけを外す</string>
+    <string name="overlay_blend">重ねがけ量</string>
+    <string name="overlay_selection_title">重ねがけするルックを選択</string>
+    <string name="overlay_selection_hint">今のルックに重ねる2つ目のLUTを選びます。仕上がりはブレンド量で調整できます。</string>
+    <string name="overlay_done">完了</string>
+    <string name="panel_hints_setting">パネルのヒントを表示</string>
+    <string name="panel_hints_setting_description">LUTパネルと調整パネル内の案内カードを表示するか切り替えます。</string>
+    <string name="gesture_hint_title">プレビュー操作</string>
+    <string name="gesture_hint_body">画像をタップすると集中表示に切り替わります。長押しすると編集中の見た目を元画像ベースで一時比較できます。</string>
+    <string name="gesture_hint_dismiss">了解</string>
+    <string name="save_success_dismiss_hint">タップして閉じる</string>
+    <string name="lut_browser_title">迷わずルックを探せます</string>
+    <string name="lut_browser_hint">まずブランドを選び、コレクションを絞り込み、ルックカードをタップして写真に適用してみてください。</string>
+    <string name="watermark_flow_title">透かしを順番に設定</string>
+    <string name="watermark_flow_pick_brand">最初にブランドを選ぶと、そのブランドに合う透かしスタイルが表示されます。</string>
+    <string name="watermark_flow_customize">スタイルを選んだら、その透かしで使う項目だけを入力してください。</string>
+    <string name="watermark_style_waiting_title">ブランドを選ぶとスタイルが表示されます</string>
+    <string name="watermark_style_waiting_body">対応する透かしスタイルを表示するため、先にブランドを選択してください。</string>
+    <string name="watermark_details_title">詳細</string>
+    <string name="intensity_strength_title">最初に強さを整えましょう</string>
+    <string name="intensity_strength_hint">オーバーレイやグレイン、比較を重ねる前に、まず全体のルック強度を決めると調整しやすくなります。</string>
+    <string name="overlay_active_title">重ねがけ中: %1$s</string>
+    <string name="overlay_active_hint">ベースのルックらしさを残しつつ色の個性を足せるように、ブレンド量で整えてください。</string>
+    <string name="compare_active_title">比較モードが有効です</string>
+    <string name="compare_active_hint">分割方向が見づらいときは切り替えて、境界線を動かしながら気になる部分を確認できます。</string>
+    <string name="presets_hint_title">再利用できるルックを保存</string>
+    <string name="presets_hint_body_empty">プリセットを使うと、LUT・重ねがけ・色調整・グレインを含む今の仕上がりをあとでそのまま再利用できます。</string>
+    <string name="presets_hint_body_ready">プリセットをタップするとすぐ読み込めます。残しておきたい仕上がりができたら現在の設定を保存してください。</string>
 </resources>

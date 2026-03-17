@@ -28,9 +28,20 @@ class GithubUpdateRepository @Inject constructor(
         private const val TAG = "UpdateRepository"
         private const val MAX_RETRIES = 3
         private const val INITIAL_BACKOFF_MS = 1_000L
+        private const val CACHE_DURATION_MS = 24 * 60 * 60 * 1_000L // 24 hours
     }
 
+    @Volatile private var cachedResult: ReleaseInfo? = null
+    @Volatile private var lastCheckTimeMs: Long = 0L
+
     override suspend fun checkForUpdate(force: Boolean): ReleaseInfo? {
+        if (!force) {
+            val now = System.currentTimeMillis()
+            if (now - lastCheckTimeMs < CACHE_DURATION_MS) {
+                return cachedResult
+            }
+        }
+
         val githubApiUrl = context.getString(R.string.github_api_url)
 
         return withContext(Dispatchers.IO) {
@@ -44,11 +55,14 @@ class GithubUpdateRepository @Inject constructor(
                 val htmlUrl = json.getString("html_url")
 
                 val currentVersion = BuildConfig.VERSION_NAME
-                if (isNewerVersion(version, currentVersion)) {
+                val result = if (isNewerVersion(version, currentVersion)) {
                     ReleaseInfo(tagName, version, releaseNotes, htmlUrl)
                 } else {
                     null
                 }
+                cachedResult = result
+                lastCheckTimeMs = System.currentTimeMillis()
+                result
             } catch (e: Exception) {
                 Log.e(TAG, classifyNetworkError(e), e)
                 null
@@ -93,8 +107,12 @@ class GithubUpdateRepository @Inject constructor(
 
     internal fun isNewerVersion(newVersion: String, currentVersion: String): Boolean {
         try {
-            val newParts = newVersion.split(".").map { it.toIntOrNull() ?: 0 }
-            val currentParts = currentVersion.split(".").map { it.toIntOrNull() ?: 0 }
+            // Strip pre-release suffix (e.g. "1.2.0-beta" → "1.2.0")
+            val newBase = newVersion.substringBefore("-")
+            val currentBase = currentVersion.substringBefore("-")
+
+            val newParts = newBase.split(".").map { it.toIntOrNull() ?: 0 }
+            val currentParts = currentBase.split(".").map { it.toIntOrNull() ?: 0 }
             val maxLen = maxOf(newParts.size, currentParts.size)
             for (i in 0 until maxLen) {
                 val newPart = newParts.getOrElse(i) { 0 }
@@ -102,7 +120,10 @@ class GithubUpdateRepository @Inject constructor(
                 if (newPart > currentPart) return true
                 if (newPart < currentPart) return false
             }
-            return false
+            // Base versions are equal: stable release (no suffix) > pre-release (has suffix)
+            val newIsPre = newVersion.contains("-")
+            val currentIsPre = currentVersion.contains("-")
+            return !newIsPre && currentIsPre
         } catch (e: Exception) {
             return false
         }

@@ -34,7 +34,7 @@ A photo editing app that reproduces the color tones of film stocks and camera br
 
 - Honor Magic 8 Pro: MagicOS 10.0.0.127
 - Huawei Nova 11: HarmonyOS 4.0
-- Leica FOTS: https://play.google.com/store/apps/details?id=com.leica_camera.app
+- Leica FOTOS: https://play.google.com/store/apps/details?id=com.leica_camera.app
 - Leica LUX: https://apps.apple.com/jp/app/leica-lux-pro-manual-camera/id6477182657
 - MEIZU 22: Flyme AIOS 2
 - Nothing Phone (3a): NothingOS4.0

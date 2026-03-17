@@ -28,6 +28,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -161,7 +164,7 @@ private fun SignedInContent(
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("⚠", color = LiquidColors.AccentPrimary, fontSize = 13.sp)
+                Text(stringResource(R.string.warning_indicator), color = LiquidColors.AccentPrimary, fontSize = 13.sp)
                 Spacer(Modifier.width(8.dp))
                 Text(
                     stringResource(R.string.label_license_version_mismatch, mismatchVer),
@@ -181,6 +184,7 @@ private fun SignedInContent(
                 .clip(RoundedCornerShape(12.dp))
                 .background(LiquidColors.AccentPrimary.copy(alpha = 0.08f))
                 .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.20f), RoundedCornerShape(12.dp))
+                .semantics { role = Role.Button }
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -207,6 +211,7 @@ private fun SignedInContent(
                 .clip(RoundedCornerShape(14.dp))
                 .background(Color(0x14FFFFFF))
                 .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(14.dp))
+                .semantics { role = Role.Button }
                 .clickable { onSignOut() },
             contentAlignment = Alignment.Center
         ) {
@@ -243,6 +248,7 @@ private fun SignedOutContent(onSignIn: () -> Unit) {
                         )
                     )
                 )
+                .semantics { role = Role.Button }
                 .clickable { onSignIn() },
             contentAlignment = Alignment.Center
         ) {

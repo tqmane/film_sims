@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Добавить фото</string>
+    <string name="cd_open_settings">Открыть настройки</string>
+    <string name="cd_save_image">Сохранить изображение</string>
+    <string name="cd_pick_image">Выбрать изображение</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Изображение загружено: %1$s (Предпросмотр: %2$s)</string>
     <string name="image_load_failed">Не удалось загрузить изображение: %1$s</string>
+    <string name="security_environment_untrusted">Проверка безопасности не пройдена. Редактирование недоступно на этом устройстве.</string>
     <string name="select_image_first">Сначала выберите изображение</string>
+    <string name="loading_image">Загрузка изображения…</string>
+    <string name="error_title">Что-то пошло не так</string>
+    <string name="error_retry">Повторить</string>
+    <string name="error_pick_another">Выбрать другое</string>
 
     <!-- Export -->
     <string name="exporting">Экспорт…</string>
@@ -129,4 +140,70 @@
     <string name="preset_limit_reached">Достигнуто максимальное количество пресетов (20)</string>
     <string name="preset_empty">Еще нет сохраненных пресетов</string>
     <string name="preset_pro_locked">Функция лицензии: Войдите, чтобы использовать пресеты</string>
+
+    <string name="workflow_title">Как это работает</string>
+    <string name="workflow_step_import">Импортируйте фото, чтобы начать предпросмотр</string>
+    <string name="workflow_step_choose">Выберите бренд и нажмите на стиль для предпросмотра</string>
+    <string name="workflow_step_refine_save">Точно настройте результат и экспортируйте, когда всё готово</string>
+    <string name="section_brands">Бренды</string>
+    <string name="section_collections">Коллекции</string>
+    <string name="section_looks">Стили</string>
+    <string name="single_collection_label">Избранная коллекция</string>
+    <string name="look_count_label">%1$d стилей готово</string>
+    <string name="look_preview_hint">Доступно %1$d стилей для предпросмотра. Нажмите один раз для просмотра и ещё раз для настройки.</string>
+    <string name="look_ready_hint">Нажмите на выбранный стиль ещё раз, чтобы открыть настройки.</string>
+    <string name="more_brands_title">Доступно больше стилей</string>
+    <string name="more_tools_title">Доступно больше инструментов финальной обработки</string>
+    <string name="premium_brands_hint">Войдите, чтобы открыть больше брендов и полный сценарий финальной обработки.</string>
+    <string name="pro_adjust_locked">Лицензионная функция: войдите, чтобы использовать тоновые настройки</string>
+    <string name="pro_adjust_tools_hint">Войдите, чтобы открыть тоновые настройки, водяные знаки и пресеты в одном месте.</string>
+    <string name="adjust_hint_intensity">Сначала подберите силу LUT, чтобы задать общее настроение.</string>
+    <string name="adjust_hint_basic">Настройте экспозицию и контраст перед добавлением зерна или водяного знака.</string>
+    <string name="adjust_hint_grain">Добавляйте зерно после настройки LUT и тона для более естественной текстуры.</string>
+    <string name="adjust_hint_watermark">Завершите кадр фирменным водяным знаком, когда редактирование будет готово.</string>
+    <string name="adjust_hint_presets">Сохраните текущий рецепт, чтобы повторно использовать его на следующем фото.</string>
+    <string name="compare_preview">Сравнение</string>
+    <string name="compare_preview_hint">Включите режим до и после, чтобы сравнить текущее редактирование с исходным изображением.</string>
+    <string name="compare_split">Разделение</string>
+    <string name="compare_before">До</string>
+    <string name="compare_after">После</string>
+    <string name="compare_vertical">Вертикально</string>
+    <string name="compare_horizontal">Горизонтально</string>
+    <string name="label_hue">Оттенок</string>
+    <string name="label_saturation">Насыщенность</string>
+    <string name="label_luminance">Яркость</string>
+    <string name="overlay_filter">Наложенный фильтр</string>
+    <string name="overlay_filter_none">Наложение не выбрано</string>
+    <string name="overlay_filter_hint_empty">Добавьте второй стиль, чтобы смешать образы, не заменяя основной LUT.</string>
+    <string name="overlay_filter_hint_active">Смешайте второй стиль поверх основного LUT, чтобы добавить больше цветового характера.</string>
+    <string name="overlay_pick">Выбрать наложение</string>
+    <string name="overlay_change">Изменить наложение</string>
+    <string name="overlay_remove">Убрать наложение</string>
+    <string name="overlay_blend">Смешивание наложения</string>
+    <string name="overlay_selection_title">Выбрать стиль наложения</string>
+    <string name="overlay_selection_hint">Выберите второй LUT для наложения на текущий стиль. Силу эффекта можно настроить смешиванием.</string>
+    <string name="overlay_done">Готово</string>
+    <string name="panel_hints_setting">Показывать подсказки панели</string>
+    <string name="panel_hints_setting_description">Показывает или скрывает карточки-подсказки в панелях LUT и настройки.</string>
+    <string name="gesture_hint_title">Жесты предпросмотра</string>
+    <string name="gesture_hint_body">Нажмите на изображение, чтобы перейти в режим без отвлекающих элементов. Удерживайте, чтобы временно сравнить редактирование с базовым фото.</string>
+    <string name="gesture_hint_dismiss">Понятно</string>
+    <string name="save_success_dismiss_hint">Нажмите, чтобы закрыть</string>
+    <string name="lut_browser_title">Подбирайте стили понятнее</string>
+    <string name="lut_browser_hint">Сначала выберите бренд, затем сузьте коллекцию и нажмите на карточку стиля для предпросмотра на фото.</string>
+    <string name="watermark_flow_title">Соберите водяной знак по шагам</string>
+    <string name="watermark_flow_pick_brand">Начните с бренда, чтобы открыть подходящие стили водяного знака.</string>
+    <string name="watermark_flow_customize">Выберите стиль и заполните только те поля, которые использует этот водяной знак.</string>
+    <string name="watermark_style_waiting_title">Стили появятся после выбора бренда</string>
+    <string name="watermark_style_waiting_body">Сначала выберите бренд, чтобы эта панель смогла показать подходящие стили водяного знака.</string>
+    <string name="watermark_details_title">Детали</string>
+    <string name="intensity_strength_title">Сначала настройте общую силу эффекта</string>
+    <string name="intensity_strength_hint">Сначала усильте или ослабьте основной look, а уже потом добавляйте наложения, зерно и инструменты сравнения.</string>
+    <string name="overlay_active_title">Наложение активно: %1$s</string>
+    <string name="overlay_active_hint">Настройте смешивание так, чтобы базовый look оставался узнаваемым, а цвет получил больше характера.</string>
+    <string name="compare_active_title">Режим сравнения включен</string>
+    <string name="compare_active_hint">Если разделение кажется неудобным, смените направление и перетащите разделитель к важным участкам кадра.</string>
+    <string name="presets_hint_title">Сохраняйте повторно используемые look\'и</string>
+    <string name="presets_hint_body_empty">Пресеты позволяют позже снова использовать весь рецепт целиком, включая LUT, наложение, тон и зерно.</string>
+    <string name="presets_hint_body_ready">Нажмите на пресет, чтобы загрузить его сразу, или сохраните текущий рецепт, если нашли look, который стоит оставить.</string>
 </resources>

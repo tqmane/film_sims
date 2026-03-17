@@ -5,10 +5,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,8 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.ui.theme.LiquidColors
@@ -65,25 +75,50 @@ fun <T> LiquidTabBar(
             Box(
                 modifier = Modifier
                     .weight(1f)
+                    .sizeIn(minHeight = 48.dp)
                     .clip(RoundedCornerShape(18.dp))
                     .background(bgColor)
+                    .semantics {
+                        role = Role.Tab
+                        this.selected = isSelected
+                    }
                     .clickable {
                         haptic.performHapticFeedback(
                             androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
                         )
                         onTabSelected(tab)
                     }
-                    .padding(vertical = 11.dp),
+                    .padding(vertical = 9.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    label,
-                    color = textColor,
-                    fontSize = 13.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    fontFamily = FontFamily.SansSerif,
-                    letterSpacing = 0.01.sp
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = label,
+                        color = textColor,
+                        fontSize = 13.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        fontFamily = FontFamily.SansSerif,
+                        letterSpacing = 0.01.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(if (isSelected) 16.dp else 0.dp)
+                            .height(3.dp)
+                            .then(
+                                if (isSelected) {
+                                    Modifier
+                                        .clip(RoundedCornerShape(50))
+                                        .background(Color(0xFF0C0C10))
+                                        .height(3.dp)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                    )
+                }
             }
         }
     }

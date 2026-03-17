@@ -2,11 +2,7 @@ package com.tqmane.filmsim.ui.component
 
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -44,6 +41,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -78,19 +79,26 @@ fun LutPreviewCard(
     var isLoadingPreview by remember(item.assetPath, thumbnailBitmap) {
         mutableStateOf(thumbnailBitmap != null)
     }
+    var hasPreviewError by remember(item.assetPath, thumbnailBitmap) {
+        mutableStateOf(false)
+    }
     LaunchedEffect(item.assetPath, thumbnailBitmap) {
         if (thumbnailBitmap != null) {
             isLoadingPreview = true
-            previewBitmap = withContext(Dispatchers.IO) {
+            hasPreviewError = false
+            val result = withContext(Dispatchers.IO) {
                 try {
                     val lut = CubeLUTParser.parse(context, item.assetPath)
                     if (lut != null) LutBitmapProcessor.applyLutToBitmap(thumbnailBitmap, lut) else null
                 } catch (e: Exception) { null }
             }
+            previewBitmap = result
             isLoadingPreview = false
+            if (result == null) hasPreviewError = true
         } else {
             previewBitmap = null
             isLoadingPreview = false
+            hasPreviewError = false
         }
     }
 
@@ -99,11 +107,21 @@ fun LutPreviewCard(
         animationSpec = tween(300),
         label = "card_border"
     )
+    val cardScale by animateFloatAsState(
+        targetValue = if (selected) 1.05f else 1f,
+        animationSpec = com.tqmane.filmsim.ui.theme.LiquidMotion.SpringSpecElastic,
+        label = "card_scale"
+    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .padding(start = 2.dp, end = 6.dp, top = 2.dp, bottom = 2.dp)
+            .scale(cardScale)
+            .semantics {
+                role = Role.Button
+                this.selected = selected
+            }
             .clickable {
                 haptic.performHapticFeedback(
                     androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
@@ -112,18 +130,40 @@ fun LutPreviewCard(
             }
     ) {
         Box(
-            modifier = Modifier
-                .size(94.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(LiquidColors.SurfaceMedium)
-                .then(
-                    if (selected) {
-                        Modifier.border(2.5.dp, borderColor, RoundedCornerShape(12.dp))
-                    } else {
-                        Modifier
-                    }
-                )
+            modifier = Modifier.size(94.dp),
+            contentAlignment = Alignment.Center
         ) {
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .scale(1.05f)
+                        .alpha(0.22f)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    LiquidColors.AccentPrimary.copy(alpha = 0.8f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
+                )
+            }
+
+            // Existing card
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LiquidColors.SurfaceMedium)
+                    .then(
+                        if (selected) {
+                            Modifier.border(2.5.dp, borderColor, RoundedCornerShape(12.dp))
+                        } else {
+                            Modifier
+                        }
+                    )
+            ) {
             if (previewBitmap != null) {
                 Image(
                     bitmap = previewBitmap!!.asImageBitmap(),
@@ -142,21 +182,25 @@ fun LutPreviewCard(
                 )
             }
 
+            if (!isLoadingPreview && hasPreviewError) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "!",
+                        color = LiquidColors.TextLowEmphasis,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             if (isLoadingPreview) {
-                val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
-                val shimmerAlpha by shimmerTransition.animateFloat(
-                    initialValue = 0.15f,
-                    targetValue = 0.35f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(700, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "shimmer_alpha"
-                )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(LiquidColors.GlassSurface.copy(alpha = shimmerAlpha))
+                        .background(LiquidColors.GlassSurface.copy(alpha = 0.22f))
                 )
             }
 
@@ -228,7 +272,8 @@ fun LutPreviewCard(
                     }
                 }
             }
-        }
+            }
+        } // End of outer Box that holds the glow and the card
 
         Text(
             item.name,

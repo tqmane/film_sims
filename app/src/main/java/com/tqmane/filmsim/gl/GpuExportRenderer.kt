@@ -21,6 +21,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     private var programId: Int = 0
     private var inputTextureId: Int = 0
     private var lutTextureId: Int = 0
+    private var overlayLutTextureId: Int = 0
     private var grainTextureId: Int = 0
     private var fboId: Int = 0
     private var fboTextureId: Int = 0
@@ -37,11 +38,13 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     private var uZoomHandle: Int = -1
     private var uOffsetHandle: Int = -1
     private var uIntensityHandle: Int = -1
+    private var uOverlayIntensityHandle: Int = -1
     private var uGrainIntensityHandle: Int = -1
     private var uGrainScaleHandle: Int = -1
     private var uTimeHandle: Int = -1
     private var uInputTextureHandle: Int = -1
     private var uLutTextureHandle: Int = -1
+    private var uOverlayLutTextureHandle: Int = -1
     private var uGrainTextureHandle: Int = -1
 
     // Adjustment uniform handles
@@ -53,6 +56,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
 
     // Skip re-uploading the same LUT when exporting repeatedly
     private var lastUploadedLut: CubeLUT? = null
+    private var lastUploadedOverlayLut: CubeLUT? = null
     
     // Grain style path
     private var grainStylePath: String = "textures/Xiaomi/film_grain.png"
@@ -97,11 +101,13 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         uZoomHandle = GLES30.glGetUniformLocation(programId, "uZoom")
         uOffsetHandle = GLES30.glGetUniformLocation(programId, "uOffset")
         uIntensityHandle = GLES30.glGetUniformLocation(programId, "uIntensity")
+        uOverlayIntensityHandle = GLES30.glGetUniformLocation(programId, "uOverlayIntensity")
         uGrainIntensityHandle = GLES30.glGetUniformLocation(programId, "uGrainIntensity")
         uGrainScaleHandle = GLES30.glGetUniformLocation(programId, "uGrainScale")
         uTimeHandle = GLES30.glGetUniformLocation(programId, "uTime")
         uInputTextureHandle = GLES30.glGetUniformLocation(programId, "uInputTexture")
         uLutTextureHandle = GLES30.glGetUniformLocation(programId, "uLutTexture")
+        uOverlayLutTextureHandle = GLES30.glGetUniformLocation(programId, "uOverlayLutTexture")
         uGrainTextureHandle = GLES30.glGetUniformLocation(programId, "uGrainTexture")
         uExposureHandle = GLES30.glGetUniformLocation(programId, "uExposure")
         uContrastHandle = GLES30.glGetUniformLocation(programId, "uContrast")
@@ -111,15 +117,16 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         GLES30.glUseProgram(programId)
         if (uInputTextureHandle >= 0) GLES30.glUniform1i(uInputTextureHandle, 0)
         if (uLutTextureHandle >= 0) GLES30.glUniform1i(uLutTextureHandle, 1)
-        if (uGrainTextureHandle >= 0) GLES30.glUniform1i(uGrainTextureHandle, 2)
+        if (uOverlayLutTextureHandle >= 0) GLES30.glUniform1i(uOverlayLutTextureHandle, 2)
+        if (uGrainTextureHandle >= 0) GLES30.glUniform1i(uGrainTextureHandle, 3)
         
-        // Generate textures
-        val textures = IntArray(4)
-        GLES30.glGenTextures(4, textures, 0)
+        val textures = IntArray(5)
+        GLES30.glGenTextures(5, textures, 0)
         inputTextureId = textures[0]
         lutTextureId = textures[1]
-        grainTextureId = textures[2]
-        fboTextureId = textures[3]
+        overlayLutTextureId = textures[2]
+        grainTextureId = textures[3]
+        fboTextureId = textures[4]
         
         // Generate FBO
         val fbos = IntArray(1)
@@ -174,6 +181,8 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         inputBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
         grainScale: Float,
@@ -223,15 +232,71 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         } ?: run {
             lastUploadedLut = null
         }
+
+        overlayLut?.let {
+            if (it !== lastUploadedOverlayLut) {
+                GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, overlayLutTextureId)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
+                GLES30.glTexParameteri(GLES30.GL_TEXTURE_3D, GLES30.GL_TEXTURE_WRAP_R, GLES30.GL_CLAMP_TO_EDGE)
+                it.data.position(0)
+                GLES30.glTexImage3D(
+                    GLES30.GL_TEXTURE_3D,
+                    0,
+                    GLES30.GL_RGB16F,
+                    it.size,
+                    it.size,
+                    it.size,
+                    0,
+                    GLES30.GL_RGB,
+                    GLES30.GL_FLOAT,
+                    it.data
+                )
+                lastUploadedOverlayLut = it
+            }
+        } ?: run {
+            lastUploadedOverlayLut = null
+        }
         
         // Determine if tiling is needed
         val needsTiling = width > maxTextureSize || height > maxTextureSize
         
         return if (needsTiling) {
             android.util.Log.d("GpuExportRenderer", "Image exceeds GPU limit, using tiled rendering")
-            renderTiled(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale, maxTextureSize, exposure, contrast, highlights, shadows, colorTemp)
+            renderTiled(
+                inputBitmap,
+                lut,
+                intensity,
+                overlayLut,
+                overlayIntensity,
+                grainEnabled,
+                grainIntensity,
+                grainScale,
+                maxTextureSize,
+                exposure,
+                contrast,
+                highlights,
+                shadows,
+                colorTemp
+            )
         } else {
-            renderSingle(inputBitmap, lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
+            renderSingle(
+                inputBitmap,
+                lut,
+                intensity,
+                overlayLut,
+                overlayIntensity,
+                grainEnabled,
+                grainIntensity,
+                grainScale,
+                exposure,
+                contrast,
+                highlights,
+                shadows,
+                colorTemp
+            )
         }
     }
     
@@ -242,6 +307,8 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         inputBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
         grainScale: Float,
@@ -286,7 +353,20 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
         
         // Render with default tex coords (full image)
-        renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
+        renderQuad(
+            lut,
+            intensity,
+            overlayLut,
+            overlayIntensity,
+            grainEnabled,
+            grainIntensity,
+            grainScale,
+            exposure,
+            contrast,
+            highlights,
+            shadows,
+            colorTemp
+        )
         
         // Read pixels from FBO
         val buffer = ByteBuffer.allocateDirect(width * height * 4)
@@ -313,6 +393,8 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         inputBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
         grainScale: Float,
@@ -383,7 +465,20 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
                 GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
                 
                 // Render the tile (full texture coords since tile is already cropped)
-                renderQuad(lut, intensity, grainEnabled, grainIntensity, grainScale, exposure, contrast, highlights, shadows, colorTemp)
+                renderQuad(
+                    lut,
+                    intensity,
+                    overlayLut,
+                    overlayIntensity,
+                    grainEnabled,
+                    grainIntensity,
+                    grainScale,
+                    exposure,
+                    contrast,
+                    highlights,
+                    shadows,
+                    colorTemp
+                )
                 
                 // Read tile pixels
                 val tileBuffer = ByteBuffer.allocateDirect(tileW * tileH * 4)
@@ -421,6 +516,8 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     private fun renderQuad(
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         grainEnabled: Boolean,
         grainIntensity: Float,
         grainScale: Float,
@@ -447,6 +544,7 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         
         // Set uniforms
         GLES30.glUniform1f(uIntensityHandle, if (lut != null) intensity else 0f)
+        GLES30.glUniform1f(uOverlayIntensityHandle, if (overlayLut != null) overlayIntensity else 0f)
         GLES30.glUniform1f(uGrainIntensityHandle, if (grainEnabled) grainIntensity else 0f)
         GLES30.glUniform1f(uGrainScaleHandle, grainScale)
         GLES30.glUniform1f(uTimeHandle, 0f)
@@ -464,6 +562,9 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, lutTextureId)
         
         GLES30.glActiveTexture(GLES30.GL_TEXTURE2)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, overlayLutTextureId)
+
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE3)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, grainTextureId)
         
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
@@ -474,11 +575,12 @@ class GpuExportRenderer(context: Context) : BaseRenderer(context) {
     
     fun release() {
         if (isInitialized) {
-            GLES30.glDeleteTextures(4, intArrayOf(inputTextureId, lutTextureId, grainTextureId, fboTextureId), 0)
+            GLES30.glDeleteTextures(5, intArrayOf(inputTextureId, lutTextureId, overlayLutTextureId, grainTextureId, fboTextureId), 0)
             GLES30.glDeleteFramebuffers(1, intArrayOf(fboId), 0)
             GLES30.glDeleteProgram(programId)
             isInitialized = false
             lastUploadedLut = null
+            lastUploadedOverlayLut = null
         }
     }
 

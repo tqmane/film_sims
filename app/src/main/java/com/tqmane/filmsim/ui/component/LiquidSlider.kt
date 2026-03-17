@@ -51,7 +51,7 @@ fun LiquidIntensitySlider(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_opacity),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.label_intensity),
                 tint = LiquidColors.AccentPrimary,
                 modifier = Modifier.size(20.dp)
             )

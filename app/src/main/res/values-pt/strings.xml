@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Adicionar foto</string>
+    <string name="cd_open_settings">Abrir configurações</string>
+    <string name="cd_save_image">Salvar imagem</string>
+    <string name="cd_pick_image">Escolher uma imagem</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Imagem carregada: %1$s (Pré-visualização: %2$s)</string>
     <string name="image_load_failed">Falha ao carregar a imagem: %1$s</string>
+    <string name="security_environment_untrusted">A verificação de segurança falhou. A edição não está disponível neste dispositivo.</string>
     <string name="select_image_first">Selecione uma imagem primeiro</string>
+    <string name="loading_image">A carregar imagem…</string>
+    <string name="error_title">Algo deu errado</string>
+    <string name="error_retry">Tentar novamente</string>
+    <string name="error_pick_another">Escolher outra</string>
 
     <!-- Export -->
     <string name="exporting">Exportando…</string>
@@ -129,4 +140,70 @@
     <string name="preset_limit_reached">Número máximo de predefinições atingido (20)</string>
     <string name="preset_empty">Nenhuma predefinição salva ainda</string>
     <string name="preset_pro_locked">Recurso de licença: Faça login para usar predefinições</string>
+
+    <string name="workflow_title">Como funciona</string>
+    <string name="workflow_step_import">Importe uma foto para iniciar a pré-visualização</string>
+    <string name="workflow_step_choose">Escolha uma marca e toque num estilo para pré-visualizar</string>
+    <string name="workflow_step_refine_save">Ajuste o resultado e exporte quando estiver pronto</string>
+    <string name="section_brands">Marcas</string>
+    <string name="section_collections">Coleções</string>
+    <string name="section_looks">Estilos</string>
+    <string name="single_collection_label">Coleção selecionada</string>
+    <string name="look_count_label">%1$d estilos prontos</string>
+    <string name="look_preview_hint">%1$d estilos estão prontos para pré-visualização. Toque uma vez no cartão para pré-visualizar e outra vez para ajustar.</string>
+    <string name="look_ready_hint">Toque novamente no estilo selecionado para abrir os ajustes.</string>
+    <string name="more_brands_title">Há mais estilos disponíveis</string>
+    <string name="more_tools_title">Há mais ferramentas de acabamento disponíveis</string>
+    <string name="premium_brands_hint">Inicie sessão para desbloquear mais marcas e todo o fluxo de acabamento.</string>
+    <string name="pro_adjust_locked">Recurso de licença: inicie sessão para usar ajustes de tonalidade</string>
+    <string name="pro_adjust_tools_hint">Inicie sessão para desbloquear ajustes de tonalidade, marcas de água e predefinições num só lugar.</string>
+    <string name="adjust_hint_intensity">Comece equilibrando a intensidade do LUT para acertar o clima geral.</string>
+    <string name="adjust_hint_basic">Ajuste exposição e contraste antes de adicionar grão ou marca de água.</string>
+    <string name="adjust_hint_grain">Use o grão depois que o LUT e o tom estiverem definidos para uma textura mais natural.</string>
+    <string name="adjust_hint_watermark">Finalize a imagem com uma marca de água da marca quando a edição estiver pronta.</string>
+    <string name="adjust_hint_presets">Guarde a receita atual para reutilizá-la na próxima foto.</string>
+    <string name="compare_preview">Pré-visualização de comparação</string>
+    <string name="compare_preview_hint">Ative a vista antes e depois para comparar a edição atual com a imagem original.</string>
+    <string name="compare_split">Divisão</string>
+    <string name="compare_before">Antes</string>
+    <string name="compare_after">Depois</string>
+    <string name="compare_vertical">Vertical</string>
+    <string name="compare_horizontal">Horizontal</string>
+    <string name="label_hue">Matiz</string>
+    <string name="label_saturation">Saturação</string>
+    <string name="label_luminance">Luminância</string>
+    <string name="overlay_filter">Filtro sobreposto</string>
+    <string name="overlay_filter_none">Nenhuma sobreposição selecionada</string>
+    <string name="overlay_filter_hint_empty">Adicione um segundo look para misturar estilos sem substituir o LUT base.</string>
+    <string name="overlay_filter_hint_active">Misture um segundo look sobre o LUT base para dar mais personalidade às cores.</string>
+    <string name="overlay_pick">Escolher sobreposição</string>
+    <string name="overlay_change">Trocar sobreposição</string>
+    <string name="overlay_remove">Remover sobreposição</string>
+    <string name="overlay_blend">Mistura da sobreposição</string>
+    <string name="overlay_selection_title">Escolher look sobreposto</string>
+    <string name="overlay_selection_hint">Escolha um segundo LUT para sobrepor ao look atual. Use a mistura para controlar o efeito.</string>
+    <string name="overlay_done">Concluir</string>
+    <string name="panel_hints_setting">Mostrar dicas do painel</string>
+    <string name="panel_hints_setting_description">Mostra ou oculta os cartões de ajuda nos painéis de LUT e ajustes.</string>
+    <string name="gesture_hint_title">Gestos de pre-visualizacao</string>
+    <string name="gesture_hint_body">Toque na imagem para uma vista sem distracoes. Mantenha pressionado para comparar temporariamente a edicao com a foto base.</string>
+    <string name="gesture_hint_dismiss">Entendi</string>
+    <string name="save_success_dismiss_hint">Toque para fechar</string>
+    <string name="lut_browser_title">Explore looks com mais clareza</string>
+    <string name="lut_browser_hint">Escolha uma marca, refine a colecao e toque num cartao de look para o ver na sua foto.</string>
+    <string name="watermark_flow_title">Monte a marca d\'agua passo a passo</string>
+    <string name="watermark_flow_pick_brand">Comece por uma marca para desbloquear os estilos de marca d\'agua correspondentes.</string>
+    <string name="watermark_flow_customize">Escolha um estilo e preencha apenas os detalhes usados por essa marca d\'agua.</string>
+    <string name="watermark_style_waiting_title">Os estilos aparecem apos escolher uma marca</string>
+    <string name="watermark_style_waiting_body">Selecione primeiro uma marca para que este painel mostre os estilos de marca d\'agua correspondentes.</string>
+    <string name="watermark_details_title">Detalhes</string>
+    <string name="intensity_strength_title">Defina primeiro a intensidade geral</string>
+    <string name="intensity_strength_hint">Aumente ou reduza o look principal antes de adicionar sobreposicoes, grao ou ferramentas de comparacao.</string>
+    <string name="overlay_active_title">Sobreposicao ativa: %1$s</string>
+    <string name="overlay_active_hint">Ajuste a mistura para manter o look base reconhecivel e ainda assim acrescentar mais personalidade as cores.</string>
+    <string name="compare_active_title">O modo de comparacao esta ativo</string>
+    <string name="compare_active_hint">Se a divisao parecer estranha, mude a direcao e arraste o separador para inspecionar partes importantes da imagem.</string>
+    <string name="presets_hint_title">Guarde looks reutilizaveis</string>
+    <string name="presets_hint_body_empty">Os predefinidos permitem reutilizar mais tarde a receita completa, incluindo LUT, sobreposicao, tom e grao.</string>
+    <string name="presets_hint_body_ready">Toque num predefinido para o carregar de imediato, ou guarde a receita atual quando encontrar um look que valha a pena manter.</string>
 </resources>

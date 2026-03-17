@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,6 +38,7 @@ fun GlassBottomSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val topRadius = if (squareTop) 0.dp else 22.dp
+
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(topStart = topRadius, topEnd = topRadius))
@@ -48,8 +51,19 @@ fun GlassBottomSheet(
                 )
             )
             .drawBehind {
+                drawRoundRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            LiquidColors.AccentPrimary.copy(alpha = 0.14f),
+                            Color.Transparent
+                        )
+                    ),
+                    style = Stroke(width = 1.5.dp.toPx()),
+                    cornerRadius = CornerRadius(topRadius.toPx(), topRadius.toPx())
+                )
+
                 drawLine(
-                    color = Color(0x28FFFFFF),
+                    color = Color(0x38FFFFFF),
                     start = Offset(topRadius.toPx(), 0f),
                     end = Offset(size.width - topRadius.toPx(), 0f),
                     strokeWidth = 1f

@@ -2,6 +2,7 @@ package com.tqmane.filmsim.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tqmane.filmsim.BuildConfig
 import com.tqmane.filmsim.core.di.LoginFirestore
 import com.tqmane.filmsim.core.security.SecurityChecker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,7 +66,6 @@ class ProUserRepository @Inject constructor(
      * ドキュメントが見つかれば Pro ユーザーと判定。
      */
     suspend fun checkProStatus(email: String?) {
-        Log.d(TAG, "checkProStatus called: email='$email'")
         if (email.isNullOrBlank()) {
             _isProUser.value = false
             _licenseMismatchVersion.value = null
@@ -73,7 +73,6 @@ class ProUserRepository @Inject constructor(
             return
         }
         val normalizedEmail = email.trim().lowercase()
-        Log.d(TAG, "Querying pro_users and android where email == '$normalizedEmail'")
 
         var hadNetworkError = false
         try {
@@ -84,7 +83,7 @@ class ProUserRepository @Inject constructor(
                     .await()
                     .documents
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to query pro_users: ${e.message}")
+                if (BuildConfig.DEBUG) Log.d(TAG, "Failed to query pro_users: ${e.message}")
                 hadNetworkError = true
                 emptyList()
             }
@@ -96,7 +95,7 @@ class ProUserRepository @Inject constructor(
                     .await()
                     .documents
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to query android: ${e.message}")
+                if (BuildConfig.DEBUG) Log.d(TAG, "Failed to query android: ${e.message}")
                 hadNetworkError = true
                 emptyList()
             }
@@ -129,11 +128,11 @@ class ProUserRepository @Inject constructor(
                 }
             }
 
-            Log.d(TAG, "Query result: found=$found, mismatchVersion=$mismatchVersion, docCount=${allDocs.size}")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Query result: found=$found, mismatchVersion=$mismatchVersion, docCount=${allDocs.size}")
             
             // SECURITY CHECK: Verify app environment integrity before enabling Pro features
             if (found && !securityChecker.isEnvironmentTrusted(context)) {
-                Log.e(TAG, "Environment trust check failed! Denying Pro access.")
+                if (BuildConfig.DEBUG) Log.d(TAG, "Environment trust check failed! Denying Pro access.")
                 found = false
             }
             
@@ -144,13 +143,13 @@ class ProUserRepository @Inject constructor(
             _proCheckNetworkError.value = hadNetworkError && allDocs.isEmpty()
             
         } catch (e: Exception) {
-            Log.e(TAG, "Firestore query FAILED: ${e.javaClass.simpleName}: ${e.message}")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Firestore query FAILED: ${e.javaClass.simpleName}: ${e.message}")
             _isProUser.value = false
             _licenseMismatchVersion.value = null
             _isPermanentLicense.value = false
             _proCheckNetworkError.value = true
         } finally {
-            Log.d(TAG, "Final isProUser=${_isProUser.value}, mismatchVersion=${_licenseMismatchVersion.value}")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Final isProUser=${_isProUser.value}, mismatchVersion=${_licenseMismatchVersion.value}")
         }
     }
 

@@ -57,6 +57,9 @@ class AssetProviderImpl @Inject constructor(
 
     private fun decryptStream(inputStream: InputStream): InputStream {
         if (BuildConfig.ASSET_KEY == "placeholder_key" || masterKey.isEmpty()) {
+            if (!BuildConfig.DEBUG) {
+                throw SecurityException("Asset decryption key not configured")
+            }
             return inputStream
         }
 
@@ -68,7 +71,12 @@ class AssetProviderImpl @Inject constructor(
             bytesRead += read
         }
 
-        if (bytesRead < 16) return inputStream
+        if (bytesRead < 16) {
+            if (!BuildConfig.DEBUG) {
+                throw SecurityException("Invalid encrypted asset format")
+            }
+            return inputStream
+        }
 
         val fileKey = deriveKey(masterKey, iv)
         val cipher = Cipher.getInstance("AES/CTR/NoPadding")

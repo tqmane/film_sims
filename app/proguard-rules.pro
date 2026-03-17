@@ -33,10 +33,9 @@
 }
 
 # --- OkHttp ---
+# OkHttp ships its own ProGuard rules via META-INF; only suppress warnings
 -dontwarn okhttp3.**
 -dontwarn okio.**
--keep class okhttp3.** { *; }
--keep interface okhttp3.** { *; }
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
 # OkHttp platform adapters
@@ -45,13 +44,11 @@
 -dontwarn org.openjsse.**
 
 # --- OpenGL ES ---
--keep class android.opengl.** { *; }
--keep class javax.microedition.khronos.** { *; }
+# Framework classes are kept automatically; keep only our renderers
 -keep class com.tqmane.filmsim.gl.** { *; }
 
 # --- AndroidX ---
--keep class androidx.** { *; }
--keep interface androidx.** { *; }
+# AndroidX ships its own consumer rules; only suppress warnings
 -dontwarn androidx.**
 
 # --- Reflection-based code ---
@@ -62,7 +59,7 @@
 -keep class androidx.exifinterface.media.ExifInterface { *; }
 
 # --- Material Components ---
--keep class com.google.android.material.** { *; }
+# Ships its own consumer rules
 -dontwarn com.google.android.material.**
 
 # --- JSON parsing (org.json) ---
@@ -76,17 +73,16 @@
 # --- Security / Anti-Crack ---
 # Flatten package hierarchy to make reversing harder
 -repackageclasses ""
+-keep,allowobfuscation class com.tqmane.filmsim.core.security.** { *; }
 
-# --- Hilt (if/when added) ---
+# --- Hilt ---
+# Hilt/Dagger ships consumer rules; keep only what's needed for reflection
 -dontwarn dagger.**
--keep class dagger.** { *; }
--keep class javax.inject.** { *; }
 -keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
 
 # --- Firebase / Google Auth ---
--keep class com.google.firebase.** { *; }
+# Firebase and Google Play services ship consumer rules; keep only required classes
 -dontwarn com.google.firebase.**
--keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 -keep class com.google.android.libraries.identity.googleid.** { *; }
 -dontwarn com.google.android.libraries.identity.googleid.**
@@ -129,4 +125,6 @@
     public static int v(...);
     public static int d(...);
     public static int i(...);
+    public static int w(...);
+    public static int e(...);
 }

@@ -24,11 +24,19 @@ interface WatermarkUseCase {
         previewBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         config: WatermarkProcessor.WatermarkConfig
     ): Bitmap
 
     suspend fun applyWatermark(bitmap: Bitmap, config: WatermarkProcessor.WatermarkConfig): Bitmap
-    suspend fun applyCpuLut(source: Bitmap, lut: CubeLUT, intensity: Float): Bitmap
+    suspend fun applyCpuLut(
+        source: Bitmap,
+        lut: CubeLUT?,
+        intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float
+    ): Bitmap
     suspend fun saveBitmapWithExif(
         bitmap: Bitmap,
         originalUri: Uri?,
@@ -50,14 +58,16 @@ class WatermarkUseCaseImpl @Inject constructor(
         previewBitmap: Bitmap,
         lut: CubeLUT?,
         intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float,
         config: WatermarkProcessor.WatermarkConfig
     ): Bitmap = withContext(defaultDispatcher) {
-        val base = if (lut != null && intensity > 0f) {
-            LutBitmapProcessor.applyLutToBitmap(previewBitmap, lut, intensity)
-        } else {
-            previewBitmap
+        val filtered = applyPreviewLutLayers(previewBitmap, lut, intensity, overlayLut, overlayIntensity)
+        val watermarked = watermarkProcessor.applyWatermark(filtered, config)
+        if (watermarked !== filtered && filtered !== previewBitmap) {
+            filtered.recycle()
         }
-        watermarkProcessor.applyWatermark(base, config)
+        watermarked
     }
 
     override suspend fun applyWatermark(
@@ -69,10 +79,12 @@ class WatermarkUseCaseImpl @Inject constructor(
 
     override suspend fun applyCpuLut(
         source: Bitmap,
-        lut: CubeLUT,
-        intensity: Float
+        lut: CubeLUT?,
+        intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float
     ): Bitmap = withContext(defaultDispatcher) {
-        HighResLutProcessor.applyLut(source, lut, intensity)
+        applyHighResLutLayers(source, lut, intensity, overlayLut, overlayIntensity)
     }
 
     override suspend fun saveBitmapWithExif(
@@ -153,5 +165,53 @@ class WatermarkUseCaseImpl @Inject constructor(
             ExifInterface.TAG_ARTIST, ExifInterface.TAG_COPYRIGHT,
             ExifInterface.TAG_SOFTWARE, ExifInterface.TAG_IMAGE_DESCRIPTION
         )
+    }
+
+    private suspend fun applyPreviewLutLayers(
+        source: Bitmap,
+        lut: CubeLUT?,
+        intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float
+    ): Bitmap {
+        var current = source
+
+        if (lut != null && intensity > 0f) {
+            current = LutBitmapProcessor.applyLutToBitmap(current, lut, intensity)
+        }
+
+        if (overlayLut != null && overlayIntensity > 0f) {
+            val overlayBase = current
+            current = LutBitmapProcessor.applyLutToBitmap(overlayBase, overlayLut, overlayIntensity)
+            if (overlayBase !== source) {
+                overlayBase.recycle()
+            }
+        }
+
+        return current
+    }
+
+    private suspend fun applyHighResLutLayers(
+        source: Bitmap,
+        lut: CubeLUT?,
+        intensity: Float,
+        overlayLut: CubeLUT?,
+        overlayIntensity: Float
+    ): Bitmap {
+        var current = source
+
+        if (lut != null && intensity > 0f) {
+            current = HighResLutProcessor.applyLut(current, lut, intensity)
+        }
+
+        if (overlayLut != null && overlayIntensity > 0f) {
+            val overlayBase = current
+            current = HighResLutProcessor.applyLut(overlayBase, overlayLut, overlayIntensity)
+            if (overlayBase !== source) {
+                overlayBase.recycle()
+            }
+        }
+
+        return current
     }
 }

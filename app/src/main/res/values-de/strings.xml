@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Foto hinzufügen</string>
+    <string name="cd_open_settings">Einstellungen öffnen</string>
+    <string name="cd_save_image">Bild speichern</string>
+    <string name="cd_pick_image">Bild auswählen</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Bild geladen: %1$s (Vorschau: %2$s)</string>
     <string name="image_load_failed">Bild konnte nicht geladen werden: %1$s</string>
+    <string name="security_environment_untrusted">Sicherheitsprüfung fehlgeschlagen. Bearbeitung ist auf diesem Gerät nicht verfügbar.</string>
     <string name="select_image_first">Bitte wählen Sie zuerst ein Bild aus</string>
+    <string name="loading_image">Bild wird geladen…</string>
+    <string name="error_title">Etwas ist schiefgelaufen</string>
+    <string name="error_retry">Erneut versuchen</string>
+    <string name="error_pick_another">Anderes Bild wählen</string>
 
     <!-- Export -->
     <string name="exporting">Exportieren…</string>
@@ -129,4 +140,70 @@
     <string name="preset_limit_reached">Maximale Anzahl an Vorgaben erreicht (20)</string>
     <string name="preset_empty">Noch keine Vorgaben gespeichert</string>
     <string name="preset_pro_locked">Lizenzfunktion: Melden Sie sich an, um Vorgaben zu nutzen</string>
+
+    <string name="workflow_title">So funktioniert es</string>
+    <string name="workflow_step_import">Importiere ein Foto, um die Vorschau zu starten</string>
+    <string name="workflow_step_choose">Wähle eine Marke und tippe auf einen Look für die Vorschau</string>
+    <string name="workflow_step_refine_save">Feine das Ergebnis ab und exportiere es, wenn alles passt</string>
+    <string name="section_brands">Marken</string>
+    <string name="section_collections">Kollektionen</string>
+    <string name="section_looks">Looks</string>
+    <string name="single_collection_label">Kuratierte Kollektion</string>
+    <string name="look_count_label">%1$d Looks bereit</string>
+    <string name="look_preview_hint">%1$d Looks sind zur Vorschau bereit. Einmal tippen für die Vorschau, nochmal tippen zum Anpassen.</string>
+    <string name="look_ready_hint">Tippe erneut auf den ausgewählten Look, um die Anpassungen zu öffnen.</string>
+    <string name="more_brands_title">Weitere Looks sind verfügbar</string>
+    <string name="more_tools_title">Weitere Finish-Werkzeuge sind verfügbar</string>
+    <string name="premium_brands_hint">Melde dich an, um mehr Marken und den vollständigen Finish-Workflow freizuschalten.</string>
+    <string name="pro_adjust_locked">Lizenzfunktion: Melde dich an, um Tonanpassungen zu nutzen</string>
+    <string name="pro_adjust_tools_hint">Melde dich an, um Tonanpassungen, Wasserzeichen und Presets an einem Ort freizuschalten.</string>
+    <string name="adjust_hint_intensity">Beginne mit der LUT-Stärke, damit die Gesamtstimmung passt.</string>
+    <string name="adjust_hint_basic">Passe Belichtung und Kontrast an, bevor du Körnung oder Wasserzeichen hinzufügst.</string>
+    <string name="adjust_hint_grain">Nutze Körnung erst, wenn LUT und Tonalität stehen, um natürliche Textur zu erhalten.</string>
+    <string name="adjust_hint_watermark">Schließe das Bild mit einem Marken-Wasserzeichen ab, sobald der Look fertig ist.</string>
+    <string name="adjust_hint_presets">Speichere dein aktuelles Rezept, damit du es beim nächsten Foto wiederverwenden kannst.</string>
+    <string name="compare_preview">Vergleichsvorschau</string>
+    <string name="compare_preview_hint">Aktiviere Vorher Nachher, um die aktuelle Bearbeitung mit dem Originalbild zu vergleichen.</string>
+    <string name="compare_split">Teilung</string>
+    <string name="compare_before">Vorher</string>
+    <string name="compare_after">Nachher</string>
+    <string name="compare_vertical">Vertikal</string>
+    <string name="compare_horizontal">Horizontal</string>
+    <string name="label_hue">Farbton</string>
+    <string name="label_saturation">Sättigung</string>
+    <string name="label_luminance">Luminanz</string>
+    <string name="overlay_filter">Overlay-Filter</string>
+    <string name="overlay_filter_none">Kein Overlay ausgewählt</string>
+    <string name="overlay_filter_hint_empty">Füge einen zweiten Look hinzu, um Stile zu mischen, ohne dein Basis-LUT zu ersetzen.</string>
+    <string name="overlay_filter_hint_active">Mische einen zweiten Look über dein Basis-LUT, um dem Bild mehr Farbcharakter zu geben.</string>
+    <string name="overlay_pick">Overlay wählen</string>
+    <string name="overlay_change">Overlay ändern</string>
+    <string name="overlay_remove">Overlay entfernen</string>
+    <string name="overlay_blend">Overlay-Mix</string>
+    <string name="overlay_selection_title">Overlay-Look wählen</string>
+    <string name="overlay_selection_hint">Wähle ein zweites LUT, das über deinem aktuellen Look liegt. Mit dem Mix-Regler steuerst du die Stärke.</string>
+    <string name="overlay_done">Fertig</string>
+    <string name="panel_hints_setting">Panel-Hinweise anzeigen</string>
+    <string name="panel_hints_setting_description">Blendet Hilfekarten im LUT- und Anpassungsbereich ein oder aus.</string>
+    <string name="gesture_hint_title">Vorschau-Gesten</string>
+    <string name="gesture_hint_body">Tippe auf das Bild fuer eine stoerungsfreie Ansicht. Gedrueckt halten vergleicht deine Bearbeitung kurz mit dem Basisfoto.</string>
+    <string name="gesture_hint_dismiss">Verstanden</string>
+    <string name="save_success_dismiss_hint">Zum Schliessen tippen</string>
+    <string name="lut_browser_title">Looks gezielter durchsuchen</string>
+    <string name="lut_browser_hint">Waehle zuerst eine Marke, grenze dann die Sammlung ein und tippe auf eine Look-Karte fuer die Vorschau.</string>
+    <string name="watermark_flow_title">Wasserzeichen Schritt fuer Schritt</string>
+    <string name="watermark_flow_pick_brand">Starte mit einer Marke, um passende Wasserzeichenstile zu sehen.</string>
+    <string name="watermark_flow_customize">Waehle einen Stil und fuelle nur die Felder aus, die dieses Wasserzeichen verwendet.</string>
+    <string name="watermark_style_waiting_title">Stile erscheinen nach der Markenauswahl</string>
+    <string name="watermark_style_waiting_body">Waehle zuerst eine Marke, damit dieses Panel passende Wasserzeichenstile anzeigen kann.</string>
+    <string name="watermark_details_title">Details</string>
+    <string name="intensity_strength_title">Zuerst die Gesamtstaerke festlegen</string>
+    <string name="intensity_strength_hint">Passe erst die Hauptwirkung an, bevor du Overlays, Korn oder Vergleichswerkzeuge darueberlegst.</string>
+    <string name="overlay_active_title">Overlay aktiv: %1$s</string>
+    <string name="overlay_active_hint">Regle die Mischung so, dass der Grundlook erkennbar bleibt und trotzdem mehr Farbcharakter dazukommt.</string>
+    <string name="compare_active_title">Vergleichsmodus ist aktiv</string>
+    <string name="compare_active_hint">Wenn sich die Teilung unpraktisch anfuehlt, wechsle die Richtung und ziehe den Trenner zu wichtigen Bildbereichen.</string>
+    <string name="presets_hint_title">Wiederverwendbare Looks speichern</string>
+    <string name="presets_hint_body_empty">Mit Presets kannst du spaeter das komplette Rezept wiederverwenden, inklusive LUT, Overlay, Tonung und Korn.</string>
+    <string name="presets_hint_body_ready">Tippe auf ein Preset, um es sofort zu laden, oder speichere den aktuellen Look, wenn er sich lohnt aufzubewahren.</string>
 </resources>

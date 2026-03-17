@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
 
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">Ajouter une photo</string>
+    <string name="cd_open_settings">Ouvrir les paramètres</string>
+    <string name="cd_save_image">Enregistrer l\'image</string>
+    <string name="cd_pick_image">Choisir une image</string>
+
     <!-- Image loading -->
     <string name="image_loaded">Image chargée : %1$s (Aperçu : %2$s)</string>
     <string name="image_load_failed">Échec du chargement : %1$s</string>
+    <string name="security_environment_untrusted">La vérification de sécurité a échoué. La modification n\'est pas disponible sur cet appareil.</string>
     <string name="select_image_first">Veuillez d\'abord sélectionner une image</string>
+    <string name="loading_image">Chargement de l\'image…</string>
+    <string name="error_title">Une erreur s\'est produite</string>
+    <string name="error_retry">Réessayer</string>
+    <string name="error_pick_another">Choisir une autre</string>
 
     <!-- Export -->
     <string name="exporting">Exportation…</string>
@@ -129,4 +140,70 @@
     <string name="preset_limit_reached">Nombre maximal de préréglages atteint (20)</string>
     <string name="preset_empty">Aucun préréglage enregistré</string>
     <string name="preset_pro_locked">Fonction licence : Connectez-vous pour utiliser les préréglages</string>
+
+    <string name="workflow_title">Fonctionnement</string>
+    <string name="workflow_step_import">Importez une photo pour démarrer l aperçu</string>
+    <string name="workflow_step_choose">Choisissez une marque et touchez un rendu pour l aperçu</string>
+    <string name="workflow_step_refine_save">Affinez le résultat puis exportez quand tout est prêt</string>
+    <string name="section_brands">Marques</string>
+    <string name="section_collections">Collections</string>
+    <string name="section_looks">Rendus</string>
+    <string name="single_collection_label">Collection sélectionnée</string>
+    <string name="look_count_label">%1$d rendus prêts</string>
+    <string name="look_preview_hint">%1$d rendus sont prêts à être prévisualisés. Touchez une carte une fois pour l aperçu, puis une seconde fois pour ajuster.</string>
+    <string name="look_ready_hint">Touchez à nouveau le rendu sélectionné pour ouvrir les réglages.</string>
+    <string name="more_brands_title">D autres rendus sont disponibles</string>
+    <string name="more_tools_title">D autres outils de finition sont disponibles</string>
+    <string name="premium_brands_hint">Connectez-vous pour débloquer plus de marques et tout le flux de finition.</string>
+    <string name="pro_adjust_locked">Fonction sous licence : connectez-vous pour utiliser les réglages de tonalité</string>
+    <string name="pro_adjust_tools_hint">Connectez-vous pour débloquer les réglages de tonalité, les filigranes et les préréglages au même endroit.</string>
+    <string name="adjust_hint_intensity">Commencez par équilibrer l intensité du LUT pour définir l ambiance générale.</string>
+    <string name="adjust_hint_basic">Réglez l exposition et le contraste avant d ajouter du grain ou un filigrane.</string>
+    <string name="adjust_hint_grain">Ajoutez du grain une fois le LUT et la tonalité en place pour une texture plus naturelle.</string>
+    <string name="adjust_hint_watermark">Terminez l image avec un filigrane de marque lorsque l édition est prête.</string>
+    <string name="adjust_hint_presets">Enregistrez votre recette actuelle pour la réutiliser sur la prochaine photo.</string>
+    <string name="compare_preview">Aperçu comparatif</string>
+    <string name="compare_preview_hint">Activez l aperçu avant après pour comparer l édition actuelle à l image d origine.</string>
+    <string name="compare_split">Séparation</string>
+    <string name="compare_before">Avant</string>
+    <string name="compare_after">Après</string>
+    <string name="compare_vertical">Vertical</string>
+    <string name="compare_horizontal">Horizontal</string>
+    <string name="label_hue">Teinte</string>
+    <string name="label_saturation">Saturation</string>
+    <string name="label_luminance">Luminance</string>
+    <string name="overlay_filter">Filtre superposé</string>
+    <string name="overlay_filter_none">Aucune superposition sélectionnée</string>
+    <string name="overlay_filter_hint_empty">Ajoutez un second rendu pour mélanger les styles sans remplacer votre LUT de base.</string>
+    <string name="overlay_filter_hint_active">Mélangez un second rendu au-dessus du LUT de base pour ajouter plus de caractère colorimétrique.</string>
+    <string name="overlay_pick">Choisir la superposition</string>
+    <string name="overlay_change">Changer la superposition</string>
+    <string name="overlay_remove">Retirer la superposition</string>
+    <string name="overlay_blend">Mélange de superposition</string>
+    <string name="overlay_selection_title">Choisir un rendu superposé</string>
+    <string name="overlay_selection_hint">Choisissez un second LUT à superposer au rendu actuel. Utilisez le mélange pour doser la force.</string>
+    <string name="overlay_done">Terminé</string>
+    <string name="panel_hints_setting">Afficher les aides du panneau</string>
+    <string name="panel_hints_setting_description">Affiche ou masque les cartes d aide dans les panneaux LUT et réglages.</string>
+    <string name="gesture_hint_title">Gestes d\'aperçu</string>
+    <string name="gesture_hint_body">Touchez l\'image pour une vue sans distraction. Maintenez pour comparer temporairement votre retouche avec la photo de base.</string>
+    <string name="gesture_hint_dismiss">Compris</string>
+    <string name="save_success_dismiss_hint">Touchez pour fermer</string>
+    <string name="lut_browser_title">Parcourez les looks plus facilement</string>
+    <string name="lut_browser_hint">Choisissez une marque, affinez la collection, puis touchez une carte de look pour l\'aperçu sur votre photo.</string>
+    <string name="watermark_flow_title">Construire le filigrane etape par etape</string>
+    <string name="watermark_flow_pick_brand">Commencez par une marque pour afficher les styles de filigrane compatibles.</string>
+    <string name="watermark_flow_customize">Choisissez un style, puis renseignez uniquement les informations utilisees par ce filigrane.</string>
+    <string name="watermark_style_waiting_title">Les styles apparaissent apres le choix d\'une marque</string>
+    <string name="watermark_style_waiting_body">Selectionnez d\'abord une marque pour que ce panneau affiche les styles de filigrane correspondants.</string>
+    <string name="watermark_details_title">Details</string>
+    <string name="intensity_strength_title">Reglez d\'abord l\'intensite globale</string>
+    <string name="intensity_strength_hint">Ajustez le look principal avant d\'ajouter des superpositions, du grain ou les outils de comparaison.</string>
+    <string name="overlay_active_title">Superposition active : %1$s</string>
+    <string name="overlay_active_hint">Ajustez le melange pour garder le look de base reconnaissable tout en ajoutant plus de caractere aux couleurs.</string>
+    <string name="compare_active_title">Le mode comparaison est actif</string>
+    <string name="compare_active_hint">Si la separation semble peu pratique, changez de direction puis faites glisser le separateur pour verifier les zones importantes.</string>
+    <string name="presets_hint_title">Enregistrer des looks reutilisables</string>
+    <string name="presets_hint_body_empty">Les presets vous permettent de reutiliser plus tard la recette complete, avec LUT, superposition, tonalite et grain.</string>
+    <string name="presets_hint_body_ready">Touchez un preset pour le charger instantanement, ou enregistrez la recette actuelle quand vous trouvez un look a conserver.</string>
 </resources>

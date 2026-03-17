@@ -1,11 +1,17 @@
 package com.tqmane.filmsim.ui.editor.panel
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,17 +26,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.EditorViewModel
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.LiquidChip
+import com.tqmane.filmsim.ui.component.LiquidNoticeCard
+import com.tqmane.filmsim.ui.component.LiquidSectionHeader
 import com.tqmane.filmsim.ui.component.LiquidTextField
 import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.util.WatermarkProcessor
@@ -79,16 +88,29 @@ internal fun WatermarkTab(
         onRefreshWatermark()
     }
 
-    Column {
-        Text(
-            stringResource(R.string.header_watermark).uppercase(),
-            color = LiquidColors.AccentPrimary,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = FontFamily.SansSerif,
-            letterSpacing = 0.18.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
+    val scrollState = rememberScrollState()
+    Box {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .imePadding()
+            .navigationBarsPadding()
+            .verticalScroll(scrollState)
+    ) {
+        LiquidNoticeCard(
+            title = stringResource(R.string.watermark_flow_title),
+            message = stringResource(
+                if (selectedStyle == WatermarkStyle.NONE) {
+                    R.string.watermark_flow_pick_brand
+                } else {
+                    R.string.watermark_flow_customize
+                }
+            ),
+            label = stringResource(R.string.header_watermark),
+            modifier = Modifier.padding(bottom = 12.dp)
         )
+
+        LiquidSectionHeader(text = stringResource(R.string.label_watermark_brand))
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -96,7 +118,7 @@ internal fun WatermarkTab(
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_watermark),
-                contentDescription = null,
+                contentDescription = stringResource(R.string.label_watermark_brand),
                 tint = LiquidColors.AccentSecondary,
                 modifier = Modifier.size(20.dp)
             )
@@ -129,17 +151,14 @@ internal fun WatermarkTab(
         }
 
         if (availableStyles.isNotEmpty()) {
+            LiquidSectionHeader(
+                text = stringResource(R.string.label_watermark_style),
+                modifier = Modifier.padding(top = 10.dp)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    stringResource(R.string.label_watermark_style),
-                    color = LiquidColors.TextMediumEmphasis,
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.SansSerif,
-                    modifier = Modifier.padding(end = 12.dp)
-                )
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -157,13 +176,39 @@ internal fun WatermarkTab(
                     }
                 }
             }
+        } else {
+            LiquidNoticeCard(
+                title = stringResource(R.string.watermark_style_waiting_title),
+                message = stringResource(R.string.watermark_style_waiting_body),
+                modifier = Modifier.padding(top = 10.dp)
+            )
         }
 
-        if (showDevice) LiquidTextField(stringResource(R.string.label_watermark_device), deviceName, onValueChange = { deviceName = it })
-        if (showLens) LiquidTextField(stringResource(R.string.label_watermark_lens), lensInfo, onValueChange = { lensInfo = it })
-        if (showTime) {
-            LiquidTextField(stringResource(R.string.label_watermark_time), timeText, onValueChange = { timeText = it })
-            LiquidTextField(stringResource(R.string.label_watermark_location), locationText, onValueChange = { locationText = it })
+        if (showFields) {
+            LiquidSectionHeader(
+                text = stringResource(R.string.watermark_details_title),
+                modifier = Modifier.padding(top = 12.dp)
+            )
+            if (showDevice) LiquidTextField(stringResource(R.string.label_watermark_device), deviceName, onValueChange = { deviceName = it })
+            if (showLens) LiquidTextField(stringResource(R.string.label_watermark_lens), lensInfo, onValueChange = { lensInfo = it })
+            if (showTime) {
+                LiquidTextField(stringResource(R.string.label_watermark_time), timeText, onValueChange = { timeText = it })
+                LiquidTextField(stringResource(R.string.label_watermark_location), locationText, onValueChange = { locationText = it })
+            }
         }
     }
+    if (scrollState.canScrollForward) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, LiquidColors.SurfaceDark.copy(alpha = 0.92f))
+                    )
+                )
+        )
+    }
+    } // Box
 }

@@ -2,10 +2,21 @@
 <resources>
     <string name="app_name">FilmSims</string>
     
+    <!-- Content descriptions (accessibility) -->
+    <string name="cd_add_photo">사진 추가</string>
+    <string name="cd_open_settings">설정 열기</string>
+    <string name="cd_save_image">이미지 저장</string>
+    <string name="cd_pick_image">이미지 선택</string>
+
     <!-- Image loading -->
     <string name="image_loaded">이미지 로드됨: %1$s (미리보기: %2$s)</string>
     <string name="image_load_failed">이미지 로드 실패: %1$s</string>
+    <string name="security_environment_untrusted">보안 검사에 실패하여 이 기기에서는 편집을 사용할 수 없습니다.</string>
     <string name="select_image_first">먼저 이미지를 선택해주세요</string>
+    <string name="loading_image">이미지 로딩 중…</string>
+    <string name="error_title">오류가 발생했습니다</string>
+    <string name="error_retry">다시 시도</string>
+    <string name="error_pick_another">다른 이미지 선택</string>
     
     <!-- Export -->
     <string name="exporting">내보내는 중…</string>
@@ -137,6 +148,7 @@
     <string name="btn_open_gallery">갤러리 열기</string>
     <string name="header_grain">효과</string>
     <string name="label_film_grain">필름 그레인</string>
+    <string name="label_grain_style">그레인 스타일</string>
     <string name="header_camera">카메라</string>
     <string name="header_style">스타일</string>
     <string name="label_intensity">강도</string>
@@ -156,6 +168,8 @@
     <string name="grain">효과</string>
     <string name="watermark">워터마크</string>
     <string name="watermark_select_brand">브랜드 선택하여 워터마크 스타일 보기</string>
+    <string name="label_watermark_style">스타일</string>
+    <string name="label_watermark_brand">브랜드</string>
     <string name="device_name">기기 이름</string>
     <string name="time">시간</string>
     <string name="location">위치</string>
@@ -188,4 +202,70 @@
     <string name="preset_limit_reached">최대 프리셋 개수에 도달했습니다 (20)</string>
     <string name="preset_empty">저장된 프리셋이 없습니다</string>
     <string name="preset_pro_locked">라이선스 기능: 프리셋을 사용하려면 로그인하세요</string>
+
+    <string name="workflow_title">사용 방법</string>
+    <string name="workflow_step_import">사진을 불러와 미리보기를 시작하세요</string>
+    <string name="workflow_step_choose">브랜드를 고르고 룩을 탭해 미리보세요</string>
+    <string name="workflow_step_refine_save">결과를 미세 조정한 뒤 준비되면 저장하세요</string>
+    <string name="section_brands">브랜드</string>
+    <string name="section_collections">컬렉션</string>
+    <string name="section_looks">룩</string>
+    <string name="single_collection_label">추천 컬렉션</string>
+    <string name="look_count_label">%1$d개의 룩 준비됨</string>
+    <string name="look_preview_hint">%1$d개의 룩을 바로 미리볼 수 있습니다. 한 번 탭하면 미리보기, 다시 탭하면 조정으로 이동합니다.</string>
+    <string name="look_ready_hint">선택한 룩을 다시 탭하면 조정을 열 수 있습니다.</string>
+    <string name="more_brands_title">더 많은 룩을 사용할 수 있습니다</string>
+    <string name="more_tools_title">더 많은 마무리 도구를 사용할 수 있습니다</string>
+    <string name="premium_brands_hint">로그인하면 더 많은 브랜드와 전체 마무리 워크플로를 잠금 해제할 수 있습니다.</string>
+    <string name="pro_adjust_locked">라이선스 기능: 로그인하여 색조 조정을 사용하세요</string>
+    <string name="pro_adjust_tools_hint">로그인하면 색조 조정, 워터마크, 프리셋을 한곳에서 사용할 수 있습니다.</string>
+    <string name="adjust_hint_intensity">먼저 LUT 강도를 맞춰 전체 분위기를 잡아보세요.</string>
+    <string name="adjust_hint_basic">그레인이나 워터마크를 추가하기 전에 노출과 대비를 먼저 다듬으세요.</string>
+    <string name="adjust_hint_grain">LUT와 톤이 정리된 후에 그레인을 더하면 질감이 자연스럽습니다.</string>
+    <string name="adjust_hint_watermark">편집이 완성되면 브랜드 워터마크로 마무리하세요.</string>
+    <string name="adjust_hint_presets">현재 레시피를 저장해 다음 사진에도 다시 사용하세요.</string>
+    <string name="compare_preview">비교 미리보기</string>
+    <string name="compare_preview_hint">비포어 애프터 보기를 켜서 현재 편집 결과와 원본 이미지를 비교하세요.</string>
+    <string name="compare_split">분할 위치</string>
+    <string name="compare_before">원본</string>
+    <string name="compare_after">편집 후</string>
+    <string name="compare_vertical">세로 분할</string>
+    <string name="compare_horizontal">가로 분할</string>
+    <string name="label_hue">색조</string>
+    <string name="label_saturation">채도</string>
+    <string name="label_luminance">휘도</string>
+    <string name="overlay_filter">오버레이 필터</string>
+    <string name="overlay_filter_none">선택된 오버레이 없음</string>
+    <string name="overlay_filter_hint_empty">기본 LUT를 유지한 채 두 번째 룩을 섞어 스타일을 겹칠 수 있습니다.</string>
+    <string name="overlay_filter_hint_active">기본 LUT 위에 두 번째 룩을 섞어 색감에 더 깊이를 더하세요.</string>
+    <string name="overlay_pick">오버레이 선택</string>
+    <string name="overlay_change">오버레이 변경</string>
+    <string name="overlay_remove">오버레이 제거</string>
+    <string name="overlay_blend">오버레이 강도</string>
+    <string name="overlay_selection_title">오버레이 룩 선택</string>
+    <string name="overlay_selection_hint">현재 룩 위에 겹칠 두 번째 LUT를 고르세요. 블렌드로 섞는 양을 조절할 수 있습니다.</string>
+    <string name="overlay_done">완료</string>
+    <string name="panel_hints_setting">패널 힌트 표시</string>
+    <string name="panel_hints_setting_description">LUT 패널과 조정 패널의 안내 카드를 표시하거나 숨깁니다.</string>
+    <string name="gesture_hint_title">미리보기 제스처</string>
+    <string name="gesture_hint_body">이미지를 탭하면 방해 요소 없는 보기로 전환됩니다. 길게 누르면 현재 편집과 원본 기반 이미지를 잠시 비교할 수 있습니다.</string>
+    <string name="gesture_hint_dismiss">확인</string>
+    <string name="save_success_dismiss_hint">탭해서 닫기</string>
+    <string name="lut_browser_title">룩을 더 쉽게 탐색하세요</string>
+    <string name="lut_browser_hint">먼저 브랜드를 선택하고 컬렉션을 좁힌 뒤, 룩 카드를 탭해 사진에 미리 적용해 보세요.</string>
+    <string name="watermark_flow_title">워터마크를 단계별로 설정</string>
+    <string name="watermark_flow_pick_brand">먼저 브랜드를 선택하면 해당 브랜드의 워터마크 스타일이 열립니다.</string>
+    <string name="watermark_flow_customize">스타일을 고른 다음, 그 워터마크에서 사용하는 정보만 입력하세요.</string>
+    <string name="watermark_style_waiting_title">브랜드를 선택하면 스타일이 표시됩니다</string>
+    <string name="watermark_style_waiting_body">이 패널에 맞는 워터마크 스타일을 표시하려면 먼저 브랜드를 선택하세요.</string>
+    <string name="watermark_details_title">세부 정보</string>
+    <string name="intensity_strength_title">먼저 전체 강도를 정하세요</string>
+    <string name="intensity_strength_hint">오버레이, 그레인, 비교 도구를 더하기 전에 메인 룩의 강도를 먼저 맞추면 조정이 쉬워집니다.</string>
+    <string name="overlay_active_title">오버레이 적용 중: %1$s</string>
+    <string name="overlay_active_hint">기본 룩이 알아볼 수 있게 유지되면서 색감 개성이 더해지도록 블렌드를 조절하세요.</string>
+    <string name="compare_active_title">비교 모드가 켜져 있습니다</string>
+    <string name="compare_active_hint">분할 방향이 불편하면 방향을 바꾸고, 구분선을 움직여 중요한 영역을 자세히 확인하세요.</string>
+    <string name="presets_hint_title">재사용할 룩 저장</string>
+    <string name="presets_hint_body_empty">프리셋을 사용하면 LUT, 오버레이, 톤, 그레인을 포함한 전체 레시피를 나중에 다시 불러올 수 있습니다.</string>
+    <string name="presets_hint_body_ready">프리셋을 탭하면 즉시 불러옵니다. 보관할 만한 룩을 찾았다면 현재 레시피를 저장하세요.</string>
 </resources>

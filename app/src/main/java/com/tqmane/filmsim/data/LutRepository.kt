@@ -28,6 +28,8 @@ data class LutBrand(
 class LutRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+
+    private val brandsCache: List<LutBrand> by lazy { buildLutBrands() }
     
     // Supported LUT file extensions
     private val lutExtensions = listOf(".cube", ".png", ".bin", ".webp", ".jpg", ".jpeg", ".sel", ".enc")
@@ -425,7 +427,9 @@ class LutRepository @Inject constructor(
         }
     }
     
-    fun getLutBrands(): List<LutBrand> {
+    fun getLutBrands(): List<LutBrand> = brandsCache
+
+    private fun buildLutBrands(): List<LutBrand> {
         val assetManager = context.assets
         val brands = mutableListOf<LutBrand>()
         

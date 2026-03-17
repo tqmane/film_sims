@@ -45,6 +45,7 @@ class ImageLoadUseCaseImpl @Inject constructor(
         contentResolver: ContentResolver,
         uri: Uri
     ): LoadResult = withContext(ioDispatcher) {
+        validateImageUri(contentResolver, uri)
         val (origW, origH) = decodeImageBounds(contentResolver, uri) ?: (0 to 0)
 
         val previewBitmap = decodeSampledBitmap(contentResolver, uri, 10_000_000)
@@ -70,6 +71,7 @@ class ImageLoadUseCaseImpl @Inject constructor(
         contentResolver: ContentResolver,
         uri: Uri
     ): Bitmap = withContext(ioDispatcher) {
+        validateImageUri(contentResolver, uri)
         decodeFullOrSampledBitmap(contentResolver, uri, 30_000_000)
             ?: throw IllegalStateException("Failed to decode full-resolution bitmap")
     }
@@ -132,6 +134,23 @@ class ImageLoadUseCaseImpl @Inject constructor(
         return runCatching {
             cr.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
         }.getOrNull() ?: decodeSampledBitmap(cr, uri, fallback)
+    }
+
+    private fun validateImageUri(cr: ContentResolver, uri: Uri) {
+        require(
+            uri.scheme == ContentResolver.SCHEME_CONTENT ||
+                uri.scheme == ContentResolver.SCHEME_FILE
+        ) {
+            "Unsupported image URI: $uri"
+        }
+
+        val mimeType = cr.getType(uri)
+        require(mimeType == null || mimeType.startsWith("image/")) {
+            "Unsupported image content type: $mimeType"
+        }
+
+        val isReadable = cr.openInputStream(uri)?.use { true } ?: false
+        require(isReadable) { "Unable to open image URI" }
     }
 
     private fun calculateInSampleSize(w: Int, h: Int, maxPixels: Int): Int {

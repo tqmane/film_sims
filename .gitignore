@@ -88,3 +88,5 @@ tecno_watermark_extracted/
 app_bak/
 .github/
 .agent/
+.gemini/
+.kilocode/
