@@ -1,17 +1,12 @@
 package com.tqmane.filmsim.ui.component
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -21,10 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -67,32 +65,11 @@ fun LiquidChip(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // Breathing glow effect
         if (selected) {
-            val infiniteTransition = rememberInfiniteTransition(label = "breathing")
-            val glowScale by infiniteTransition.animateFloat(
-                initialValue = 1.0f,
-                targetValue = 1.15f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(2000, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "glow_scale"
-            )
-            val glowAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.3f,
-                targetValue = 0.6f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(2000, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "glow_alpha"
-            )
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .scale(glowScale)
-                    .alpha(glowAlpha)
+                    .alpha(0.2f)
                     .background(
                         Brush.radialGradient(
                             colors = listOf(
@@ -106,18 +83,24 @@ fun LiquidChip(
 
         Box(
             modifier = Modifier
-                .height(LiquidDimensions.ChipHeight)
+                .alpha(if (enabled) 1f else 0.55f)
+                .heightIn(min = LiquidDimensions.ChipHeight, max = LiquidDimensions.ChipHeight)
+                .heightIn(min = 48.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(backgroundColor)
                 .border(1.dp, borderColor, RoundedCornerShape(20.dp))
-            .clickable(enabled = enabled) {
-                haptic.performHapticFeedback(
-                    androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
-                )
-                onClick()
-            }
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+                .semantics {
+                    role = Role.Button
+                    this.selected = selected
+                }
+                .clickable(enabled = enabled) {
+                    haptic.performHapticFeedback(
+                        androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
+                    )
+                    onClick()
+                }
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text,

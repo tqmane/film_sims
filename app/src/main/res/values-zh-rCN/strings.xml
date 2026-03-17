@@ -247,4 +247,16 @@
     <string name="overlay_done">完成</string>
     <string name="panel_hints_setting">显示面板提示</string>
     <string name="panel_hints_setting_description">切换是否显示 LUT 面板和调整面板中的提示卡片。</string>
+    <string name="gesture_hint_title">预览手势</string>
+    <string name="gesture_hint_body">轻点图片可进入无干扰查看。长按可临时将当前编辑与基础照片进行比较。</string>
+    <string name="gesture_hint_dismiss">知道了</string>
+    <string name="save_success_dismiss_hint">点击关闭</string>
+    <string name="lut_browser_title">更清晰地浏览风格</string>
+    <string name="lut_browser_hint">先选择品牌，再缩小合集范围，然后点按风格卡片在照片上预览。</string>
+    <string name="watermark_flow_title">分步骤完成水印</string>
+    <string name="watermark_flow_pick_brand">先选择品牌，即可解锁对应的水印样式。</string>
+    <string name="watermark_flow_customize">选择样式后，只填写该水印实际使用的字段即可。</string>
+    <string name="watermark_style_waiting_title">选择品牌后会显示样式</string>
+    <string name="watermark_style_waiting_body">请先选择品牌，这个面板才会显示对应的水印样式。</string>
+    <string name="watermark_details_title">详细信息</string>
 </resources>

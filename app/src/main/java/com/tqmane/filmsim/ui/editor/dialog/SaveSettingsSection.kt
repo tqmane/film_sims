@@ -37,6 +37,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -97,6 +100,7 @@ internal fun SaveSettingsSection(
                 .clip(RoundedCornerShape(10.dp))
                 .background(LiquidColors.AccentPrimary.copy(alpha = 0.15f))
                 .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+                .semantics { role = Role.Button }
                 .clickable { showPathEditDialog = true }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {

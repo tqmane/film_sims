@@ -274,4 +274,16 @@
     <string name="overlay_done">完了</string>
     <string name="panel_hints_setting">パネルのヒントを表示</string>
     <string name="panel_hints_setting_description">LUTパネルと調整パネル内の案内カードを表示するか切り替えます。</string>
+    <string name="gesture_hint_title">プレビュー操作</string>
+    <string name="gesture_hint_body">画像をタップすると集中表示に切り替わります。長押しすると編集中の見た目を元画像ベースで一時比較できます。</string>
+    <string name="gesture_hint_dismiss">了解</string>
+    <string name="save_success_dismiss_hint">タップして閉じる</string>
+    <string name="lut_browser_title">迷わずルックを探せます</string>
+    <string name="lut_browser_hint">まずブランドを選び、コレクションを絞り込み、ルックカードをタップして写真に適用してみてください。</string>
+    <string name="watermark_flow_title">透かしを順番に設定</string>
+    <string name="watermark_flow_pick_brand">最初にブランドを選ぶと、そのブランドに合う透かしスタイルが表示されます。</string>
+    <string name="watermark_flow_customize">スタイルを選んだら、その透かしで使う項目だけを入力してください。</string>
+    <string name="watermark_style_waiting_title">ブランドを選ぶとスタイルが表示されます</string>
+    <string name="watermark_style_waiting_body">対応する透かしスタイルを表示するため、先にブランドを選択してください。</string>
+    <string name="watermark_details_title">詳細</string>
 </resources>

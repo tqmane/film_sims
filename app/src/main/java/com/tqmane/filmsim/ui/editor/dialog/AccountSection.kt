@@ -28,6 +28,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -181,6 +184,7 @@ private fun SignedInContent(
                 .clip(RoundedCornerShape(12.dp))
                 .background(LiquidColors.AccentPrimary.copy(alpha = 0.08f))
                 .border(1.dp, LiquidColors.AccentPrimary.copy(alpha = 0.20f), RoundedCornerShape(12.dp))
+                .semantics { role = Role.Button }
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -207,6 +211,7 @@ private fun SignedInContent(
                 .clip(RoundedCornerShape(14.dp))
                 .background(Color(0x14FFFFFF))
                 .border(1.dp, Color(0x1EFFFFFF), RoundedCornerShape(14.dp))
+                .semantics { role = Role.Button }
                 .clickable { onSignOut() },
             contentAlignment = Alignment.Center
         ) {
@@ -243,6 +248,7 @@ private fun SignedOutContent(onSignIn: () -> Unit) {
                         )
                     )
                 )
+                .semantics { role = Role.Button }
                 .clickable { onSignIn() },
             contentAlignment = Alignment.Center
         ) {

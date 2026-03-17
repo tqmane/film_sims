@@ -1,9 +1,5 @@
 package com.tqmane.filmsim.ui.editor.dialog
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,9 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.verticalScroll
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.AuthViewModel
 import com.tqmane.filmsim.ui.EditorViewModel
@@ -55,6 +55,7 @@ fun SettingsDialog(
     val isProUser by authViewModel.isProUser.collectAsState()
     val isPermanentLicense by authViewModel.isPermanentLicense.collectAsState()
     val licenseMismatchVersion by authViewModel.licenseMismatchVersion.collectAsState()
+    val scrollState = rememberScrollState()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -68,6 +69,7 @@ fun SettingsDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 640.dp)
                     .clip(RoundedCornerShape(32.dp))
                     .background(
                         Brush.verticalGradient(
@@ -75,6 +77,8 @@ fun SettingsDialog(
                         )
                     )
                     .border(1.dp, Color(0x1CFFFFFF), RoundedCornerShape(32.dp))
+                    .verticalScroll(scrollState)
+                    .navigationBarsPadding()
                     .padding(28.dp)
             ) {
                 // ─── Title row ───
@@ -159,7 +163,7 @@ private fun SettingsDialogHeader(onDismiss: () -> Unit) {
         )
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(Color(0x16FFFFFF))
                 .border(1.dp, Color(0x1AFFFFFF), CircleShape)

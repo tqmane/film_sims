@@ -4,10 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -22,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
@@ -60,7 +60,8 @@ fun TopBar(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -85,15 +86,7 @@ fun TopBar(
             LiquidRoundButton(
                 iconRes = R.drawable.ic_add,
                 contentDesc = stringResource(R.string.cd_add_photo),
-                onClick = onPickImage,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-
-            LiquidRoundButton(
-                iconRes = R.drawable.ic_settings,
-                contentDesc = stringResource(R.string.cd_open_settings),
-                onClick = onSettings,
-                modifier = Modifier.padding(end = 8.dp)
+                onClick = onPickImage
             )
 
             if (canCompare) {
@@ -101,12 +94,15 @@ fun TopBar(
                     iconRes = R.drawable.ic_compare,
                     contentDesc = stringResource(R.string.compare_preview),
                     onClick = onCompareToggle,
-                    tint = if (compareEnabled) LiquidColors.AccentPrimary else LiquidColors.TextMediumEmphasis,
-                    modifier = Modifier.padding(end = 12.dp)
+                    tint = if (compareEnabled) LiquidColors.AccentPrimary else LiquidColors.TextMediumEmphasis
                 )
-            } else {
-                Spacer(Modifier.width(4.dp))
             }
+
+            LiquidRoundButton(
+                iconRes = R.drawable.ic_settings,
+                contentDesc = stringResource(R.string.cd_open_settings),
+                onClick = onSettings
+            )
 
             LiquidButton(
                 onClick = {
@@ -116,7 +112,7 @@ fun TopBar(
                     onSave()
                 },
                 enabled = canSave,
-                modifier = Modifier.width(94.dp)
+                modifier = Modifier.width(108.dp)
             ) {
                 if (isSaving) {
                     CircularProgressIndicator(

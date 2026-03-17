@@ -185,4 +185,16 @@
     <string name="overlay_done">Terminé</string>
     <string name="panel_hints_setting">Afficher les aides du panneau</string>
     <string name="panel_hints_setting_description">Affiche ou masque les cartes d aide dans les panneaux LUT et réglages.</string>
+    <string name="gesture_hint_title">Gestes d\'aperçu</string>
+    <string name="gesture_hint_body">Touchez l\'image pour une vue sans distraction. Maintenez pour comparer temporairement votre retouche avec la photo de base.</string>
+    <string name="gesture_hint_dismiss">Compris</string>
+    <string name="save_success_dismiss_hint">Touchez pour fermer</string>
+    <string name="lut_browser_title">Parcourez les looks plus facilement</string>
+    <string name="lut_browser_hint">Choisissez une marque, affinez la collection, puis touchez une carte de look pour l\'aperçu sur votre photo.</string>
+    <string name="watermark_flow_title">Construire le filigrane etape par etape</string>
+    <string name="watermark_flow_pick_brand">Commencez par une marque pour afficher les styles de filigrane compatibles.</string>
+    <string name="watermark_flow_customize">Choisissez un style, puis renseignez uniquement les informations utilisees par ce filigrane.</string>
+    <string name="watermark_style_waiting_title">Les styles apparaissent apres le choix d\'une marque</string>
+    <string name="watermark_style_waiting_body">Selectionnez d\'abord une marque pour que ce panneau affiche les styles de filigrane correspondants.</string>
+    <string name="watermark_details_title">Details</string>
 </resources>

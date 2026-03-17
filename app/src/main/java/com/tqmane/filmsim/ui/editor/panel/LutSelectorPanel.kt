@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -180,6 +179,15 @@ private fun BrandGenreLutSection(
             )
         }
 
+        if (!showPanelHints && !isSelectingOverlay) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.lut_browser_title),
+                message = stringResource(R.string.lut_browser_hint),
+                label = stringResource(R.string.section_looks),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
+
         if (showPanelHints && !isProUser && !isSelectingOverlay) {
             LiquidNoticeCard(
                 title = stringResource(R.string.more_brands_title),
@@ -250,7 +258,7 @@ private fun BrandGenreLutSection(
             itemsIndexed(brands) { index, brand ->
                 val isFree = brand.name in freeBrands
                 LiquidChip(
-                    text = if (!isFree && !isProUser) "${brand.displayName} 🔒" else brand.displayName,
+                    text = brand.displayName,
                     selected = index == selectedBrandIndex,
                     onClick = {
                         if (!isFree && !isProUser) {

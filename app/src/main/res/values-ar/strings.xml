@@ -185,4 +185,16 @@
     <string name="overlay_done">تم</string>
     <string name="panel_hints_setting">إظهار تلميحات اللوحة</string>
     <string name="panel_hints_setting_description">يبدل بين إظهار بطاقات المساعدة داخل لوحتي LUT والتعديلات أو إخفائها.</string>
+    <string name="gesture_hint_title">ايماءات المعاينة</string>
+    <string name="gesture_hint_body">اضغط على الصورة للحصول على عرض خال من المشتتات. اضغط مطولا للمقارنة المؤقتة بين التعديل والصورة الاساسية.</string>
+    <string name="gesture_hint_dismiss">حسنا</string>
+    <string name="save_success_dismiss_hint">اضغط للاغلاق</string>
+    <string name="lut_browser_title">تصفح الاطلالات بوضوح اكبر</string>
+    <string name="lut_browser_hint">اختر العلامة اولا، ثم ضيق المجموعة، وبعدها اضغط على بطاقة الاطلالة لمعاينتها على صورتك.</string>
+    <string name="watermark_flow_title">ابن العلامة المائية خطوة بخطوة</string>
+    <string name="watermark_flow_pick_brand">ابدأ بعلامة تجارية لعرض انماط العلامة المائية المطابقة.</string>
+    <string name="watermark_flow_customize">اختر نمطا ثم املأ فقط التفاصيل التي يستخدمها ذلك النمط.</string>
+    <string name="watermark_style_waiting_title">تظهر الانماط بعد اختيار العلامة</string>
+    <string name="watermark_style_waiting_body">اختر العلامة اولا حتى تعرض هذه اللوحة انماط العلامة المائية المناسبة.</string>
+    <string name="watermark_details_title">التفاصيل</string>
 </resources>

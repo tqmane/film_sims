@@ -185,4 +185,16 @@
     <string name="overlay_done">Concluir</string>
     <string name="panel_hints_setting">Mostrar dicas do painel</string>
     <string name="panel_hints_setting_description">Mostra ou oculta os cartões de ajuda nos painéis de LUT e ajustes.</string>
+    <string name="gesture_hint_title">Gestos de pre-visualizacao</string>
+    <string name="gesture_hint_body">Toque na imagem para uma vista sem distracoes. Mantenha pressionado para comparar temporariamente a edicao com a foto base.</string>
+    <string name="gesture_hint_dismiss">Entendi</string>
+    <string name="save_success_dismiss_hint">Toque para fechar</string>
+    <string name="lut_browser_title">Explore looks com mais clareza</string>
+    <string name="lut_browser_hint">Escolha uma marca, refine a colecao e toque num cartao de look para o ver na sua foto.</string>
+    <string name="watermark_flow_title">Monte a marca d\'agua passo a passo</string>
+    <string name="watermark_flow_pick_brand">Comece por uma marca para desbloquear os estilos de marca d\'agua correspondentes.</string>
+    <string name="watermark_flow_customize">Escolha um estilo e preencha apenas os detalhes usados por essa marca d\'agua.</string>
+    <string name="watermark_style_waiting_title">Os estilos aparecem apos escolher uma marca</string>
+    <string name="watermark_style_waiting_body">Selecione primeiro uma marca para que este painel mostre os estilos de marca d\'agua correspondentes.</string>
+    <string name="watermark_details_title">Detalhes</string>
 </resources>

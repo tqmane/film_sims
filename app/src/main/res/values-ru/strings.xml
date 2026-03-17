@@ -185,4 +185,16 @@
     <string name="overlay_done">Готово</string>
     <string name="panel_hints_setting">Показывать подсказки панели</string>
     <string name="panel_hints_setting_description">Показывает или скрывает карточки-подсказки в панелях LUT и настройки.</string>
+    <string name="gesture_hint_title">Жесты предпросмотра</string>
+    <string name="gesture_hint_body">Нажмите на изображение, чтобы перейти в режим без отвлекающих элементов. Удерживайте, чтобы временно сравнить редактирование с базовым фото.</string>
+    <string name="gesture_hint_dismiss">Понятно</string>
+    <string name="save_success_dismiss_hint">Нажмите, чтобы закрыть</string>
+    <string name="lut_browser_title">Подбирайте стили понятнее</string>
+    <string name="lut_browser_hint">Сначала выберите бренд, затем сузьте коллекцию и нажмите на карточку стиля для предпросмотра на фото.</string>
+    <string name="watermark_flow_title">Соберите водяной знак по шагам</string>
+    <string name="watermark_flow_pick_brand">Начните с бренда, чтобы открыть подходящие стили водяного знака.</string>
+    <string name="watermark_flow_customize">Выберите стиль и заполните только те поля, которые использует этот водяной знак.</string>
+    <string name="watermark_style_waiting_title">Стили появятся после выбора бренда</string>
+    <string name="watermark_style_waiting_body">Сначала выберите бренд, чтобы эта панель смогла показать подходящие стили водяного знака.</string>
+    <string name="watermark_details_title">Детали</string>
 </resources>

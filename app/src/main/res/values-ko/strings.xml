@@ -247,4 +247,16 @@
     <string name="overlay_done">완료</string>
     <string name="panel_hints_setting">패널 힌트 표시</string>
     <string name="panel_hints_setting_description">LUT 패널과 조정 패널의 안내 카드를 표시하거나 숨깁니다.</string>
+    <string name="gesture_hint_title">미리보기 제스처</string>
+    <string name="gesture_hint_body">이미지를 탭하면 방해 요소 없는 보기로 전환됩니다. 길게 누르면 현재 편집과 원본 기반 이미지를 잠시 비교할 수 있습니다.</string>
+    <string name="gesture_hint_dismiss">확인</string>
+    <string name="save_success_dismiss_hint">탭해서 닫기</string>
+    <string name="lut_browser_title">룩을 더 쉽게 탐색하세요</string>
+    <string name="lut_browser_hint">먼저 브랜드를 선택하고 컬렉션을 좁힌 뒤, 룩 카드를 탭해 사진에 미리 적용해 보세요.</string>
+    <string name="watermark_flow_title">워터마크를 단계별로 설정</string>
+    <string name="watermark_flow_pick_brand">먼저 브랜드를 선택하면 해당 브랜드의 워터마크 스타일이 열립니다.</string>
+    <string name="watermark_flow_customize">스타일을 고른 다음, 그 워터마크에서 사용하는 정보만 입력하세요.</string>
+    <string name="watermark_style_waiting_title">브랜드를 선택하면 스타일이 표시됩니다</string>
+    <string name="watermark_style_waiting_body">이 패널에 맞는 워터마크 스타일을 표시하려면 먼저 브랜드를 선택하세요.</string>
+    <string name="watermark_details_title">세부 정보</string>
 </resources>

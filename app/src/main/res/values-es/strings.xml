@@ -185,4 +185,16 @@
     <string name="overlay_done">Listo</string>
     <string name="panel_hints_setting">Mostrar ayudas del panel</string>
     <string name="panel_hints_setting_description">Muestra u oculta las tarjetas de ayuda en los paneles de LUT y ajustes.</string>
+    <string name="gesture_hint_title">Gestos de vista previa</string>
+    <string name="gesture_hint_body">Toca la imagen para verla sin distracciones. Manten pulsado para comparar temporalmente la edicion con la foto base.</string>
+    <string name="gesture_hint_dismiss">Entendido</string>
+    <string name="save_success_dismiss_hint">Toca para cerrar</string>
+    <string name="lut_browser_title">Explora estilos con mas claridad</string>
+    <string name="lut_browser_hint">Elige una marca, reduce la coleccion y toca una tarjeta de look para previsualizarla en tu foto.</string>
+    <string name="watermark_flow_title">Crea la marca de agua paso a paso</string>
+    <string name="watermark_flow_pick_brand">Empieza con una marca para desbloquear los estilos de marca de agua compatibles.</string>
+    <string name="watermark_flow_customize">Elige un estilo y completa solo los datos que usa esa marca de agua.</string>
+    <string name="watermark_style_waiting_title">Los estilos aparecen al elegir una marca</string>
+    <string name="watermark_style_waiting_body">Selecciona primero una marca para que este panel muestre los estilos de marca de agua correspondientes.</string>
+    <string name="watermark_details_title">Detalles</string>
 </resources>

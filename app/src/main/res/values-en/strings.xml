@@ -206,4 +206,16 @@
     <string name="overlay_done">Done</string>
     <string name="panel_hints_setting">Show panel hints</string>
     <string name="panel_hints_setting_description">Toggle helper cards inside the LUT and adjustment panels.</string>
+    <string name="gesture_hint_title">Preview gestures</string>
+    <string name="gesture_hint_body">Tap the image for a distraction-free view. Press and hold to temporarily compare your edit against the base photo.</string>
+    <string name="gesture_hint_dismiss">Got it</string>
+    <string name="save_success_dismiss_hint">Tap to dismiss</string>
+    <string name="lut_browser_title">Browse looks with less guesswork</string>
+    <string name="lut_browser_hint">Pick a brand, narrow the collection, then tap a look card to preview it on your photo.</string>
+    <string name="watermark_flow_title">Build the watermark step by step</string>
+    <string name="watermark_flow_pick_brand">Start with a brand to unlock matching watermark styles.</string>
+    <string name="watermark_flow_customize">Choose a style, then fill in only the details used by that watermark.</string>
+    <string name="watermark_style_waiting_title">Styles appear after you pick a brand</string>
+    <string name="watermark_style_waiting_body">Select a brand first so this panel can show the matching watermark styles.</string>
+    <string name="watermark_details_title">Details</string>
 </resources>

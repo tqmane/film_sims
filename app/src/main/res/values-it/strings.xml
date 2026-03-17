@@ -185,4 +185,16 @@
     <string name="overlay_done">Fatto</string>
     <string name="panel_hints_setting">Mostra suggerimenti del pannello</string>
     <string name="panel_hints_setting_description">Mostra o nasconde le schede di aiuto nei pannelli LUT e regolazioni.</string>
+    <string name="gesture_hint_title">Gesti anteprima</string>
+    <string name="gesture_hint_body">Tocca l\'immagine per una vista senza distrazioni. Tieni premuto per confrontare temporaneamente la modifica con la foto base.</string>
+    <string name="gesture_hint_dismiss">Capito</string>
+    <string name="save_success_dismiss_hint">Tocca per chiudere</string>
+    <string name="lut_browser_title">Sfoglia i look con piu chiarezza</string>
+    <string name="lut_browser_hint">Scegli un brand, restringi la raccolta e tocca una scheda look per vederla in anteprima sulla foto.</string>
+    <string name="watermark_flow_title">Crea il watermark passo dopo passo</string>
+    <string name="watermark_flow_pick_brand">Inizia da un brand per sbloccare gli stili di watermark corrispondenti.</string>
+    <string name="watermark_flow_customize">Scegli uno stile e compila solo i dettagli usati da quel watermark.</string>
+    <string name="watermark_style_waiting_title">Gli stili compaiono dopo la scelta del brand</string>
+    <string name="watermark_style_waiting_body">Seleziona prima un brand affinche questo pannello mostri gli stili di watermark corrispondenti.</string>
+    <string name="watermark_details_title">Dettagli</string>
 </resources>

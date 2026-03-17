@@ -24,6 +24,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.tqmane.filmsim.di.UpdateCheckerWrapper
 import com.tqmane.filmsim.ui.AuthViewModel
 import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.LutViewModel
 import com.tqmane.filmsim.ui.editor.EditorScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
 
     private val vm: EditorViewModel by viewModels()
     private val authVm: AuthViewModel by viewModels()
+    private val lutVm: LutViewModel by viewModels()
 
     @Inject
     lateinit var updateChecker: UpdateCheckerWrapper
@@ -84,6 +86,7 @@ class MainActivity : ComponentActivity() {
             EditorScreen(
                 viewModel = vm,
                 authViewModel = authVm,
+                lutViewModel = lutVm,
                 onPickImage = { launchPicker() },
                 onSignIn = { launchGoogleSignIn() },
                 onSignOut = { authVm.signOut() }

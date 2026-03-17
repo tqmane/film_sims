@@ -77,21 +77,6 @@ class EditorViewModel @Inject constructor(
     private val _showPanelHints = MutableStateFlow(settings.panelHintsEnabled)
     val showPanelHints: StateFlow<Boolean> = _showPanelHints.asStateFlow()
 
-    // Lifted UI State for Brand/Category Selection
-    private val _selectedBrandIndex = MutableStateFlow(0)
-    val selectedBrandIndex: StateFlow<Int> = _selectedBrandIndex.asStateFlow()
-
-    private val _selectedCategoryIndex = MutableStateFlow(0)
-    val selectedCategoryIndex: StateFlow<Int> = _selectedCategoryIndex.asStateFlow()
-
-    fun setSelectedBrandIndex(index: Int) {
-        _selectedBrandIndex.value = index
-    }
-
-    fun setSelectedCategoryIndex(index: Int) {
-        _selectedCategoryIndex.value = index
-    }
-
     private val _watermarkState = MutableStateFlow(WatermarkState())
     val watermarkState: StateFlow<WatermarkState> = _watermarkState.asStateFlow()
 

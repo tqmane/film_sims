@@ -2,14 +2,7 @@ package com.tqmane.filmsim.ui.component
 
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,6 +41,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -121,6 +118,10 @@ fun LutPreviewCard(
         modifier = modifier
             .padding(start = 2.dp, end = 6.dp, top = 2.dp, bottom = 2.dp)
             .scale(cardScale)
+            .semantics {
+                role = Role.Button
+                this.selected = selected
+            }
             .clickable {
                 haptic.performHapticFeedback(
                     androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove
@@ -132,32 +133,12 @@ fun LutPreviewCard(
             modifier = Modifier.size(94.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Breathing glow effect
             if (selected) {
-                val infiniteTransition = rememberInfiniteTransition(label = "breathing")
-                val glowScale by infiniteTransition.animateFloat(
-                    initialValue = 1.0f,
-                    targetValue = 1.15f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(2000, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "glow_scale"
-                )
-                val glowAlpha by infiniteTransition.animateFloat(
-                    initialValue = 0.3f,
-                    targetValue = 0.7f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(2000, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "glow_alpha"
-                )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .scale(glowScale)
-                        .alpha(glowAlpha)
+                        .scale(1.05f)
+                        .alpha(0.22f)
                         .background(
                             Brush.radialGradient(
                                 colors = listOf(
@@ -216,20 +197,10 @@ fun LutPreviewCard(
             }
 
             if (isLoadingPreview) {
-                val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
-                val shimmerAlpha by shimmerTransition.animateFloat(
-                    initialValue = 0.15f,
-                    targetValue = 0.35f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(700, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "shimmer_alpha"
-                )
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(LiquidColors.GlassSurface.copy(alpha = shimmerAlpha))
+                        .background(LiquidColors.GlassSurface.copy(alpha = 0.22f))
                 )
             }
 

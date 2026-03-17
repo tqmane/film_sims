@@ -1,14 +1,7 @@
 package com.tqmane.filmsim.ui.component
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,9 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -55,30 +46,9 @@ fun EmptyState(
 ) {
     val haptic = LocalHapticFeedback.current
 
-    val infiniteTransition = rememberInfiniteTransition(label = "placeholder_breath")
-    val breathScale by infiniteTransition.animateFloat(
-        initialValue = 0.92f,
-        targetValue = 1.08f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breath_scale"
-    )
-    val breathAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 0.85f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breath_alpha"
-    )
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .clickable { onPickImage() }
             .padding(56.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -87,16 +57,12 @@ fun EmptyState(
             Box(
                 modifier = Modifier
                     .size(130.dp)
-                    .scale(breathScale)
-                    .alpha(breathAlpha * 0.4f)
                     .clip(RoundedCornerShape(28.dp))
                     .background(LiquidColors.AccentPrimary.copy(alpha = 0.12f))
             )
             Box(
                 modifier = Modifier
                     .size(96.dp)
-                    .scale(breathScale)
-                    .alpha(breathAlpha)
                     .clip(RoundedCornerShape(24.dp))
                     .background(
                         Brush.linearGradient(
@@ -108,7 +74,7 @@ fun EmptyState(
                     )
                     .border(
                         1.dp,
-                        LiquidColors.AccentPrimary.copy(alpha = breathAlpha * 0.3f),
+                        LiquidColors.AccentPrimary.copy(alpha = 0.28f),
                         RoundedCornerShape(24.dp)
                     )
                     .padding(22.dp),

@@ -1,11 +1,6 @@
 package com.tqmane.filmsim.ui.component
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -34,13 +30,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tqmane.filmsim.ui.theme.LiquidColors
 import com.tqmane.filmsim.ui.theme.LiquidDimensions
 import com.tqmane.filmsim.ui.theme.LiquidMotion
 
 /**
- * Liquid-style button with gradient background, shimmer, elastic press animation, and subtle glow.
+ * Liquid-style button with gradient background, elastic press animation, and subtle glow.
  */
 @Composable
 fun LiquidButton(
@@ -64,18 +63,6 @@ fun LiquidButton(
         )
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
-    val shimmerTranslate = infiniteTransition.animateFloat(
-        initialValue = -500f,
-        targetValue = 1500f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = LiquidMotion.EasingSmoothFluid, delayMillis = 500),
-            repeatMode = androidx.compose.animation.core.RepeatMode.Restart
-        ),
-        label = "shimmer_translate"
-    )
-
-    // Richer, elastic scale down on press like web CSS button:active
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
         animationSpec = LiquidMotion.SpringSpecElastic,
@@ -93,11 +80,12 @@ fun LiquidButton(
         modifier = modifier
             .scale(scale)
             .alpha(if (enabled) 1f else 0.56f)
+            .sizeIn(minHeight = 48.dp)
             .height(LiquidDimensions.ButtonHeight)
             .clip(RoundedCornerShape(24.dp))
             .background(Brush.linearGradient(colors = backgroundColors))
+            .semantics { role = Role.Button }
             .drawBehind {
-                // Web-like dynamic glow / inner shadow
                 if (enabled) {
                     drawRect(
                         brush = Brush.radialGradient(
@@ -109,8 +97,7 @@ fun LiquidButton(
                         )
                     )
                 }
-                
-                // Existing depth and shimmer
+
                 drawRect(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -121,20 +108,6 @@ fun LiquidButton(
                     ),
                     size = size
                 )
-                if (enabled) {
-                    val shimmerBrush = Brush.linearGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.White.copy(alpha = 0.4f),
-                            Color.White.copy(alpha = 0.8f),
-                            Color.White.copy(alpha = 0.4f),
-                            Color.Transparent
-                        ),
-                        start = androidx.compose.ui.geometry.Offset(shimmerTranslate.value - 200f, 0f),
-                        end = androidx.compose.ui.geometry.Offset(shimmerTranslate.value, size.height * 2f)
-                    )
-                    drawRect(brush = shimmerBrush)
-                }
             }
             .border(
                 1.dp,
@@ -185,11 +158,14 @@ fun LiquidRoundButton(
 
     Box(
         modifier = modifier
-            .size(46.dp)
+            .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+            .size(48.dp)
             .scale(scale)
+            .alpha(if (enabled) 1f else 0.5f)
             .clip(CircleShape)
             .background(Color(0x12FFFFFF))
             .border(1.dp, Color(0x14FFFFFF), CircleShape)
+            .semantics { role = Role.Button }
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

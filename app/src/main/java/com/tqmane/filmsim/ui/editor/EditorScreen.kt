@@ -15,8 +15,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -78,12 +77,13 @@ import com.tqmane.filmsim.gl.GpuExportRenderer
 import com.tqmane.filmsim.ui.AuthViewModel
 import com.tqmane.filmsim.ui.EditState
 import com.tqmane.filmsim.ui.EditorViewModel
+import com.tqmane.filmsim.ui.LutViewModel
 import com.tqmane.filmsim.ui.editor.panel.AdjustPanel
+import com.tqmane.filmsim.ui.editor.panel.AdjustTab
 import com.tqmane.filmsim.ui.editor.panel.LutSelectorPanel
 import com.tqmane.filmsim.ui.editor.dialog.SettingsDialog
 import com.tqmane.filmsim.ui.UiEvent
 import com.tqmane.filmsim.ui.editor.dialog.UpdateDialog
-import com.tqmane.filmsim.ui.editor.panel.AdjustTab
 import com.tqmane.filmsim.ui.ViewState
 import com.tqmane.filmsim.ui.WatermarkState
 import com.tqmane.filmsim.ui.component.AuroraBackground
@@ -91,18 +91,21 @@ import com.tqmane.filmsim.ui.component.EmptyState
 import com.tqmane.filmsim.ui.component.LiquidButton
 import com.tqmane.filmsim.ui.component.TopBar
 import com.tqmane.filmsim.ui.theme.LiquidColors
+import com.tqmane.filmsim.ui.theme.LiquidMotion
 import com.tqmane.filmsim.ui.theme.LiquidTheme
 import com.tqmane.filmsim.util.WatermarkProcessor.WatermarkStyle
 import kotlinx.coroutines.delay
 
 /**
- * Root editor screen — replaces MainScreen.
- * Uses [EditorPanelState] sealed interface instead of scattered boolean flags.
+ * Root editor screen.
+ * Uses [EditorPanelState] sealed interface — no String-based panel state.
+ * GL sync effects are encapsulated in [EditorGlBridge].
  */
 @Composable
 fun EditorScreen(
     viewModel: EditorViewModel,
     authViewModel: AuthViewModel,
+    lutViewModel: LutViewModel,
     onPickImage: () -> Unit,
     onSignIn: () -> Unit = {},
     onSignOut: () -> Unit = {}
@@ -126,9 +129,10 @@ fun EditorScreen(
         // Watermark preview bitmap
         var watermarkPreviewBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-        // ─── Panel state (replaces scattered booleans) ────────────────────────
-        var panelState by rememberSaveable { mutableStateOf<String>("LutSelector") }
-        var selectedAdjustTabName by rememberSaveable { mutableStateOf(AdjustTab.INTENSITY.name) }
+        // ─── Panel state (type-safe sealed interface) ─────────────────────────
+        var panelState by rememberSaveable(stateSaver = EditorPanelStateSaver) {
+            mutableStateOf<EditorPanelState>(EditorPanelState.LutSelector)
+        }
         var isSelectingOverlay by rememberSaveable { mutableStateOf(false) }
         var showSettings by rememberSaveable { mutableStateOf(false) }
         var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
@@ -136,23 +140,22 @@ fun EditorScreen(
         var compareEnabled by rememberSaveable { mutableStateOf(false) }
         var comparePosition by rememberSaveable { mutableFloatStateOf(0.5f) }
         var compareVertical by rememberSaveable { mutableStateOf(true) }
+        var showGestureTip by rememberSaveable { mutableStateOf(true) }
 
         // Derived state helpers
-        val isImmersive = panelState == "Immersive"
-        val showAdjustPanel = panelState == "Adjustments"
-        val selectedAdjustTab = remember(selectedAdjustTabName) {
-            runCatching { AdjustTab.valueOf(selectedAdjustTabName) }.getOrElse { AdjustTab.INTENSITY }
-        }
+        val isImmersive = panelState is EditorPanelState.Immersive
+        val showAdjustPanel = panelState is EditorPanelState.Adjustments
+        val selectedAdjustTab = (panelState as? EditorPanelState.Adjustments)?.tab ?: AdjustTab.INTENSITY
 
-        val selectedBrandIndex by viewModel.selectedBrandIndex.collectAsState()
-        val selectedCategoryIndex by viewModel.selectedCategoryIndex.collectAsState()
+        // LUT browser navigation state (owned by LutViewModel)
+        val selectedBrandIndex by lutViewModel.selectedBrandIndex.collectAsState()
+        val selectedCategoryIndex by lutViewModel.selectedCategoryIndex.collectAsState()
 
         // Track UI heights for preview offset
         var topBarHeightPx by remember { mutableFloatStateOf(0f) }
         var bottomPanelHeightPx by remember { mutableFloatStateOf(0f) }
         var glViewWidthPx by remember { mutableIntStateOf(0) }
         var glViewHeightPx by remember { mutableIntStateOf(0) }
-        var initialOffsetApplied by remember(viewState, glViewWidthPx, glViewHeightPx) { mutableStateOf(false) }
 
         // ─── UI Event Handler ─────────────────────────────────────────────────
         LaunchedEffect(Unit) {
@@ -167,9 +170,7 @@ fun EditorScreen(
                     is UiEvent.ShowRawToast ->
                         Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                     is UiEvent.ShowUpdateDialog -> pendingUpdate = event.release
-                    is UiEvent.ImageSaved -> {
-                        savedBanner = event
-                    }
+                    is UiEvent.ImageSaved -> savedBanner = event
                 }
             }
         }
@@ -186,200 +187,26 @@ fun EditorScreen(
             }
         }
 
-        // ─── GL Sync Effects ──────────────────────────────────────────────────
-
-        LaunchedEffect(viewState) {
-            val content = viewState as? ViewState.Content ?: return@LaunchedEffect
-            val r = renderer ?: return@LaunchedEffect
-            val gl = glSurfaceView ?: return@LaunchedEffect
-            gestureHandler?.resetZoom()
-            initialOffsetApplied = false
-            val bmp = content.previewBitmap
-            val lut = editState.currentLut
-            val overlayLut = editState.overlayLut
-            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
-            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
-            val grainOn = editState.grainEnabled
-            val grainVal = editState.grainIntensity
-            val grainSty = editState.grainStyle
-            val exp = editState.exposure
-            val con = editState.contrast
-            val hl = editState.highlights
-            val sh = editState.shadows
-            val ct = editState.colorTemp
-            val hue = editState.hue
-            val sat = editState.saturation
-            val lum = editState.luminance
-            gl.queueEvent {
-                r.setImage(bmp)
-                if (lut != null) r.setLut(lut)
-                if (overlayLut != null) r.setOverlayLut(overlayLut)
-                r.setIntensity(intensity)
-                r.setOverlayIntensity(overlayIntensity)
-                r.setGrainEnabled(grainOn)
-                if (grainOn) r.setGrainIntensity(grainVal)
-                r.setGrainStyle(grainSty)
-                r.setExposure(exp)
-                r.setContrast(con)
-                r.setHighlights(hl)
-                r.setShadows(sh)
-                r.setColorTemp(ct)
-                r.setHue(hue)
-                r.setSaturation(sat)
-                r.setLuminance(lum)
-                gl.requestRender()
-            }
-        }
-
-        LaunchedEffect(watermarkPreviewBitmap) {
-            val r = renderer ?: return@LaunchedEffect
-            val gl = glSurfaceView ?: return@LaunchedEffect
-            val wmBmp = watermarkPreviewBitmap
-            val content = viewState as? ViewState.Content
-            val lut = editState.currentLut
-            val overlayLut = editState.overlayLut
-            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
-            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
-            val grainOn = editState.grainEnabled
-            val grainVal = editState.grainIntensity
-            val grainSty = editState.grainStyle
-            val exp = editState.exposure
-            val con = editState.contrast
-            val hl = editState.highlights
-            val sh = editState.shadows
-            val ct = editState.colorTemp
-            val hue = editState.hue
-            val sat = editState.saturation
-            val lum = editState.luminance
-            gl.queueEvent {
-                if (wmBmp != null) {
-                    r.setImage(wmBmp)
-                    r.setIntensity(0f)
-                    r.setOverlayIntensity(0f)
-                    r.setGrainEnabled(false)
-                    r.setExposure(exp)
-                    r.setContrast(con)
-                    r.setHighlights(hl)
-                    r.setShadows(sh)
-                    r.setColorTemp(ct)
-                    r.setHue(hue)
-                    r.setSaturation(sat)
-                    r.setLuminance(lum)
-                } else if (content != null) {
-                    r.setImage(content.previewBitmap)
-                    if (lut != null) r.setLut(lut)
-                    if (overlayLut != null) r.setOverlayLut(overlayLut)
-                    r.setIntensity(intensity)
-                    r.setOverlayIntensity(overlayIntensity)
-                    r.setGrainEnabled(grainOn)
-                    if (grainOn) r.setGrainIntensity(grainVal)
-                    r.setGrainStyle(grainSty)
-                    r.setExposure(exp)
-                    r.setContrast(con)
-                    r.setHighlights(hl)
-                    r.setShadows(sh)
-                    r.setColorTemp(ct)
-                    r.setHue(hue)
-                    r.setSaturation(sat)
-                    r.setLuminance(lum)
-                }
-                gl.requestRender()
-            }
-        }
-
-        LaunchedEffect(compareEnabled, comparePosition, compareVertical, watermarkPreviewBitmap, renderer, glSurfaceView) {
-            val r = renderer ?: return@LaunchedEffect
-            val gl = glSurfaceView ?: return@LaunchedEffect
-            val isPreviewCompareEnabled = compareEnabled && watermarkPreviewBitmap == null
-            gl.queueEvent {
-                r.setCompareEnabled(isPreviewCompareEnabled)
-                r.setCompareSplit(comparePosition)
-                r.setCompareVertical(compareVertical)
-                gl.requestRender()
-            }
-        }
-
-        LaunchedEffect(
-            editState.lutVersion, editState.intensity,
-            editState.overlayIntensity,
-            editState.grainEnabled, editState.grainIntensity, editState.grainStyle,
-            editState.exposure, editState.contrast, editState.highlights,
-            editState.shadows, editState.colorTemp,
-            editState.hue, editState.saturation, editState.luminance
-        ) {
-            val r = renderer ?: return@LaunchedEffect
-            val gl = glSurfaceView ?: return@LaunchedEffect
-            if (viewState !is ViewState.Content) return@LaunchedEffect
-            val wmActive = watermarkPreviewBitmap != null
-            val lut = editState.currentLut
-            val overlayLut = editState.overlayLut
-            val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
-            val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
-            val grainOn = editState.grainEnabled
-            val grainVal = editState.grainIntensity
-            val grainSty = editState.grainStyle
-            val exp = editState.exposure
-            val con = editState.contrast
-            val hl = editState.highlights
-            val sh = editState.shadows
-            val ct = editState.colorTemp
-            val hue = editState.hue
-            val sat = editState.saturation
-            val lum = editState.luminance
-            gl.queueEvent {
-                if (lut != null) r.setLut(lut)
-                if (overlayLut != null) r.setOverlayLut(overlayLut)
-                if (!wmActive) {
-                    r.setIntensity(intensity)
-                    r.setOverlayIntensity(overlayIntensity)
-                    r.setGrainEnabled(grainOn)
-                    if (grainOn) r.setGrainIntensity(grainVal)
-                    r.setGrainStyle(grainSty)
-                }
-                r.setExposure(exp)
-                r.setContrast(con)
-                r.setHighlights(hl)
-                r.setShadows(sh)
-                r.setColorTemp(ct)
-                r.setHue(hue)
-                r.setSaturation(sat)
-                r.setLuminance(lum)
-                gl.requestRender()
-            }
-            viewModel.refreshWatermarkIfActive { bmp -> watermarkPreviewBitmap = bmp }
-        }
-
-        LaunchedEffect(watermarkState.style) {
-            if (watermarkState.style != WatermarkStyle.NONE) {
-                viewModel.renderWatermarkPreview { bmp -> watermarkPreviewBitmap = bmp }
-            } else {
-                watermarkPreviewBitmap = null
-            }
-        }
-
-        LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, glViewWidthPx, glViewHeightPx) {
-            val content = viewState as? ViewState.Content
-            if (content != null && !initialOffsetApplied
-                && topBarHeightPx > 0f && bottomPanelHeightPx > 0f
-                && glViewWidthPx > 0 && glViewHeightPx > 0
-            ) {
-                gestureHandler?.updateInitialBounds(
-                    content.previewBitmap.width,
-                    content.previewBitmap.height,
-                    topBarHeightPx,
-                    bottomPanelHeightPx
-                )
-                initialOffsetApplied = true
-            }
-        }
-
-        LaunchedEffect(isImmersive) {
-            if (viewState is ViewState.Content && initialOffsetApplied) {
-                val effectiveTopBar = if (isImmersive) 0f else topBarHeightPx
-                val effectiveBottomPanel = if (isImmersive) 0f else bottomPanelHeightPx
-                gestureHandler?.updateForImmersiveChange(effectiveTopBar, effectiveBottomPanel)
-            }
-        }
+        // ─── GL Sync (extracted) ──────────────────────────────────────────────
+        EditorGlBridge(
+            viewState = viewState,
+            editState = editState,
+            watermarkState = watermarkState,
+            watermarkPreviewBitmap = watermarkPreviewBitmap,
+            renderer = renderer,
+            glSurfaceView = glSurfaceView,
+            compareEnabled = compareEnabled,
+            comparePosition = comparePosition,
+            compareVertical = compareVertical,
+            gestureHandler = gestureHandler,
+            topBarHeightPx = topBarHeightPx,
+            bottomPanelHeightPx = bottomPanelHeightPx,
+            glViewWidthPx = glViewWidthPx,
+            glViewHeightPx = glViewHeightPx,
+            isImmersive = isImmersive,
+            viewModel = viewModel,
+            onWatermarkBitmapChanged = { watermarkPreviewBitmap = it }
+        )
 
         // ─── Root Frame ───────────────────────────────────────────────────────
         Box(modifier = Modifier.fillMaxSize()) {
@@ -389,14 +216,6 @@ fun EditorScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(
-                        if (showAdjustPanel) {
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { panelState = "LutSelector" }
-                        } else Modifier
-                    )
             ) {
                 AndroidView(
                     factory = { ctx ->
@@ -415,7 +234,10 @@ fun EditorScreen(
                             val gh = ImageGestureHandler(
                                 this, r,
                                 onSingleTap = {
-                                    panelState = if (panelState == "Immersive") "LutSelector" else "Immersive"
+                                    panelState = if (panelState is EditorPanelState.Immersive)
+                                        EditorPanelState.LutSelector
+                                    else
+                                        EditorPanelState.Immersive
                                 },
                                 onLongPressStart = {
                                     if (editState.hasSelectedLut && watermarkPreviewBitmap == null) {
@@ -459,13 +281,7 @@ fun EditorScreen(
                 ImageStateContent(
                     viewState = viewState,
                     onPickImage = onPickImage,
-                    onRetry = {
-                        val content = viewState
-                        if (content is ViewState.Error) {
-                            // Trigger image picker again as retry
-                            onPickImage()
-                        }
-                    }
+                    onRetry = { onPickImage() }
                 )
 
                 if (viewState is ViewState.Content && compareEnabled && watermarkPreviewBitmap == null) {
@@ -475,6 +291,15 @@ fun EditorScreen(
                         onSplitChange = { comparePosition = it }
                     )
                 }
+
+                if (viewState is ViewState.Content && showGestureTip && !isImmersive) {
+                    GestureHintCard(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 108.dp, start = 16.dp, end = 16.dp),
+                        onDismiss = { showGestureTip = false }
+                    )
+                }
             }
 
             // Main vertical layout
@@ -482,8 +307,8 @@ fun EditorScreen(
                 // Top Bar
                 AnimatedVisibility(
                     visible = !isImmersive,
-                    enter = slideInVertically(animationSpec = tween(380, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedDecelerate)) { -it } + fadeIn(animationSpec = tween(300)),
-                    exit = slideOutVertically(animationSpec = tween(320, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedAccelerate)) { -it } + fadeOut(animationSpec = tween(250))
+                    enter = slideInVertically(animationSpec = tween(380, easing = LiquidMotion.EasingEmphasizedDecelerate)) { -it } + fadeIn(animationSpec = tween(300)),
+                    exit = slideOutVertically(animationSpec = tween(320, easing = LiquidMotion.EasingEmphasizedAccelerate)) { -it } + fadeOut(animationSpec = tween(250))
                 ) {
                     TopBar(
                         onPickImage = onPickImage,
@@ -523,7 +348,8 @@ fun EditorScreen(
                     isImmersive = isImmersive,
                     showAdjustPanel = showAdjustPanel,
                     onShowAdjustPanelChange = { show ->
-                        panelState = if (show) "Adjustments" else "LutSelector"
+                        panelState = if (show) EditorPanelState.Adjustments(selectedAdjustTab) else EditorPanelState.LutSelector
+                        if (show) showGestureTip = false
                     },
                     isWatermarkActive = watermarkPreviewBitmap != null,
                     onRefreshWatermark = { refreshWatermarkPreview() },
@@ -531,7 +357,7 @@ fun EditorScreen(
                     selectedBrandIndex = selectedBrandIndex,
                     selectedCategoryIndex = selectedCategoryIndex,
                     selectedAdjustTab = selectedAdjustTab,
-                    onAdjustTabSelected = { selectedAdjustTabName = it.name },
+                    onAdjustTabSelected = { tab -> panelState = EditorPanelState.Adjustments(tab) },
                     showPanelHints = showPanelHints,
                     compareEnabled = compareEnabled,
                     comparePosition = comparePosition,
@@ -540,10 +366,12 @@ fun EditorScreen(
                     onCompareVerticalChange = { compareVertical = it },
                     isSelectingOverlay = isSelectingOverlay,
                     onStartOverlaySelection = {
-                        selectedAdjustTabName = AdjustTab.INTENSITY.name
+                        panelState = EditorPanelState.Adjustments(AdjustTab.INTENSITY)
                         isSelectingOverlay = true
                     },
                     onFinishOverlaySelection = { isSelectingOverlay = false },
+                    onBrandIndexChanged = { lutViewModel.setSelectedBrandIndex(it) },
+                    onCategoryIndexChanged = { lutViewModel.setSelectedCategoryIndex(it) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .onGloballyPositioned { bottomPanelHeightPx = it.size.height.toFloat() }
@@ -575,7 +403,6 @@ fun EditorScreen(
             )
         }
 
-        // Save success banner overlay (floats above all content)
         SaveSuccessBanner(
             event = savedBanner,
             onDismiss = { savedBanner = null }
@@ -586,6 +413,206 @@ fun EditorScreen(
                 gpuExportRendererRef[0]?.release()
                 gpuExportRendererRef[0] = null
             }
+        }
+    }
+}
+
+// ─── GL Bridge ───────────────────────────────────────────────────────────────
+
+/**
+ * Stateless composable that owns all GL-sync [LaunchedEffect] blocks.
+ * Encapsulates the bridge between Compose state and the OpenGL thread,
+ * keeping [EditorScreen] free of low-level rendering concerns.
+ */
+@Composable
+private fun EditorGlBridge(
+    viewState: ViewState,
+    editState: EditState,
+    watermarkState: WatermarkState,
+    watermarkPreviewBitmap: Bitmap?,
+    renderer: FilmSimRenderer?,
+    glSurfaceView: GLSurfaceView?,
+    compareEnabled: Boolean,
+    comparePosition: Float,
+    compareVertical: Boolean,
+    gestureHandler: ImageGestureHandler?,
+    topBarHeightPx: Float,
+    bottomPanelHeightPx: Float,
+    glViewWidthPx: Int,
+    glViewHeightPx: Int,
+    isImmersive: Boolean,
+    viewModel: EditorViewModel,
+    onWatermarkBitmapChanged: (Bitmap?) -> Unit
+) {
+    // Local state: resets automatically when viewState or GL view dimensions change
+    var initialOffsetApplied by remember(viewState, glViewWidthPx, glViewHeightPx) {
+        mutableStateOf(false)
+    }
+
+    // Effect 1: New image loaded → full GL state reset + zoom reset
+    LaunchedEffect(viewState) {
+        val content = viewState as? ViewState.Content ?: return@LaunchedEffect
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        gestureHandler?.resetZoom()
+        initialOffsetApplied = false
+        val bmp = content.previewBitmap
+        val lut = editState.currentLut
+        val overlayLut = editState.overlayLut
+        val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+        val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
+        gl.queueEvent {
+            r.setImage(bmp)
+            if (lut != null) r.setLut(lut)
+            if (overlayLut != null) r.setOverlayLut(overlayLut)
+            r.setIntensity(intensity)
+            r.setOverlayIntensity(overlayIntensity)
+            r.setGrainEnabled(editState.grainEnabled)
+            if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
+            r.setGrainStyle(editState.grainStyle)
+            r.setExposure(editState.exposure)
+            r.setContrast(editState.contrast)
+            r.setHighlights(editState.highlights)
+            r.setShadows(editState.shadows)
+            r.setColorTemp(editState.colorTemp)
+            r.setHue(editState.hue)
+            r.setSaturation(editState.saturation)
+            r.setLuminance(editState.luminance)
+            gl.requestRender()
+        }
+    }
+
+    // Effect 2: Watermark preview bitmap changed → swap displayed image in GL
+    LaunchedEffect(watermarkPreviewBitmap) {
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        val wmBmp = watermarkPreviewBitmap
+        val content = viewState as? ViewState.Content
+        val lut = editState.currentLut
+        val overlayLut = editState.overlayLut
+        val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+        val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
+        gl.queueEvent {
+            if (wmBmp != null) {
+                r.setImage(wmBmp)
+                r.setIntensity(0f)
+                r.setOverlayIntensity(0f)
+                r.setGrainEnabled(false)
+                r.setExposure(editState.exposure)
+                r.setContrast(editState.contrast)
+                r.setHighlights(editState.highlights)
+                r.setShadows(editState.shadows)
+                r.setColorTemp(editState.colorTemp)
+                r.setHue(editState.hue)
+                r.setSaturation(editState.saturation)
+                r.setLuminance(editState.luminance)
+            } else if (content != null) {
+                r.setImage(content.previewBitmap)
+                if (lut != null) r.setLut(lut)
+                if (overlayLut != null) r.setOverlayLut(overlayLut)
+                r.setIntensity(intensity)
+                r.setOverlayIntensity(overlayIntensity)
+                r.setGrainEnabled(editState.grainEnabled)
+                if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
+                r.setGrainStyle(editState.grainStyle)
+                r.setExposure(editState.exposure)
+                r.setContrast(editState.contrast)
+                r.setHighlights(editState.highlights)
+                r.setShadows(editState.shadows)
+                r.setColorTemp(editState.colorTemp)
+                r.setHue(editState.hue)
+                r.setSaturation(editState.saturation)
+                r.setLuminance(editState.luminance)
+            }
+            gl.requestRender()
+        }
+    }
+
+    // Effect 3: Compare mode changed
+    LaunchedEffect(compareEnabled, comparePosition, compareVertical, watermarkPreviewBitmap, renderer, glSurfaceView) {
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        val isPreviewCompareEnabled = compareEnabled && watermarkPreviewBitmap == null
+        gl.queueEvent {
+            r.setCompareEnabled(isPreviewCompareEnabled)
+            r.setCompareSplit(comparePosition)
+            r.setCompareVertical(compareVertical)
+            gl.requestRender()
+        }
+    }
+
+    // Effect 4: Edit parameters changed → push to GL (watermark-aware)
+    LaunchedEffect(
+        editState.lutVersion, editState.intensity,
+        editState.overlayIntensity,
+        editState.grainEnabled, editState.grainIntensity, editState.grainStyle,
+        editState.exposure, editState.contrast, editState.highlights,
+        editState.shadows, editState.colorTemp,
+        editState.hue, editState.saturation, editState.luminance
+    ) {
+        val r = renderer ?: return@LaunchedEffect
+        val gl = glSurfaceView ?: return@LaunchedEffect
+        if (viewState !is ViewState.Content) return@LaunchedEffect
+        val wmActive = watermarkPreviewBitmap != null
+        val lut = editState.currentLut
+        val overlayLut = editState.overlayLut
+        val intensity = if (editState.hasSelectedLut) editState.intensity else 0f
+        val overlayIntensity = if (overlayLut != null) editState.overlayIntensity else 0f
+        gl.queueEvent {
+            if (lut != null) r.setLut(lut)
+            if (overlayLut != null) r.setOverlayLut(overlayLut)
+            if (!wmActive) {
+                r.setIntensity(intensity)
+                r.setOverlayIntensity(overlayIntensity)
+                r.setGrainEnabled(editState.grainEnabled)
+                if (editState.grainEnabled) r.setGrainIntensity(editState.grainIntensity)
+                r.setGrainStyle(editState.grainStyle)
+            }
+            r.setExposure(editState.exposure)
+            r.setContrast(editState.contrast)
+            r.setHighlights(editState.highlights)
+            r.setShadows(editState.shadows)
+            r.setColorTemp(editState.colorTemp)
+            r.setHue(editState.hue)
+            r.setSaturation(editState.saturation)
+            r.setLuminance(editState.luminance)
+            gl.requestRender()
+        }
+        viewModel.refreshWatermarkIfActive { bmp -> onWatermarkBitmapChanged(bmp) }
+    }
+
+    // Effect 5: Watermark style changed → render or clear watermark preview
+    LaunchedEffect(watermarkState.style) {
+        if (watermarkState.style != WatermarkStyle.NONE) {
+            viewModel.renderWatermarkPreview { bmp -> onWatermarkBitmapChanged(bmp) }
+        } else {
+            onWatermarkBitmapChanged(null)
+        }
+    }
+
+    // Effect 6: Layout bounds ready → initialize gesture handler offset
+    LaunchedEffect(topBarHeightPx, bottomPanelHeightPx, viewState, glViewWidthPx, glViewHeightPx) {
+        val content = viewState as? ViewState.Content
+        if (content != null && !initialOffsetApplied
+            && topBarHeightPx > 0f && bottomPanelHeightPx > 0f
+            && glViewWidthPx > 0 && glViewHeightPx > 0
+        ) {
+            gestureHandler?.updateInitialBounds(
+                content.previewBitmap.width,
+                content.previewBitmap.height,
+                topBarHeightPx,
+                bottomPanelHeightPx
+            )
+            initialOffsetApplied = true
+        }
+    }
+
+    // Effect 7: Immersive mode toggled → update gesture handler margins
+    LaunchedEffect(isImmersive) {
+        if (viewState is ViewState.Content && initialOffsetApplied) {
+            val effectiveTopBar = if (isImmersive) 0f else topBarHeightPx
+            val effectiveBottomPanel = if (isImmersive) 0f else bottomPanelHeightPx
+            gestureHandler?.updateForImmersiveChange(effectiveTopBar, effectiveBottomPanel)
         }
     }
 }
@@ -630,7 +657,6 @@ private fun ImageStateContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(32.dp)
                 ) {
-                    // Error icon
                     Box(
                         modifier = Modifier
                             .size(72.dp)
@@ -646,9 +672,7 @@ private fun ImageStateContent(
                             fontFamily = FontFamily.SansSerif
                         )
                     }
-
                     Spacer(modifier = Modifier.height(20.dp))
-
                     Text(
                         text = stringResource(R.string.error_title),
                         color = LiquidColors.TextHighEmphasis,
@@ -656,9 +680,7 @@ private fun ImageStateContent(
                         fontWeight = FontWeight.SemiBold,
                         fontFamily = FontFamily.SansSerif
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
-
                     Text(
                         text = state.message,
                         color = LiquidColors.TextLowEmphasis,
@@ -668,24 +690,18 @@ private fun ImageStateContent(
                         lineHeight = 20.sp,
                         modifier = Modifier.widthIn(max = 280.dp)
                     )
-
                     Spacer(modifier = Modifier.height(28.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    LiquidButton(
+                        onClick = onRetry,
+                        modifier = Modifier.height(46.dp)
                     ) {
-                        LiquidButton(
-                            onClick = onRetry,
-                            modifier = Modifier.height(46.dp)
-                        ) {
-                            Text(
-                                stringResource(R.string.error_pick_another),
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                fontFamily = FontFamily.SansSerif
-                            )
-                        }
+                        Text(
+                            stringResource(R.string.error_pick_another),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = FontFamily.SansSerif
+                        )
                     }
                 }
             }
@@ -723,15 +739,15 @@ private fun BottomControlArea(
     isSelectingOverlay: Boolean,
     onStartOverlaySelection: () -> Unit,
     onFinishOverlaySelection: () -> Unit,
+    onBrandIndexChanged: (Int) -> Unit,
+    onCategoryIndexChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val navPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     AnimatedVisibility(
         visible = !isImmersive && viewState is ViewState.Content,
         modifier = modifier,
-        enter = slideInVertically(animationSpec = tween(380, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedDecelerate)) { it } + fadeIn(animationSpec = tween(300)),
-        exit = slideOutVertically(animationSpec = tween(320, easing = com.tqmane.filmsim.ui.theme.LiquidMotion.EasingEmphasizedAccelerate)) { it } + fadeOut(animationSpec = tween(250))
+        enter = slideInVertically(animationSpec = tween(380, easing = LiquidMotion.EasingEmphasizedDecelerate)) { it } + fadeIn(animationSpec = tween(300)),
+        exit = slideOutVertically(animationSpec = tween(320, easing = LiquidMotion.EasingEmphasizedAccelerate)) { it } + fadeOut(animationSpec = tween(250))
     ) {
         AnimatedContent(
             targetState = showAdjustPanel && editState.hasSelectedLut,
@@ -763,7 +779,7 @@ private fun BottomControlArea(
                     onCompareVerticalChange = onCompareVerticalChange,
                     isProUser = isProUser,
                     onClose = { onShowAdjustPanelChange(false) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
+                    modifier = Modifier.fillMaxWidth()
                 )
             } else {
                 LutSelectorPanel(
@@ -788,11 +804,11 @@ private fun BottomControlArea(
                     },
                     isProUser = isProUser,
                     selectedBrandIndex = selectedBrandIndex,
-                    onBrandIndexChanged = { viewModel.setSelectedBrandIndex(it) },
+                    onBrandIndexChanged = onBrandIndexChanged,
                     selectedCategoryIndex = selectedCategoryIndex,
-                    onCategoryIndexChanged = { viewModel.setSelectedCategoryIndex(it) },
+                    onCategoryIndexChanged = onCategoryIndexChanged,
                     squareTop = false,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = navPadding)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -808,14 +824,10 @@ private fun ComparePreviewOverlay(
 ) {
     val density = LocalDensity.current
     var dragActive by remember { mutableStateOf(false) }
-    // Keep latest values accessible inside the gesture handler without restarting it
     val currentSplit by rememberUpdatedState(split)
     val currentVertical by rememberUpdatedState(vertical)
 
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val dragThresholdPx = with(density) { 28.dp.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
@@ -835,16 +847,10 @@ private fun ComparePreviewOverlay(
                             val indicator = currentSplit * availablePx
                             val touchAxis = if (isVert) offset.x else offset.y
                             dragActive = kotlin.math.abs(touchAxis - indicator) <= dragThresholdPx
-                            if (dragActive) {
-                                onSplitChange((touchAxis / availablePx).coerceIn(0f, 1f))
-                            }
+                            if (dragActive) onSplitChange((touchAxis / availablePx).coerceIn(0f, 1f))
                         },
-                        onDragEnd = {
-                            dragActive = false
-                        },
-                        onDragCancel = {
-                            dragActive = false
-                        },
+                        onDragEnd = { dragActive = false },
+                        onDragCancel = { dragActive = false },
                         onDrag = { change, _ ->
                             if (!dragActive) return@detectDragGestures
                             val isVert = currentVertical
@@ -869,7 +875,6 @@ private fun ComparePreviewOverlay(
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )
-
             Text(
                 text = stringResource(R.string.compare_before),
                 color = Color.White,
@@ -895,7 +900,6 @@ private fun ComparePreviewOverlay(
                     .background(Color(0x66000000))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )
-
             Text(
                 text = stringResource(R.string.compare_before),
                 color = Color.White,
@@ -911,7 +915,6 @@ private fun ComparePreviewOverlay(
         }
 
         if (vertical) {
-            // Divider line
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -920,7 +923,6 @@ private fun ComparePreviewOverlay(
                     .widthIn(min = 2.dp, max = 2.dp)
                     .background(Color.White.copy(alpha = 0.92f))
             )
-            // Drag handle pill
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -930,7 +932,6 @@ private fun ComparePreviewOverlay(
                     .background(Color.White)
             )
         } else {
-            // Divider line
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -939,7 +940,6 @@ private fun ComparePreviewOverlay(
                     .height(2.dp)
                     .background(Color.White.copy(alpha = 0.92f))
             )
-            // Drag handle pill
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -949,6 +949,66 @@ private fun ComparePreviewOverlay(
                     .background(Color.White)
             )
         }
+    }
+}
+
+@Composable
+private fun GestureHintCard(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(LiquidColors.SurfaceMedium.copy(alpha = 0.92f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDismiss
+            )
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(LiquidColors.AccentPrimary.copy(alpha = 0.16f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_compare),
+                contentDescription = null,
+                tint = LiquidColors.AccentPrimary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.gesture_hint_title),
+                color = LiquidColors.TextHighEmphasis,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.SansSerif
+            )
+            Text(
+                text = stringResource(R.string.gesture_hint_body),
+                color = LiquidColors.TextMediumEmphasis,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                fontFamily = FontFamily.SansSerif,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        Text(
+            text = stringResource(R.string.gesture_hint_dismiss),
+            color = LiquidColors.AccentPrimary,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.SansSerif
+        )
     }
 }
 
@@ -1018,6 +1078,13 @@ private fun SaveSuccessBanner(
                         color = LiquidColors.TextLowEmphasis,
                         fontSize = 12.sp,
                         fontFamily = FontFamily.SansSerif
+                    )
+                    Text(
+                        text = stringResource(R.string.save_success_dismiss_hint),
+                        color = LiquidColors.AccentPrimary,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
