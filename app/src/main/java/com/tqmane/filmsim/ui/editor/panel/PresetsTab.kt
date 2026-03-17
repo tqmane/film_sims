@@ -38,17 +38,30 @@ import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.EditorViewModel
 import com.tqmane.filmsim.ui.Preset
+import com.tqmane.filmsim.ui.component.LiquidNoticeCard
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
 @Composable
 internal fun PresetsTab(
     viewModel: EditorViewModel,
+    showHints: Boolean,
     modifier: Modifier = Modifier
 ) {
     val presets by viewModel.presets.collectAsState()
     var showSaveDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
+        if (showHints) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.presets_hint_title),
+                message = stringResource(
+                    if (presets.isEmpty()) R.string.presets_hint_body_empty else R.string.presets_hint_body_ready
+                ),
+                label = stringResource(R.string.tab_presets),
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -77,6 +90,7 @@ internal fun PresetsTab(
                 items(presets, key = { it.id }) { preset ->
                     PresetItem(
                         preset = preset,
+                        lutDisplayName = viewModel.resolveLutDisplayName(preset.lutPath),
                         onLoad = { viewModel.loadPreset(preset) },
                         onDelete = { viewModel.deletePreset(preset.id) }
                     )
@@ -99,6 +113,7 @@ internal fun PresetsTab(
 @Composable
 private fun PresetItem(
     preset: Preset,
+    lutDisplayName: String?,
     onLoad: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -121,7 +136,7 @@ private fun PresetItem(
             )
             val lutName = preset.lutPath?.substringAfterLast("/")?.substringBeforeLast(".") ?: "—"
             Text(
-                lutName,
+                text = lutDisplayName ?: lutName,
                 color = LiquidColors.TextMediumEmphasis,
                 fontSize = 11.sp,
                 maxLines = 1,

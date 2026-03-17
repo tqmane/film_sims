@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Стили появятся после выбора бренда</string>
     <string name="watermark_style_waiting_body">Сначала выберите бренд, чтобы эта панель смогла показать подходящие стили водяного знака.</string>
     <string name="watermark_details_title">Детали</string>
+    <string name="intensity_strength_title">Сначала настройте общую силу эффекта</string>
+    <string name="intensity_strength_hint">Сначала усильте или ослабьте основной look, а уже потом добавляйте наложения, зерно и инструменты сравнения.</string>
+    <string name="overlay_active_title">Наложение активно: %1$s</string>
+    <string name="overlay_active_hint">Настройте смешивание так, чтобы базовый look оставался узнаваемым, а цвет получил больше характера.</string>
+    <string name="compare_active_title">Режим сравнения включен</string>
+    <string name="compare_active_hint">Если разделение кажется неудобным, смените направление и перетащите разделитель к важным участкам кадра.</string>
+    <string name="presets_hint_title">Сохраняйте повторно используемые look\'и</string>
+    <string name="presets_hint_body_empty">Пресеты позволяют позже снова использовать весь рецепт целиком, включая LUT, наложение, тон и зерно.</string>
+    <string name="presets_hint_body_ready">Нажмите на пресет, чтобы загрузить его сразу, или сохраните текущий рецепт, если нашли look, который стоит оставить.</string>
 </resources>

@@ -150,6 +150,18 @@ class EditorViewModel @Inject constructor(
         applyParsedLut(lutItem.assetPath, asOverlay = true)
     }
 
+    fun resolveLutDisplayName(path: String?): String? {
+        if (path == null) return null
+
+        return brands
+            .asSequence()
+            .flatMap { it.categories.asSequence() }
+            .flatMap { it.items.asSequence() }
+            .firstOrNull { it.assetPath == path }
+            ?.name
+            ?: path.substringAfterLast('/').substringBeforeLast('.')
+    }
+
     fun clearOverlayLut() {
         val current = _editState.value
         _editState.value = current.copy(

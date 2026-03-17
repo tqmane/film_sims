@@ -131,9 +131,11 @@ private fun BrandGenreLutSection(
     val lutItems = remember(selectedBrandIndex, selectedCategoryIndex) { categories.getOrNull(selectedCategoryIndex)?.items.orEmpty() }
     val currentBrand = brands.getOrNull(selectedBrandIndex)
     val currentCategory = categories.getOrNull(selectedCategoryIndex)
-    val selectedLutName = (if (isSelectingOverlay) editState.overlayLutPath else editState.currentLutPath)
-        ?.substringAfterLast("/")
-        ?.substringBeforeLast(".")
+    val selectedLutName = remember(editState.currentLutPath, editState.overlayLutPath, isSelectingOverlay) {
+        viewModel.resolveLutDisplayName(
+            if (isSelectingOverlay) editState.overlayLutPath else editState.currentLutPath
+        )
+    }
     val collectionLabel = if (categories.size > 1) {
         currentCategory?.displayName ?: stringResource(R.string.section_collections)
     } else {

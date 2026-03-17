@@ -117,10 +117,9 @@ internal fun AdjustPanel(
         AdjustTab.WATERMARK -> stringResource(R.string.adjust_hint_watermark)
         AdjustTab.PRESETS -> stringResource(R.string.adjust_hint_presets)
     }
-    val currentLutName = editState.currentLutPath
-        ?.substringAfterLast("/")
-        ?.substringBeforeLast(".")
-        ?: stringResource(R.string.adjustments)
+    val currentLutName = remember(editState.currentLutPath) {
+        viewModel.resolveLutDisplayName(editState.currentLutPath)
+    } ?: stringResource(R.string.adjustments)
 
     val tabs = listOf(
         AdjustTab.INTENSITY to stringResource(R.string.adjustments),
@@ -228,9 +227,7 @@ internal fun AdjustPanel(
                 AdjustTab.INTENSITY -> {
                     IntensityTab(
                         intensity = editState.intensity,
-                        overlayLutName = editState.overlayLutPath
-                            ?.substringAfterLast("/")
-                            ?.substringBeforeLast("."),
+                        overlayLutName = viewModel.resolveLutDisplayName(editState.overlayLutPath),
                         overlayIntensity = editState.overlayIntensity,
                         onIntensityChange = stableOnIntensityChange,
                         onOverlayIntensityChange = stableOnOverlayIntensityChange,
@@ -244,6 +241,7 @@ internal fun AdjustPanel(
                         compareVertical = compareVertical,
                         onComparePositionChange = onComparePositionChange,
                         onCompareVerticalChange = onCompareVerticalChange,
+                        showHints = showPanelHints,
                     )
                 }
                 AdjustTab.ADJUST -> {
@@ -274,7 +272,7 @@ internal fun AdjustPanel(
                     )
                 }
                 AdjustTab.PRESETS -> {
-                    PresetsTab(viewModel = viewModel)
+                    PresetsTab(viewModel = viewModel, showHints = showPanelHints)
                 }
             }
         }

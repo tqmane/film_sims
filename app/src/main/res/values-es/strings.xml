@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Los estilos aparecen al elegir una marca</string>
     <string name="watermark_style_waiting_body">Selecciona primero una marca para que este panel muestre los estilos de marca de agua correspondientes.</string>
     <string name="watermark_details_title">Detalles</string>
+    <string name="intensity_strength_title">Primero ajusta la intensidad general</string>
+    <string name="intensity_strength_hint">Sube o baja el look principal antes de mezclar superposiciones, grano o herramientas de comparacion.</string>
+    <string name="overlay_active_title">Superposicion activa: %1$s</string>
+    <string name="overlay_active_hint">Ajusta la mezcla para mantener reconocible el look base mientras anades mas caracter al color.</string>
+    <string name="compare_active_title">El modo comparacion esta activo</string>
+    <string name="compare_active_hint">Si la division se siente incomoda, cambia la direccion y arrastra el separador para revisar partes clave de la imagen.</string>
+    <string name="presets_hint_title">Guarda looks reutilizables</string>
+    <string name="presets_hint_body_empty">Los preajustes te permiten reutilizar despues la receta completa, con LUT, superposicion, tono y grano.</string>
+    <string name="presets_hint_body_ready">Toca un preajuste para cargarlo al instante, o guarda la receta actual cuando encuentres un look que merezca conservarse.</string>
 </resources>

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.tqmane.filmsim.R
 import com.tqmane.filmsim.ui.component.LiquidChip
 import com.tqmane.filmsim.ui.component.LiquidIntensitySlider
+import com.tqmane.filmsim.ui.component.LiquidNoticeCard
 import com.tqmane.filmsim.ui.component.LiquidSectionHeader
 import com.tqmane.filmsim.ui.theme.LiquidColors
 
@@ -47,10 +48,20 @@ internal fun IntensityTab(
     compareVertical: Boolean,
     onComparePositionChange: (Float) -> Unit,
     onCompareVerticalChange: (Boolean) -> Unit,
+    showHints: Boolean,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     Column(modifier = modifier.verticalScroll(scrollState)) {
+        if (showHints) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.intensity_strength_title),
+                message = stringResource(R.string.intensity_strength_hint),
+                label = "${(intensity * 100).toInt()}%",
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+        }
+
         LiquidIntensitySlider(
             intensity = intensity,
             onIntensityChange = onIntensityChange
@@ -93,6 +104,15 @@ internal fun IntensityTab(
             }
         }
 
+        if (showHints && overlayLutName != null) {
+            LiquidNoticeCard(
+                title = stringResource(R.string.overlay_active_title, overlayLutName),
+                message = stringResource(R.string.overlay_active_hint),
+                label = stringResource(R.string.overlay_filter),
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+        }
+
         if (overlayLutName != null) {
             IntensityAdjustSlider(
                 label = stringResource(R.string.overlay_blend),
@@ -105,6 +125,14 @@ internal fun IntensityTab(
 
         if (compareEnabled) {
             Spacer(modifier = Modifier.height(6.dp))
+            if (showHints) {
+                LiquidNoticeCard(
+                    title = stringResource(R.string.compare_active_title),
+                    message = stringResource(R.string.compare_active_hint),
+                    label = stringResource(R.string.compare_preview),
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
             LiquidSectionHeader(text = stringResource(R.string.compare_preview))
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

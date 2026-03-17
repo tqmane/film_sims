@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Les styles apparaissent apres le choix d\'une marque</string>
     <string name="watermark_style_waiting_body">Selectionnez d\'abord une marque pour que ce panneau affiche les styles de filigrane correspondants.</string>
     <string name="watermark_details_title">Details</string>
+    <string name="intensity_strength_title">Reglez d\'abord l\'intensite globale</string>
+    <string name="intensity_strength_hint">Ajustez le look principal avant d\'ajouter des superpositions, du grain ou les outils de comparaison.</string>
+    <string name="overlay_active_title">Superposition active : %1$s</string>
+    <string name="overlay_active_hint">Ajustez le melange pour garder le look de base reconnaissable tout en ajoutant plus de caractere aux couleurs.</string>
+    <string name="compare_active_title">Le mode comparaison est actif</string>
+    <string name="compare_active_hint">Si la separation semble peu pratique, changez de direction puis faites glisser le separateur pour verifier les zones importantes.</string>
+    <string name="presets_hint_title">Enregistrer des looks reutilisables</string>
+    <string name="presets_hint_body_empty">Les presets vous permettent de reutiliser plus tard la recette complete, avec LUT, superposition, tonalite et grain.</string>
+    <string name="presets_hint_body_ready">Touchez un preset pour le charger instantanement, ou enregistrez la recette actuelle quand vous trouvez un look a conserver.</string>
 </resources>

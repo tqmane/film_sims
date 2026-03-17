@@ -259,4 +259,13 @@
     <string name="watermark_style_waiting_title">选择品牌后会显示样式</string>
     <string name="watermark_style_waiting_body">请先选择品牌，这个面板才会显示对应的水印样式。</string>
     <string name="watermark_details_title">详细信息</string>
+    <string name="intensity_strength_title">先调整整体强度</string>
+    <string name="intensity_strength_hint">在叠加覆盖、颗粒或比较工具之前，先把主风格的强弱调到合适会更顺手。</string>
+    <string name="overlay_active_title">叠加已启用：%1$s</string>
+    <string name="overlay_active_hint">调整混合度，让基础风格仍然清晰可辨，同时增加更多色彩个性。</string>
+    <string name="compare_active_title">比较模式已开启</string>
+    <string name="compare_active_hint">如果当前分割方向不顺手，可以切换方向，再拖动分隔线检查画面重点区域。</string>
+    <string name="presets_hint_title">保存可复用的风格</string>
+    <string name="presets_hint_body_empty">预设可以让你以后直接复用整套配方，包括 LUT、叠加、色调和颗粒设置。</string>
+    <string name="presets_hint_body_ready">点按预设即可立即加载；当你调出值得保留的风格时，也可以保存当前配方。</string>
 </resources>

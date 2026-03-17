@@ -259,4 +259,13 @@
     <string name="watermark_style_waiting_title">브랜드를 선택하면 스타일이 표시됩니다</string>
     <string name="watermark_style_waiting_body">이 패널에 맞는 워터마크 스타일을 표시하려면 먼저 브랜드를 선택하세요.</string>
     <string name="watermark_details_title">세부 정보</string>
+    <string name="intensity_strength_title">먼저 전체 강도를 정하세요</string>
+    <string name="intensity_strength_hint">오버레이, 그레인, 비교 도구를 더하기 전에 메인 룩의 강도를 먼저 맞추면 조정이 쉬워집니다.</string>
+    <string name="overlay_active_title">오버레이 적용 중: %1$s</string>
+    <string name="overlay_active_hint">기본 룩이 알아볼 수 있게 유지되면서 색감 개성이 더해지도록 블렌드를 조절하세요.</string>
+    <string name="compare_active_title">비교 모드가 켜져 있습니다</string>
+    <string name="compare_active_hint">분할 방향이 불편하면 방향을 바꾸고, 구분선을 움직여 중요한 영역을 자세히 확인하세요.</string>
+    <string name="presets_hint_title">재사용할 룩 저장</string>
+    <string name="presets_hint_body_empty">프리셋을 사용하면 LUT, 오버레이, 톤, 그레인을 포함한 전체 레시피를 나중에 다시 불러올 수 있습니다.</string>
+    <string name="presets_hint_body_ready">프리셋을 탭하면 즉시 불러옵니다. 보관할 만한 룩을 찾았다면 현재 레시피를 저장하세요.</string>
 </resources>

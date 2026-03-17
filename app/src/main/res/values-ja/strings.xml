@@ -286,4 +286,13 @@
     <string name="watermark_style_waiting_title">ブランドを選ぶとスタイルが表示されます</string>
     <string name="watermark_style_waiting_body">対応する透かしスタイルを表示するため、先にブランドを選択してください。</string>
     <string name="watermark_details_title">詳細</string>
+    <string name="intensity_strength_title">最初に強さを整えましょう</string>
+    <string name="intensity_strength_hint">オーバーレイやグレイン、比較を重ねる前に、まず全体のルック強度を決めると調整しやすくなります。</string>
+    <string name="overlay_active_title">重ねがけ中: %1$s</string>
+    <string name="overlay_active_hint">ベースのルックらしさを残しつつ色の個性を足せるように、ブレンド量で整えてください。</string>
+    <string name="compare_active_title">比較モードが有効です</string>
+    <string name="compare_active_hint">分割方向が見づらいときは切り替えて、境界線を動かしながら気になる部分を確認できます。</string>
+    <string name="presets_hint_title">再利用できるルックを保存</string>
+    <string name="presets_hint_body_empty">プリセットを使うと、LUT・重ねがけ・色調整・グレインを含む今の仕上がりをあとでそのまま再利用できます。</string>
+    <string name="presets_hint_body_ready">プリセットをタップするとすぐ読み込めます。残しておきたい仕上がりができたら現在の設定を保存してください。</string>
 </resources>

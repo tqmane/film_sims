@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Stile erscheinen nach der Markenauswahl</string>
     <string name="watermark_style_waiting_body">Waehle zuerst eine Marke, damit dieses Panel passende Wasserzeichenstile anzeigen kann.</string>
     <string name="watermark_details_title">Details</string>
+    <string name="intensity_strength_title">Zuerst die Gesamtstaerke festlegen</string>
+    <string name="intensity_strength_hint">Passe erst die Hauptwirkung an, bevor du Overlays, Korn oder Vergleichswerkzeuge darueberlegst.</string>
+    <string name="overlay_active_title">Overlay aktiv: %1$s</string>
+    <string name="overlay_active_hint">Regle die Mischung so, dass der Grundlook erkennbar bleibt und trotzdem mehr Farbcharakter dazukommt.</string>
+    <string name="compare_active_title">Vergleichsmodus ist aktiv</string>
+    <string name="compare_active_hint">Wenn sich die Teilung unpraktisch anfuehlt, wechsle die Richtung und ziehe den Trenner zu wichtigen Bildbereichen.</string>
+    <string name="presets_hint_title">Wiederverwendbare Looks speichern</string>
+    <string name="presets_hint_body_empty">Mit Presets kannst du spaeter das komplette Rezept wiederverwenden, inklusive LUT, Overlay, Tonung und Korn.</string>
+    <string name="presets_hint_body_ready">Tippe auf ein Preset, um es sofort zu laden, oder speichere den aktuellen Look, wenn er sich lohnt aufzubewahren.</string>
 </resources>

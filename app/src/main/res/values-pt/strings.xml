@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Os estilos aparecem apos escolher uma marca</string>
     <string name="watermark_style_waiting_body">Selecione primeiro uma marca para que este painel mostre os estilos de marca d\'agua correspondentes.</string>
     <string name="watermark_details_title">Detalhes</string>
+    <string name="intensity_strength_title">Defina primeiro a intensidade geral</string>
+    <string name="intensity_strength_hint">Aumente ou reduza o look principal antes de adicionar sobreposicoes, grao ou ferramentas de comparacao.</string>
+    <string name="overlay_active_title">Sobreposicao ativa: %1$s</string>
+    <string name="overlay_active_hint">Ajuste a mistura para manter o look base reconhecivel e ainda assim acrescentar mais personalidade as cores.</string>
+    <string name="compare_active_title">O modo de comparacao esta ativo</string>
+    <string name="compare_active_hint">Se a divisao parecer estranha, mude a direcao e arraste o separador para inspecionar partes importantes da imagem.</string>
+    <string name="presets_hint_title">Guarde looks reutilizaveis</string>
+    <string name="presets_hint_body_empty">Os predefinidos permitem reutilizar mais tarde a receita completa, incluindo LUT, sobreposicao, tom e grao.</string>
+    <string name="presets_hint_body_ready">Toque num predefinido para o carregar de imediato, ou guarde a receita atual quando encontrar um look que valha a pena manter.</string>
 </resources>

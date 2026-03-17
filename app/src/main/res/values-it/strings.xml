@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">Gli stili compaiono dopo la scelta del brand</string>
     <string name="watermark_style_waiting_body">Seleziona prima un brand affinche questo pannello mostri gli stili di watermark corrispondenti.</string>
     <string name="watermark_details_title">Dettagli</string>
+    <string name="intensity_strength_title">Imposta prima l\'intensita generale</string>
+    <string name="intensity_strength_hint">Aumenta o riduci il look principale prima di aggiungere overlay, grana o strumenti di confronto.</string>
+    <string name="overlay_active_title">Overlay attivo: %1$s</string>
+    <string name="overlay_active_hint">Regola la fusione per mantenere riconoscibile il look base aggiungendo piu carattere al colore.</string>
+    <string name="compare_active_title">La modalita confronto e attiva</string>
+    <string name="compare_active_hint">Se la divisione risulta scomoda, cambia direzione e trascina il divisore per controllare le parti piu importanti dell\'immagine.</string>
+    <string name="presets_hint_title">Salva look riutilizzabili</string>
+    <string name="presets_hint_body_empty">I preset ti permettono di riutilizzare in seguito l\'intera ricetta, inclusi LUT, overlay, tono e grana.</string>
+    <string name="presets_hint_body_ready">Tocca un preset per caricarlo subito, oppure salva la ricetta corrente quando trovi un look da conservare.</string>
 </resources>

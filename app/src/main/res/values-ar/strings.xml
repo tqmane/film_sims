@@ -197,4 +197,13 @@
     <string name="watermark_style_waiting_title">تظهر الانماط بعد اختيار العلامة</string>
     <string name="watermark_style_waiting_body">اختر العلامة اولا حتى تعرض هذه اللوحة انماط العلامة المائية المناسبة.</string>
     <string name="watermark_details_title">التفاصيل</string>
+    <string name="intensity_strength_title">اضبط الشدة العامة اولا</string>
+    <string name="intensity_strength_hint">ارفع او اخفض الاطلالة الرئيسية قبل اضافة التراكبات او الحبيبات او ادوات المقارنة.</string>
+    <string name="overlay_active_title">التراكب نشط: %1$s</string>
+    <string name="overlay_active_hint">اضبط المزج بحيث تبقى الاطلالة الاساسية واضحة مع اضافة طابع لوني اقوى.</string>
+    <string name="compare_active_title">وضع المقارنة مفعل</string>
+    <string name="compare_active_hint">اذا كان اتجاه التقسيم غير مريح فبدله ثم اسحب الفاصل لفحص الاجزاء المهمة من الصورة.</string>
+    <string name="presets_hint_title">احفظ اطلالات قابلة لاعادة الاستخدام</string>
+    <string name="presets_hint_body_empty">تسمح لك الاعدادات المسبقة باعادة استخدام الوصفة الكاملة لاحقا بما يشمل LUT والتراكب والدرجة والحبيبات.</string>
+    <string name="presets_hint_body_ready">اضغط على اعداد مسبق لتحميله فورا، او احفظ الوصفة الحالية عندما تجد اطلالة تستحق الاحتفاظ بها.</string>
 </resources>
