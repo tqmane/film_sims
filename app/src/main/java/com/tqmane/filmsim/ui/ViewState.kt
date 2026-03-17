@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.annotation.StringRes
 import com.tqmane.filmsim.util.CubeLUT
-import com.tqmane.filmsim.util.ReleaseInfo
 import com.tqmane.filmsim.util.WatermarkProcessor
 
 // ─── LCE View State (sealed interface) ─────────────────
@@ -77,7 +76,6 @@ data class WatermarkState(
 sealed interface UiEvent {
     data class ShowToast(@StringRes val messageResId: Int, val formatArgs: Array<Any> = emptyArray()) : UiEvent
     data class ShowRawToast(val message: String) : UiEvent
-    data class ShowUpdateDialog(val release: ReleaseInfo) : UiEvent
     data class ImageSaved(val width: Int, val height: Int, val path: String, val filename: String) : UiEvent
 }
 

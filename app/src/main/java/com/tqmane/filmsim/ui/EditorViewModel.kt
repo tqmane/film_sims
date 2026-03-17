@@ -83,6 +83,9 @@ class EditorViewModel @Inject constructor(
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
+    private val _pendingUpdate = MutableStateFlow<com.tqmane.filmsim.util.ReleaseInfo?>(null)
+    val pendingUpdate: StateFlow<com.tqmane.filmsim.util.ReleaseInfo?> = _pendingUpdate.asStateFlow()
+
     private val _uiEvent = MutableSharedFlow<UiEvent>(extraBufferCapacity = 8)
     val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
@@ -598,9 +601,18 @@ class EditorViewModel @Inject constructor(
 
     fun checkForUpdates() {
         viewModelScope.launch {
-            runCatching { updateChecker.checkForUpdate() }
-                .onSuccess { release -> release?.let { _uiEvent.emit(UiEvent.ShowUpdateDialog(it)) } }
+            val release = try {
+                updateChecker.checkForUpdate()
+            } catch (e: Exception) {
+                _uiEvent.emit(UiEvent.ShowToast(R.string.update_check_failed))
+                null
+            }
+            _pendingUpdate.value = release
         }
+    }
+
+    fun dismissUpdate() {
+        _pendingUpdate.value = null
     }
 
     // ─── Cleanup ────────────────────────────────────────

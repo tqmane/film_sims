@@ -135,7 +135,7 @@ fun EditorScreen(
         }
         var isSelectingOverlay by rememberSaveable { mutableStateOf(false) }
         var showSettings by rememberSaveable { mutableStateOf(false) }
-        var pendingUpdate by remember { mutableStateOf<com.tqmane.filmsim.util.ReleaseInfo?>(null) }
+        val pendingUpdate by viewModel.pendingUpdate.collectAsState()
         var savedBanner by remember { mutableStateOf<UiEvent.ImageSaved?>(null) }
         var compareEnabled by rememberSaveable { mutableStateOf(false) }
         var comparePosition by rememberSaveable { mutableFloatStateOf(0.5f) }
@@ -169,7 +169,6 @@ fun EditorScreen(
                     }
                     is UiEvent.ShowRawToast ->
                         Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                    is UiEvent.ShowUpdateDialog -> pendingUpdate = event.release
                     is UiEvent.ImageSaved -> savedBanner = event
                 }
             }
@@ -393,12 +392,12 @@ fun EditorScreen(
         pendingUpdate?.let { release ->
             UpdateDialog(
                 release = release,
-                onDismiss = { pendingUpdate = null },
+                onDismiss = { viewModel.dismissUpdate() },
                 onUpdate = {
                     context.startActivity(
                         Intent(Intent.ACTION_VIEW, Uri.parse(release.htmlUrl))
                     )
-                    pendingUpdate = null
+                    viewModel.dismissUpdate()
                 }
             )
         }
